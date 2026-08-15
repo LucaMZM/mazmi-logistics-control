@@ -1,0 +1,77 @@
+@use '@angular/material' as mat;
+
+$primary: mat.m2-define-palette(mat.$m2-blue-palette, 700);
+$accent: mat.m2-define-palette(mat.$m2-cyan-palette, 700);
+$warn: mat.m2-define-palette(mat.$m2-red-palette, 700);
+$theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $primary,
+      accent: $accent,
+      warn: $warn,
+    ),
+    typography: mat.m2-define-typography-config(),
+    density: -1,
+  )
+);
+
+@include mat.core();
+@include mat.all-component-themes($theme);
+
+:root {
+  color-scheme: light;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  color: #0f172a;
+  background: #f5f7fa;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #f5f7fa;
+}
+body {
+  min-width: 320px;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+.mat-mdc-form-field {
+  --mdc-outlined-text-field-container-shape: 2px;
+  --mdc-filled-text-field-container-shape: 2px;
+}
+.mat-mdc-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button {
+  --mdc-text-button-container-shape: 2px;
+  --mdc-filled-button-container-shape: 2px;
+  --mdc-outlined-button-container-shape: 2px;
+  letter-spacing: 0 !important;
+}
+.mat-mdc-dialog-surface {
+  --mdc-dialog-container-shape: 2px;
+}
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-shape: 2px;
+}
+.leaflet-container {
+  font-family: inherit;
+}
+::selection {
+  background: #bfdbfe;
+  color: #0f172a;
+}

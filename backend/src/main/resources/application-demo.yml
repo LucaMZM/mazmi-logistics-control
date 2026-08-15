@@ -1,0 +1,12 @@
+app:
+  demo-enabled: ${DEMO_ENABLED:true}
+
+springdoc:
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:true}
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:true}
+
+logging:
+  level:
+    com.mazmi.logistics: INFO

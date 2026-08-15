@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: mazmi-logistics-control
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/mazmi_logistics}
+    username: ${POSTGRES_USER:mazmi}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  jackson:
+    datatype:
+      datetime:
+        write-dates-as-timestamps: false
+
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
+
+app:
+  demo-enabled: ${DEMO_ENABLED:false}
+  security:
+    jwt-secret: ${JWT_SECRET}
+    access-token-minutes: ${JWT_ACCESS_TOKEN_MINUTES:60}
+    secure-cookie: ${COOKIE_SECURE:false}
+    allowed-origin: ${ALLOWED_ORIGIN:http://localhost:4200}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:false}
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:false}
+    path: /swagger-ui.html

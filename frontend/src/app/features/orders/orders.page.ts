@@ -1,0 +1,243 @@
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
+import { RouterLink } from '@angular/router';
+import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { AuthService } from '../../core/auth/auth.service';
+import { ApiService } from '../../core/services/api.service';
+import { FeedbackStateComponent } from '../../shared/components/feedback-state.component';
+import { LoadingStateComponent } from '../../shared/components/loading-state.component';
+import { PageHeaderComponent } from '../../shared/components/page-header.component';
+import { StatusChipComponent } from '../../shared/components/status-chip.component';
+import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/models';
+
+@Component({
+  selector: 'app-orders-page',
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    ReactiveFormsModule,
+    RouterLink,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatPaginatorModule,
+    MatSelectModule,
+    FeedbackStateComponent,
+    LoadingStateComponent,
+    PageHeaderComponent,
+    StatusChipComponent,
+  ],
+  template: `
+    <app-page-header
+      title="Orders"
+      subtitle="Create and manage the complete warehouse-to-delivery workflow."
+    >
+      @if (auth.canOperate()) {
+        <a mat-flat-button color="primary" routerLink="/orders/new">New order</a>
+      }
+    </app-page-header>
+    <section class="filters">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic"
+        ><mat-label>Search orders</mat-label
+        ><input
+          matInput
+          [formControl]="search"
+          placeholder="Order number or customer" /></mat-form-field
+      ><mat-form-field appearance="outline" subscriptSizing="dynamic"
+        ><mat-label>Status</mat-label
+        ><mat-select [formControl]="status"
+          ><mat-option value="">All statuses</mat-option>
+          @for (item of statuses; track item) {
+            <mat-option [value]="item">{{ item.replaceAll('_', ' ') }}</mat-option>
+          }
+        </mat-select></mat-form-field
+      >
+    </section>
+    <section class="table-card">
+      @if (loading()) {
+        <app-loading-state />
+      } @else if (loadError()) {
+        <app-feedback-state
+          kind="error"
+          title="Orders unavailable"
+          message="The order list could not be loaded. Your current filters have been preserved."
+          actionLabel="Retry"
+          (action)="retry()"
+        />
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Warehouse</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Total</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (order of result()?.content; track order.id) {
+                <tr>
+                  <td>
+                    <a [routerLink]="['/orders', order.id]">{{ order.orderNumber }}</a>
+                  </td>
+                  <td>{{ order.customer }}</td>
+                  <td>{{ order.warehouse }}</td>
+                  <td><app-status-chip [status]="order.status" /></td>
+                  <td><app-status-chip [status]="order.priority" /></td>
+                  <td>{{ order.totalAmount | currency: 'EUR' }}</td>
+                  <td>{{ order.createdAt | date: 'mediumDate' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          @if (!result()?.content?.length) {
+            <app-feedback-state
+              title="No orders found"
+              message="Adjust the current filters or create a new draft order."
+            />
+          }
+        </div>
+        @if (result()?.totalElements) {
+          <mat-paginator
+            [length]="result()?.totalElements ?? 0"
+            [pageIndex]="result()?.page ?? 0"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="[10, 20, 50]"
+            (page)="page($event)"
+          />
+        }
+      }
+    </section>
+  `,
+  styles: [
+    `
+      .filters {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .filters mat-form-field:first-child {
+        width: min(420px, 60%);
+      }
+      .filters mat-form-field:last-child {
+        width: 190px;
+      }
+      .table-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+      }
+      .table-wrap {
+        overflow: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+      }
+      th,
+      td {
+        padding: 13px 16px;
+        border-bottom: 1px solid #eef2f7;
+        text-align: left;
+        font-size: 12px;
+      }
+      th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+      td a {
+        color: #1d4ed8;
+        text-decoration: none;
+        font-weight: 800;
+      }
+      @media (max-width: 650px) {
+        .filters {
+          flex-direction: column;
+        }
+        .filters mat-form-field {
+          width: 100% !important;
+        }
+      }
+    `,
+  ],
+})
+export class OrdersPage implements OnInit, OnDestroy {
+  readonly auth = inject(AuthService);
+  private readonly api = inject(ApiService);
+  private readonly destroy$ = new Subject<void>();
+  readonly loading = signal(true);
+  readonly loadError = signal(false);
+  readonly result = signal<PageResponse<OrderSummary> | null>(null);
+  readonly search = new FormControl('', { nonNullable: true });
+  readonly status = new FormControl('', { nonNullable: true });
+  readonly statuses: OrderStatus[] = [
+    'DRAFT',
+    'CONFIRMED',
+    'PREPARING',
+    'READY',
+    'SHIPPED',
+    'DELIVERED',
+    'CANCELLED',
+  ];
+  private pageIndex = 0;
+  pageSize = 20;
+  ngOnInit(): void {
+    this.load();
+    this.search.valueChanges
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.pageIndex = 0;
+        this.load();
+      });
+    this.status.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.pageIndex = 0;
+      this.load();
+    });
+  }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+  page(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.load();
+  }
+  retry(): void {
+    this.load();
+  }
+  private load(): void {
+    this.loading.set(true);
+    this.loadError.set(false);
+    this.api
+      .orders({
+        search: this.search.value,
+        status: this.status.value,
+        page: this.pageIndex,
+        size: this.pageSize,
+      })
+      .subscribe({
+        next: (result) => {
+          this.result.set(result);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loadError.set(true);
+          this.loading.set(false);
+        },
+      });
+  }
+}

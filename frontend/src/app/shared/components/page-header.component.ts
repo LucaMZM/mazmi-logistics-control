@@ -1,0 +1,66 @@
+import { Component, Input } from '@angular/core';
+
+@Component({
+  selector: 'app-page-header',
+  template: `<header>
+    <div>
+      <p>{{ eyebrow }}</p>
+      <h1>{{ title }}</h1>
+      <span>{{ subtitle }}</span>
+    </div>
+    <div class="actions"><ng-content /></div>
+  </header>`,
+  styles: [
+    `
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+      p {
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        font-weight: 700;
+        color: #1d4ed8;
+        text-transform: uppercase;
+        margin: 0 0 6px;
+      }
+      h1 {
+        font-size: 27px;
+        line-height: 1.2;
+        margin: 0;
+        color: #0f172a;
+      }
+      span {
+        display: block;
+        color: #64748b;
+        font-size: 13px;
+        margin-top: 6px;
+      }
+      .actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+      @media (max-width: 700px) {
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .actions {
+          width: 100%;
+          justify-content: flex-start;
+        }
+      }
+    `,
+  ],
+})
+export class PageHeaderComponent {
+  @Input() eyebrow = 'Operations';
+  @Input({ required: true }) title = '';
+  @Input() subtitle = '';
+}

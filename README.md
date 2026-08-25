@@ -12,10 +12,6 @@ The application models one coherent workflow rather than a collection of unrelat
 
 The backend owns prices, stock balances, permissions and state transitions. PostgreSQL constraints and transactional services protect the same invariants enforced by the application layer.
 
-## Screenshots
-
-No placeholder or fabricated screenshots are committed. Verified captures can be placed in `docs/screenshots/` after running the demo locally.
-
 ## Key Features
 
 - Role-based login for `ADMIN`, `OPERATOR` and `VIEWER` users.

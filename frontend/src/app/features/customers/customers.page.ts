@@ -3,7 +3,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, Subscription, takeUntil } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
 import { FeedbackStateComponent } from '../../shared/components/feedback-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state.component';
@@ -92,32 +92,10 @@ import { Customer } from '../../shared/models/models';
         background: #fff;
         border: 1px solid #e2e8f0;
       }
-      .table-wrap {
-        overflow: auto;
-      }
       table {
         width: 100%;
         min-width: 850px;
         border-collapse: collapse;
-      }
-      th,
-      td {
-        padding: 14px 16px;
-        text-align: left;
-        border-bottom: 1px solid #eef2f7;
-        font-size: 11px;
-      }
-      th {
-        font-size: 9px;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        color: #64748b;
-        background: #f8fafc;
-      }
-      td a {
-        color: #1d4ed8;
-        text-decoration: none;
-        font-weight: 800;
       }
     `,
   ],
@@ -125,6 +103,7 @@ import { Customer } from '../../shared/models/models';
 export class CustomersPage implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
   private readonly destroy$ = new Subject<void>();
+  private request?: Subscription;
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly search = new FormControl('', { nonNullable: true });
@@ -143,17 +122,21 @@ export class CustomersPage implements OnInit, OnDestroy {
     this.load();
   }
   private load(): void {
+    this.request?.unsubscribe();
     this.loading.set(true);
     this.loadError.set(false);
-    this.api.customers(this.search.value).subscribe({
-      next: (result) => {
-        this.customers.set(result.content);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loadError.set(true);
-        this.loading.set(false);
-      },
-    });
+    this.request = this.api
+      .customers(this.search.value)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.customers.set(result.content);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loadError.set(true);
+          this.loading.set(false);
+        },
+      });
   }
 }

@@ -102,13 +102,14 @@ export class InventoryActionDialog {
       />
     } @else if (level(); as item) {
       <app-page-header
-        eyebrow="Inventory level"
+        eyebrow="Inventory"
+        backLink="/inventory"
         [title]="item.sku + ' · ' + item.product"
         [subtitle]="item.warehouse"
         ><app-status-chip [status]="item.stockStatus" />
         @if (auth.canOperate()) {
-          <button mat-stroked-button (click)="open('receive')">Receive stock</button
-          ><button mat-flat-button color="primary" (click)="open('adjust')">Adjust stock</button>
+          <button mat-flat-button color="primary" (click)="open('receive')">Receive stock</button
+          ><button mat-stroked-button (click)="open('adjust')">Adjust stock</button>
         }
       </app-page-header>
       <section class="balances">
@@ -125,10 +126,17 @@ export class InventoryActionDialog {
           <span>Reorder level</span><strong>{{ item.reorderLevel }}</strong>
         </article>
       </section>
+      <p class="balance-note">
+        Available stock = on hand − reserved. Reservations are allocated to confirmed orders and
+        cannot be dispatched twice.
+      </p>
       <section class="history">
         <header>
           <h2>Stock movement history</h2>
-          <p>Version {{ item.version }} · updated {{ item.updatedAt | date: 'medium' }}</p>
+          <p>
+            {{ movements().length }} recorded movements · Updated
+            {{ item.updatedAt | date: 'medium' }}
+          </p>
         </header>
         <div class="table-wrap">
           <table>
@@ -136,8 +144,8 @@ export class InventoryActionDialog {
               <tr>
                 <th>Type</th>
                 <th>Note</th>
-                <th class="numeric">On-hand delta</th>
-                <th class="numeric">Reserved delta</th>
+                <th class="numeric">Stock change</th>
+                <th class="numeric">Reservation change</th>
                 <th>Actor</th>
                 <th>Time</th>
               </tr>
@@ -185,13 +193,21 @@ export class InventoryActionDialog {
         padding: 20px;
       }
       .balances span {
-        font-size: 11px;
+        font-size: 13px;
         color: #64748b;
       }
       .balances strong {
         display: block;
         font-size: 27px;
         margin-top: 10px;
+      }
+      .balances article:nth-child(3) {
+        border-top: 3px solid #176b87;
+      }
+      .balance-note {
+        font-size: 13px;
+        color: #5c6f7e;
+        margin: 0 0 20px;
       }
       .history {
         background: #fff;
@@ -210,26 +226,10 @@ export class InventoryActionDialog {
         color: #64748b;
         margin: 4px 0 0;
       }
-      .table-wrap {
-        overflow: auto;
-      }
       table {
         width: 100%;
         min-width: 850px;
         border-collapse: collapse;
-      }
-      th,
-      td {
-        padding: 13px 16px;
-        border-bottom: 1px solid #eef2f7;
-        text-align: left;
-        font-size: 11px;
-      }
-      th {
-        background: #f8fafc;
-        color: #64748b;
-        text-transform: uppercase;
-        font-size: 9px;
       }
       .numeric {
         text-align: right;

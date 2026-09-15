@@ -1,193 +1,281 @@
 # Mazmi Logistics Control
 
-A full-stack logistics operations platform for managing orders, inventory, shipments, fleet, incidents and simulated real-time tracking.
+Plataforma full-stack de operaciones logísticas para coordinar pedidos, inventario, envíos, flota, incidencias y seguimiento simulado en tiempo real desde un único panel.
 
-> **Functional portfolio/demo application.** Mazmi Logistics Control does not represent a real company. All customers, contacts, drivers, licence numbers, registration plates, products, orders, positions and operational events in the demo environment are fictional. Tracking is an internal deterministic simulation; the application does not consume private logistics information or real GPS data.
+## Índice
 
-## Overview
+- [Descripción](#descripción)
+- [Capturas](#capturas)
+- [Problema que resuelve](#problema-que-resuelve)
+- [Flujo principal](#flujo-principal)
+- [Funcionalidades](#funcionalidades)
+- [Roles](#roles)
+- [Stack técnico](#stack-técnico)
+- [Arquitectura](#arquitectura)
+- [Instalación con Docker](#instalación-con-docker)
+- [Usuarios demo](#usuarios-demo)
+- [API y WebSocket](#api-y-websocket)
+- [Tests y CI](#tests-y-ci)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Documentación](#documentación)
+- [Próximas mejoras](#próximas-mejoras)
+- [Autor](#autor)
+- [Licencia](#licencia)
 
-The application models one coherent workflow rather than a collection of unrelated CRUD screens:
+## Descripción
 
-`Customer → Draft order → Stock reservation → Preparation → Shipment → Fleet assignment → Dispatch → Simulated tracking → Delivery`
+Mazmi Logistics Control representa una operación logística conectada de principio a fin. Los pedidos de clientes se relacionan con almacenes, productos y existencias; su confirmación reserva stock, la preparación genera un envío y la salida coordina inventario, conductor, vehículo y eventos de seguimiento.
 
-The backend owns prices, stock balances, permissions and state transitions. PostgreSQL constraints and transactional services protect the same invariants enforced by the application layer.
+La aplicación no plantea estos módulos como CRUD independientes. El backend controla precios, permisos, transiciones de estado y movimientos de stock para mantener un flujo operativo coherente entre todas las áreas.
 
-## Key Features
+Los datos del perfil demo son ficticios. Las posiciones de los envíos se calculan mediante una simulación interna y no proceden de dispositivos GPS reales.
 
-- Role-based login for `ADMIN`, `OPERATOR` and `VIEWER` users.
-- Draft order creation with customer address snapshots and server-owned product prices.
-- Atomic stock reservation, release and dispatch with an immutable movement ledger.
-- Explicit order and shipment state transitions; arbitrary status updates are not exposed.
-- Driver and vehicle assignment with availability, uniqueness and capacity checks.
-- Large Leaflet shipment map using OpenStreetMap tiles and a clearly labelled simulated route.
-- Deterministic backend simulation with STOMP updates, milestone events and automatic delivery at 100%.
-- Operational incidents that affect delivery health and ETA, with a resolution workflow.
-- Aggregated dashboard endpoint with KPIs, seven-day volume, critical inventory and live map items.
-- Paginated and filtered operational lists.
-- Idempotent demo seeding with current relative timestamps and internally consistent stock.
-- OpenAPI, Actuator health, Docker topology and GitHub Actions validation.
+## Capturas
 
-## Demo Flow
+### Visión operativa
 
-1. Sign in as the operator.
-2. Create a draft order and add active products.
-3. Confirm it; stock becomes reserved in one transaction.
-4. Start preparation and mark the order ready; a shipment is created.
-5. Assign an available driver and a vehicle with sufficient capacity.
-6. Start the shipment; reserved stock is dispatched and fleet resources become busy.
-7. Start **Simulated tracking** and watch the marker, ETA, progress and timeline update without refresh.
-8. Simulate a traffic incident; delivery health changes to `DELAYED` and the ETA moves.
-9. Resolve the incident, then continue the simulation.
-10. At 100%, the shipment and order become delivered and the driver and vehicle return to available.
+![Dashboard de Mazmi Logistics Control con indicadores, mapa de envíos, incidencias e inventario crítico](docs/screenshots/dashboard.png)
 
-## Architecture
+### Seguimiento simulado de envíos
+
+![Detalle de un envío con ruta simulada, progreso, flota asignada, timeline e incidencia abierta](docs/screenshots/shipment-tracking.png)
+
+<table>
+  <tr>
+    <td width="33%"><img src="docs/screenshots/orders.png" alt="Registro de pedidos con filtros y estados operativos"><br><strong>Pedidos</strong></td>
+    <td width="33%"><img src="docs/screenshots/inventory.png" alt="Inventario por almacén con existencias, reservas y disponibilidad"><br><strong>Inventario</strong></td>
+    <td width="33%"><img src="docs/screenshots/incidents.png" alt="Registro de incidencias con severidad y estado"><br><strong>Incidencias</strong></td>
+  </tr>
+</table>
+
+## Problema que resuelve
+
+Una operación logística necesita coordinar información que suele quedar repartida entre sistemas o registros separados:
+
+- pedidos de clientes y direcciones de entrega;
+- almacenes, productos y niveles de inventario;
+- reservas de stock y movimientos posteriores;
+- preparación y expedición de pedidos;
+- asignación de conductores y vehículos;
+- seguimiento del envío y estimación de entrega;
+- incidencias operativas y su resolución;
+- confirmación final de la entrega.
+
+Mazmi Logistics Control reúne este ciclo en una única aplicación y mantiene la relación entre cada decisión operativa y sus efectos sobre pedidos, inventario, envíos y flota.
+
+## Flujo principal
+
+`Cliente → Pedido → Reserva de stock → Preparación → Envío → Asignación de flota → Salida → Seguimiento → Entrega`
+
+Un pedido nace como borrador con precios obtenidos del catálogo del servidor. Al confirmarlo, el backend reserva todas sus líneas dentro de una transacción. Cuando la preparación termina, se crea el envío; al iniciar la ruta, el stock reservado se despacha y los recursos de flota pasan a estar ocupados. La entrega actualiza conjuntamente pedido, envío, conductor y vehículo.
+
+Las transiciones se exponen como acciones de negocio explícitas. Las transacciones de Spring, las restricciones de PostgreSQL, el historial de movimientos y el bloqueo optimista del inventario protegen la consistencia durante todo el flujo.
+
+## Funcionalidades
+
+### Dashboard
+
+- KPIs de pedidos del día, envíos activos, envíos retrasados e incidencias abiertas.
+- Volumen de pedidos de los últimos siete días.
+- Inventario crítico y últimas incidencias.
+- Mapa de envíos activos con estado de entrega y progreso simulado.
+- Endpoint agregado para evitar múltiples consultas independientes desde el frontend.
+
+### Pedidos
+
+- Creación de pedidos en estado borrador con cliente, almacén, prioridad y dirección de entrega.
+- Precios de producto y totales calculados por el backend.
+- Listado paginado, filtros y vista de detalle.
+- Transiciones explícitas de confirmación, preparación y pedido listo.
+- Cancelación controlada con liberación de reservas cuando corresponde.
+- Creación automática del envío al completar la preparación.
+
+### Inventario
+
+- Existencias por producto y almacén.
+- Cálculo de disponibilidad como `on_hand - reserved`.
+- Recepciones y ajustes mediante operaciones controladas.
+- Reserva, liberación y expedición vinculadas al pedido.
+- Historial inmutable de movimientos de stock.
+- Restricciones de integridad y bloqueo optimista para evitar balances inválidos.
+
+### Envíos
+
+- Creación, asignación, salida, entrega y cancelación según el estado permitido.
+- Asignación de conductor y vehículo con validaciones de disponibilidad y capacidad.
+- Expedición transaccional del inventario reservado.
+- Estado operativo separado de la salud de entrega: `ON_TIME`, `AT_RISK` o `DELAYED`.
+- Historial cronológico de eventos de tracking.
+
+### Seguimiento simulado
+
+- Simulación iniciable y pausable para envíos en tránsito.
+- Actualización periódica de progreso, posición y ETA.
+- Ruta visual entre almacén y destino sobre un mapa Leaflet.
+- Checkpoints persistidos en hitos operativos.
+- Actualizaciones en tiempo real mediante STOMP/WebSocket.
+- Entrega automática al alcanzar el 100 % del recorrido simulado.
+
+### Flota
+
+- Gestión de conductores y vehículos.
+- Estados de disponibilidad sincronizados con los envíos.
+- Validación de recursos activos, asignaciones concurrentes y capacidad del vehículo.
+- Liberación automática de conductor y vehículo al completar la entrega.
+
+### Incidencias
+
+- Listado y detalle de incidencias asociadas a envíos.
+- Tipos operativos como tráfico, vehículo, meteorología o dirección.
+- Impacto sobre la salud de entrega y la ETA.
+- Resolución con nota, fecha y eventos de seguimiento asociados.
+
+### Seguridad
+
+- Autenticación stateless mediante JWT firmado en cookie `HttpOnly`.
+- Protección CSRF compatible con Angular y cookies `SameSite`.
+- Autorización por rol aplicada en el backend.
+- CORS limitado al origen configurado.
+- Precios, actores y estados de negocio controlados por el servidor.
+- Contraseñas almacenadas como hashes BCrypt.
+
+## Roles
+
+| Rol        | Permisos principales                                                                                                                     |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADMIN`    | Consulta y gestiona la operación logística completa. También administra usuarios y contraseñas.                                          |
+| `OPERATOR` | Consulta los datos operativos y gestiona pedidos, inventario, envíos, flota, incidencias y catálogos logísticos. No administra usuarios. |
+| `VIEWER`   | Acceso autenticado de solo lectura a los datos operativos. No puede ejecutar mutaciones.                                                 |
+
+Los guards de Angular adaptan la interfaz al rol, mientras que Spring Security constituye la barrera efectiva de autorización.
+
+## Stack técnico
+
+| Área                  | Tecnología                               | Versión                                   |
+| --------------------- | ---------------------------------------- | ----------------------------------------- |
+| Frontend              | Angular                                  | 22.1.1                                    |
+| Lenguaje frontend     | TypeScript                               | 6.0.3                                     |
+| UI y estilos          | Angular Material 22.1.1 / SCSS           | 22.1.1                                    |
+| Programación reactiva | RxJS                                     | 7.8.2                                     |
+| Mapas                 | Leaflet 1.9.4 / OpenStreetMap            | 1.9.4                                     |
+| Gráficos              | Chart.js                                 | 4.5.1                                     |
+| Cliente realtime      | STOMP.js                                 | 7.3.0                                     |
+| Backend               | Spring Boot / Java                       | 4.1.0 / 21                                |
+| Seguridad             | Spring Security / JJWT                   | 7.1.0 / 0.12.6                            |
+| Persistencia          | Spring Data JPA / Hibernate ORM          | 4.1.0 / 7.4.1.Final                       |
+| Base de datos         | PostgreSQL / JDBC Driver                 | 17 / 42.7.11                              |
+| Migraciones           | Flyway                                   | 12.4.0                                    |
+| API                   | REST (`/api/v1`) / springdoc-openapi     | v1 / 3.0.3                                |
+| Tests frontend        | Vitest                                   | 4.1.10                                    |
+| Tests backend         | JUnit Jupiter / Mockito / Testcontainers | 6.0.3 / 5.23.0 / 1.21.4                   |
+| Runtime frontend      | Node.js / npm                            | 24.15.0 / 10.9.7                          |
+| Infraestructura       | Docker Compose / Nginx                   | Compose v2 / 1.28                         |
+| Integración continua  | GitHub Actions                           | checkout v7, setup-node v7, setup-java v5 |
+
+## Arquitectura
 
 ```mermaid
 flowchart LR
-    UI["Angular 22 SPA"]
-    API["Spring Boot 4.1 modular monolith"]
+    SPA["Angular SPA"]
+    NGINX["Nginx"]
+    API["Spring Boot modular monolith"]
     DB[("PostgreSQL")]
-    WS["STOMP topics"]
-    SIM["Demo simulation scheduler"]
 
-    UI -->|"REST /api/v1 · cookie auth + CSRF"| API
-    API -->|"JPA + Flyway"| DB
-    SIM --> API
-    API --> WS
-    WS -->|"Shipment and dashboard DTOs"| UI
+    SPA -->|"REST /api/v1 · STOMP /ws"| NGINX
+    NGINX --> API
+    API -->|"JPA · Flyway"| DB
 ```
 
-The source is organised by domain (`orders`, `inventory`, `shipments`, `fleet`, `incidents`, and so on) inside a modular monolith. See [docs/architecture.md](docs/architecture.md) for the main boundaries and security decisions.
+El frontend es una SPA Angular servida por Nginx. Las peticiones REST bajo `/api/v1` y la conexión WebSocket `/ws` se redirigen al backend Spring Boot. La persistencia utiliza Spring Data JPA sobre PostgreSQL, con un esquema creado y versionado exclusivamente mediante Flyway.
 
-## Technology Stack
+El backend mantiene una arquitectura monolítica modular organizada por dominios: autenticación, usuarios, clientes, almacenes, productos, inventario, pedidos, flota, envíos, incidencias, simulación y dashboard. Los controladores trabajan con DTOs y los servicios concentran las reglas transaccionales y las transiciones de estado.
 
-| Layer | Technology |
-| --- | --- |
-| Frontend | Angular 22.1, TypeScript 6.0, standalone components, Signals, RxJS, Angular Material, SCSS |
-| Realtime and visualisation | STOMP WebSocket, Leaflet 1.9, OpenStreetMap, Chart.js 4.5 |
-| Backend | Java 21, Spring Boot 4.1, Spring MVC, Spring Security, Spring Data JPA |
-| Data | PostgreSQL 17, Flyway, UUID, `TIMESTAMPTZ`, optimistic locking |
-| API and operations | springdoc-openapi 3, Actuator |
-| Verification | JUnit 5, Mockito, Testcontainers PostgreSQL, Vitest, ESLint, Prettier, Spotless |
-| Runtime | Node 24.15, Maven Wrapper, Docker Compose, Nginx |
+Más detalle en [Arquitectura](docs/architecture.md) y [Modelo de datos](docs/data-model.md).
 
-## Data Model
+## Instalación con Docker
 
-```mermaid
-erDiagram
-    CUSTOMER ||--o{ ORDER : places
-    WAREHOUSE ||--o{ ORDER : fulfils
-    ORDER ||--|{ ORDER_ITEM : contains
-    PRODUCT ||--o{ ORDER_ITEM : referenced_by
-    WAREHOUSE ||--o{ INVENTORY_LEVEL : stores
-    PRODUCT ||--o{ INVENTORY_LEVEL : stocked_as
-    INVENTORY_LEVEL ||--o{ STOCK_MOVEMENT : records
-    ORDER ||--o| SHIPMENT : creates
-    DRIVER ||--o{ SHIPMENT : assigned_to
-    VEHICLE ||--o{ SHIPMENT : assigned_to
-    SHIPMENT ||--o{ TRACKING_EVENT : records
-    SHIPMENT ||--o{ INCIDENT : has
+### Requisitos
+
+- Docker con Docker Compose v2.
+- Puertos locales `4200`, `8080` y `5432` disponibles.
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/LucaMZM/mazmi-logistics-control.git
+cd mazmi-logistics-control
 ```
 
-The detailed field and invariant notes are in [docs/data-model.md](docs/data-model.md).
-
-## Real-Time Simulation
-
-Only `IN_TRANSIT` shipments can start the demo simulation. Every five seconds the backend advances a deterministic progress value, interpolates a curved display path between the warehouse and the order's destination snapshot, recalculates position and ETA, and publishes a small DTO to `/topic/shipments/{id}` and `/topic/dashboard`.
-
-Milestone events are stored at 25%, 50% and 75%; a database row is not written for every tick. The display route is not presented as a road route and no geocoding or mapping API key is required.
-
-## Roles & Permissions
-
-| Capability | ADMIN | OPERATOR | VIEWER |
-| --- | :---: | :---: | :---: |
-| Read operational data | Yes | Yes | Yes |
-| Orders, stock, shipments, fleet and incidents | Yes | Yes | No |
-| User administration | Yes | No | No |
-
-Angular guards hide unavailable actions for a clearer experience. Spring Security method authorization remains the enforcement boundary.
-
-## API
-
-- Base URL: `http://localhost:8080/api/v1`
-- Swagger UI when `SWAGGER_ENABLED=true`: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON when `SWAGGER_ENABLED=true`: `http://localhost:8080/v3/api-docs`
-- Health: `http://localhost:8080/actuator/health`
-- WebSocket handshake: `ws://localhost:8080/ws`
-
-Important endpoints use business verbs such as `/orders/{id}/confirm`, `/shipments/{id}/start` and `/incidents/{id}/resolve`. Errors use a stable structure containing HTTP status, business code, message, path, timestamp and field errors.
-
-## Running with Docker
-
-Requirements: Docker with Compose v2.
+### 2. Preparar el entorno
 
 ```bash
 cp .env.example .env
 ```
 
-Set a strong local database password and a random `JWT_SECRET` of at least 32 characters in `.env`. The example intentionally leaves both values empty so an unchanged configuration fails fast instead of starting with predictable credentials. Then run:
+Antes de iniciar los contenedores, configura en `.env`:
+
+| Variable            | Requisito                                                |
+| ------------------- | -------------------------------------------------------- |
+| `POSTGRES_PASSWORD` | Contraseña local obligatoria para PostgreSQL.            |
+| `JWT_SECRET`        | Secreto aleatorio obligatorio de al menos 32 caracteres. |
+
+`.env.example` ya define el nombre de base de datos, usuario, perfil demo, origen local, Swagger y política de cookie apropiados para desarrollo. En un despliegue con HTTPS debe utilizarse `COOKIE_SECURE=true`.
+
+### 3. Iniciar la aplicación
 
 ```bash
 docker compose up --build
 ```
 
-Open `http://localhost:4200`. PostgreSQL persists in the named `postgres_data` volume. Stop the stack with:
+Compose crea PostgreSQL, espera a su healthcheck, inicia el backend y finalmente publica el frontend Nginx.
+
+| Recurso      | URL                                                                            |
+| ------------ | ------------------------------------------------------------------------------ |
+| Aplicación   | [http://localhost:4200](http://localhost:4200)                                 |
+| Swagger UI   | [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html) |
+| OpenAPI JSON | [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)         |
+| Health       | [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health) |
+
+Para detener los servicios sin eliminar el volumen de PostgreSQL:
 
 ```bash
 docker compose down
 ```
 
-Use `docker compose down -v` only when you intentionally want to remove all local demo database data.
+## Usuarios demo
 
-The Compose defaults enable fictional demo data and Swagger. Set `DEMO_ENABLED=false`, use a non-demo Spring profile and set `SWAGGER_ENABLED=false` when you want an empty, documentation-disabled environment. Set `COOKIE_SECURE=true` whenever the application is served over HTTPS.
+Las siguientes cuentas se crean únicamente cuando el perfil y el seeder demo están habilitados. La contraseña común es `Demo2026!`.
 
-## Local Development
+| Rol        | Email                          | Alcance                                         |
+| ---------- | ------------------------------ | ----------------------------------------------- |
+| `ADMIN`    | `admin@mazmilogistics.test`    | Operación completa y administración de usuarios |
+| `OPERATOR` | `operator@mazmilogistics.test` | Gestión de la operación logística               |
+| `VIEWER`   | `viewer@mazmilogistics.test`   | Consulta de solo lectura                        |
 
-Requirements: Java 21 and a Node version supported by Angular 22 (`.nvmrc` pins Node 24.15.0).
+## API y WebSocket
 
-Create the local environment file, fill in `POSTGRES_PASSWORD` and `JWT_SECRET`, export it into the current shell and start PostgreSQL:
+La API REST utiliza la base `/api/v1`, paginación en los listados operativos y acciones explícitas para las transiciones de negocio. Algunos endpoints representativos son:
 
-```bash
-cp .env.example .env
-set -a
-source .env
-set +a
-docker compose up -d postgres
-```
+| Método y ruta                                  | Operación                                 |
+| ---------------------------------------------- | ----------------------------------------- |
+| `POST /api/v1/orders/{id}/confirm`             | Confirmar el pedido y reservar stock      |
+| `POST /api/v1/orders/{id}/start-preparation`   | Iniciar la preparación                    |
+| `POST /api/v1/orders/{id}/mark-ready`          | Completar la preparación y crear el envío |
+| `POST /api/v1/shipments/{id}/assign`           | Asignar conductor y vehículo              |
+| `POST /api/v1/shipments/{id}/start`            | Despachar stock e iniciar el envío        |
+| `POST /api/v1/shipments/{id}/simulation/start` | Iniciar el seguimiento simulado           |
+| `POST /api/v1/incidents/{id}/resolve`          | Resolver una incidencia                   |
 
-In that same terminal, start the backend:
+El endpoint STOMP es `ws://localhost:8080/ws`. Durante la simulación, el backend publica actualizaciones compactas en:
 
-```bash
-cd backend
-SPRING_PROFILES_ACTIVE=demo ./mvnw spring-boot:run
-```
+- `/topic/shipments/{id}`: detalle en tiempo real de un envío;
+- `/topic/dashboard`: actualizaciones para el mapa y los indicadores operativos.
 
-In a second terminal:
+La autenticación WebSocket utiliza la misma cookie JWT que la API.
 
-```bash
-nvm use
-cd frontend
-npm ci
-npm run start
-```
+## Tests y CI
 
-The Angular development proxy forwards `/api` and `/ws` to port 8080, so application code always uses relative URLs.
-
-## Demo Accounts
-
-These accounts exist only when demo seeding is enabled.
-
-| Role | Email | Password |
-| --- | --- | --- |
-| ADMIN | `admin@mazmilogistics.test` | `Demo2026!` |
-| OPERATOR | `operator@mazmilogistics.test` | `Demo2026!` |
-| VIEWER | `viewer@mazmilogistics.test` | `Demo2026!` |
-
-Passwords are stored as BCrypt hashes. Demo users are not created when the demo flag/profile is disabled.
-
-## Testing
-
-Frontend:
+### Frontend
 
 ```bash
 cd frontend
@@ -198,7 +286,9 @@ npm run test
 npm run build
 ```
 
-Backend:
+La suite utiliza Vitest para servicios, autenticación, guards, manejo HTTP, formularios, acciones de pedidos y actualizaciones WebSocket.
+
+### Backend
 
 ```bash
 cd backend
@@ -206,31 +296,43 @@ cd backend
 ./mvnw verify
 ```
 
-PostgreSQL integration and constraint tests use Testcontainers and require a running Docker daemon; the build fails rather than silently skipping them when Docker is unavailable.
+El backend combina JUnit Jupiter, Mockito y tests de integración contra PostgreSQL real mediante Testcontainers. Se validan reglas de inventario, restricciones de base de datos, seguridad, transiciones, asignación de flota, capacidad y rollback transaccional.
 
-## CI
+El workflow de GitHub Actions ejecuta jobs independientes para frontend y backend con Node.js 24.15.0 y Java 21. Formato, lint, tests y builds forman parte de la validación automatizada.
 
-`.github/workflows/ci.yml` runs separate frontend and backend jobs on GitHub-hosted Linux runners. Formatting, lint, unit/integration tests and builds are required to pass.
-
-## Project Structure
+## Estructura del proyecto
 
 ```text
-frontend/                 Angular application and Nginx image
-backend/                  Spring Boot modular monolith and Flyway migrations
-docs/                     Architecture and data model notes
-.github/workflows/ci.yml  Validation pipeline
-docker-compose.yml        PostgreSQL, backend and frontend topology
+mazmi-logistics-control/
+├── frontend/                  Angular SPA y configuración Nginx
+├── backend/                   Spring Boot, dominios y migraciones Flyway
+├── docs/
+│   ├── architecture.md        Decisiones y límites de arquitectura
+│   └── data-model.md          Entidades, relaciones e invariantes
+├── .github/workflows/ci.yml   Validación automatizada
+├── docker-compose.yml         PostgreSQL, backend y frontend
+└── .env.example               Variables locales sin secretos
 ```
 
-## Roadmap
+## Documentación
 
-- Partial shipments and warehouse transfers
-- Advanced route planning backed by a real routing provider
-- CSV/PDF operational exports
-- Notification centre
-- Browser-level end-to-end test suite
-- Richer analytics and vehicle maintenance workflows
+- [Arquitectura del sistema](docs/architecture.md)
+- [Modelo de datos e invariantes](docs/data-model.md)
+- [Especificación OpenAPI](http://localhost:8080/v3/api-docs), disponible con el entorno demo en ejecución
 
-## License
+## Próximas mejoras
 
-Released under the [MIT License](LICENSE).
+- Envíos parciales y transferencias entre almacenes.
+- Integración opcional con un proveedor real de rutas.
+- Exportaciones operativas en CSV y PDF.
+- Suite end-to-end de navegador y mayor cobertura de accesibilidad.
+
+## Autor
+
+**Luca Mazmishvili**
+
+Desarrollador web · Valencia, España
+
+## Licencia
+
+Este proyecto se distribuye bajo la [licencia MIT](LICENSE).

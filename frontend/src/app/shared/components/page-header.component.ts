@@ -1,10 +1,18 @@
 import { Component, Input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-page-header',
+  imports: [RouterLink],
   template: `<header>
     <div>
-      <p>{{ eyebrow }}</p>
+      <p>
+        @if (backLink) {
+          <a [routerLink]="backLink">‹ {{ eyebrow }}</a>
+        } @else {
+          {{ eyebrow }}
+        }
+      </p>
       <h1>{{ title }}</h1>
       <span>{{ subtitle }}</span>
     </div>
@@ -27,8 +35,19 @@ import { Component, Input } from '@angular/core';
         text-transform: uppercase;
         margin: 0 0 6px;
       }
+      p a {
+        color: #176b87;
+        text-decoration: none;
+        display: inline-block;
+        padding: 3px 0;
+      }
+      p a:hover {
+        text-decoration: underline;
+      }
       h1 {
-        font-size: 27px;
+        font-size: clamp(24px, 2.2vw, 30px);
+        letter-spacing: -0.035em;
+        overflow-wrap: anywhere;
         line-height: 1.2;
         margin: 0;
         color: #0f172a;
@@ -36,7 +55,8 @@ import { Component, Input } from '@angular/core';
       span {
         display: block;
         color: #64748b;
-        font-size: 13px;
+        font-size: 14px;
+        line-height: 1.6;
         margin-top: 6px;
       }
       .actions {
@@ -63,4 +83,5 @@ export class PageHeaderComponent {
   @Input() eyebrow = 'Operations';
   @Input({ required: true }) title = '';
   @Input() subtitle = '';
+  @Input() backLink = '';
 }

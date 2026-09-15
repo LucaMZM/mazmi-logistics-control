@@ -4,17 +4,26 @@ import { Component, Input } from '@angular/core';
   selector: 'app-metric-card',
   template: `<article [attr.data-tone]="tone">
     <span>{{ label }}</span
-    ><strong>{{ value }}</strong
-    ><small>{{ detail }}</small>
+    ><strong>{{ value }}</strong>
+    @if (detail) {
+      <small>{{ detail }}</small>
+    }
   </article>`,
   styles: [
     `
+      :host {
+        display: block;
+        height: 100%;
+      }
       article {
+        height: 100%;
         background: #fff;
         border: 1px solid #e2e8f0;
-        padding: 18px 20px;
-        min-height: 104px;
-        border-left: 3px solid #1d4ed8;
+        padding: 20px 22px;
+        min-height: 130px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border-top: 3px solid #176b87;
       }
       span {
         font-size: 12px;
@@ -23,23 +32,25 @@ import { Component, Input } from '@angular/core';
       }
       strong {
         display: block;
-        font-size: 28px;
+        font-size: 34px;
+        letter-spacing: -0.04em;
+        font-variant-numeric: tabular-nums;
         line-height: 1;
         margin: 13px 0 7px;
         color: #0f172a;
       }
       small {
         font-size: 11px;
-        color: #94a3b8;
+        color: #5c6f7e;
       }
       article[data-tone='danger'] {
-        border-left-color: #dc2626;
+        border-top-color: #c74444;
       }
       article[data-tone='warning'] {
-        border-left-color: #d97706;
+        border-top-color: #c18022;
       }
       article[data-tone='tracking'] {
-        border-left-color: #0891b2;
+        border-top-color: #268e93;
       }
     `,
   ],
@@ -47,6 +58,6 @@ import { Component, Input } from '@angular/core';
 export class MetricCardComponent {
   @Input({ required: true }) label = '';
   @Input() value: number | string = '—';
-  @Input() detail = 'Live operational total';
+  @Input() detail = '';
   @Input() tone = 'primary';
 }

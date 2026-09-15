@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { filter, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
+import { filter, finalize, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { ApiService } from '../../core/services/api.service';
 import { RealtimeService } from '../../core/websocket/realtime.service';
@@ -27,6 +27,7 @@ import { mergeShipmentRealtime } from './shipment-update';
   selector: 'app-shipment-detail-page',
   imports: [
     DatePipe,
+    DecimalPipe,
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,
@@ -51,14 +52,41 @@ import { mergeShipmentRealtime } from './shipment-update';
       />
     } @else if (shipment(); as item) {
       <app-page-header
-        eyebrow="Shipment"
+        eyebrow="Shipments"
+        backLink="/shipments"
         [title]="item.trackingNumber"
         subtitle="Simulated tracking · positions are not real GPS data"
         ><app-status-chip [status]="item.status" /><app-status-chip [status]="item.deliveryHealth"
       /></app-page-header>
+      <div class="tracking-strip" role="status">
+        <span
+          ><i [class.active]="item.simulationActive"></i
+          >{{
+            item.status === 'DELIVERED'
+              ? 'Delivery complete'
+              : item.status === 'CANCELLED'
+                ? 'Shipment cancelled'
+                : item.status === 'CREATED'
+                  ? 'Awaiting fleet assignment'
+                  : item.status === 'ASSIGNED'
+                    ? 'Ready for departure'
+                    : item.simulationActive
+                      ? 'Simulation running'
+                      : 'Simulation paused'
+          }}</span
+        >
+        <span
+          >{{ item.currentLatitude | number: '1.4-4' }},
+          {{ item.currentLongitude | number: '1.4-4' }}</span
+        >
+        @if (pending()) {
+          <strong>Updating shipment…</strong>
+        }
+        <a routerLink="/shipments">All shipments</a>
+      </div>
       <section class="hero">
         <article class="map-panel">
-          <div class="map-label"><span></span>Simulated route</div>
+          <div class="map-label"><span></span>Simulated tracking</div>
           <app-operations-map [points]="mapPoints()" [route]="routePoints()" />
         </article>
         <aside class="summary">
@@ -94,7 +122,8 @@ import { mergeShipmentRealtime } from './shipment-update';
             <span [style.width.%]="item.progress"></span>
           </div>
           @if (auth.canOperate()) {
-            <div class="controls">
+            <fieldset class="controls" [disabled]="pending()">
+              <legend class="sr-only">Shipment actions</legend>
               @if (item.status === 'CREATED') {
                 <mat-form-field appearance="outline"
                   ><mat-label>Driver</mat-label
@@ -131,14 +160,19 @@ import { mergeShipmentRealtime } from './shipment-update';
                 <button
                   mat-flat-button
                   color="primary"
-                  [disabled]="!driver.value || !vehicle.value"
+                  [disabled]="pending() || !driver.value || !vehicle.value"
                   (click)="assign()"
                 >
                   Assign shipment
                 </button>
               }
               @if (item.status === 'ASSIGNED') {
-                <button mat-flat-button color="primary" (click)="shipmentAction('start')">
+                <button
+                  mat-flat-button
+                  color="primary"
+                  [disabled]="pending()"
+                  (click)="shipmentAction('start')"
+                >
                   Start shipment
                 </button>
               }
@@ -146,6 +180,7 @@ import { mergeShipmentRealtime } from './shipment-update';
                 <button
                   mat-flat-button
                   color="primary"
+                  [disabled]="pending()"
                   (click)="simulation(item.simulationActive ? 'pause' : 'start')"
                 >
                   {{ item.simulationActive ? 'Pause simulation' : 'Start simulation' }}</button
@@ -157,11 +192,18 @@ import { mergeShipmentRealtime } from './shipment-update';
                     ><mat-option value="WEATHER">Weather</mat-option
                     ><mat-option value="ADDRESS">Address issue</mat-option></mat-select
                   ></mat-form-field
-                ><button mat-stroked-button color="warn" (click)="simulateIncident()">
+                ><button
+                  mat-stroked-button
+                  color="warn"
+                  [disabled]="pending()"
+                  (click)="simulateIncident()"
+                >
                   Simulate incident</button
-                ><button mat-stroked-button (click)="deliver()">Deliver manually</button>
+                ><button mat-button [disabled]="pending()" (click)="deliver()">
+                  Deliver manually
+                </button>
               }
-            </div>
+            </fieldset>
           }
         </aside>
       </section>
@@ -212,7 +254,7 @@ import { mergeShipmentRealtime } from './shipment-update';
     `
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 2fr) 370px;
+        grid-template-columns: minmax(0, 2fr) 340px;
         gap: 18px;
         margin-bottom: 18px;
       }
@@ -226,7 +268,8 @@ import { mergeShipmentRealtime } from './shipment-update';
       }
       .map-panel {
         position: relative;
-        height: 590px;
+        min-height: 470px;
+        height: 100%;
       }
       .map-panel app-operations-map {
         display: block;
@@ -237,7 +280,9 @@ import { mergeShipmentRealtime } from './shipment-update';
         z-index: 500;
         left: 15px;
         top: 15px;
-        background: #fff;
+        background: rgb(255 255 255 / 94%);
+        backdrop-filter: blur(8px);
+        border-radius: 6px;
         border: 1px solid #e2e8f0;
         padding: 7px 10px;
         font-size: 10px;
@@ -312,6 +357,9 @@ import { mergeShipmentRealtime } from './shipment-update';
         transition: width 0.4s;
       }
       .controls {
+        border: 0;
+        margin: 0;
+        min-width: 0;
         border-top: 1px solid #e2e8f0;
         padding: 18px;
         display: grid;
@@ -330,6 +378,16 @@ import { mergeShipmentRealtime } from './shipment-update';
         display: grid;
         grid-template-columns: 1.4fr 1fr;
         gap: 18px;
+        align-items: start;
+      }
+      .incidents {
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+      .timeline ol {
+        max-height: 540px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
       }
       .timeline header h2,
       .incidents header h2 {
@@ -382,16 +440,16 @@ import { mergeShipmentRealtime } from './shipment-update';
         box-shadow: 0 0 0 1px #dc2626;
       }
       .timeline strong {
-        font-size: 11px;
+        font-size: 12px;
       }
       .timeline p {
-        font-size: 11px;
+        font-size: 13px;
         color: #475569;
         margin: 5px 0;
       }
       .timeline div > span {
-        font-size: 9px;
-        color: #94a3b8;
+        font-size: 11px;
+        color: #64748b;
       }
       .incidents > a {
         display: flex;
@@ -419,7 +477,41 @@ import { mergeShipmentRealtime } from './shipment-update';
       .empty {
         padding: 35px;
         color: #64748b;
-        font-size: 11px;
+        font-size: 13px;
+      }
+      .tracking-strip {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding: 12px 16px;
+        background: #edf4f7;
+        border: 1px solid #d5e5ed;
+        border-radius: 7px;
+        margin-bottom: 18px;
+        font-size: 12px;
+        color: #375a6d;
+      }
+      .tracking-strip span:first-child {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+      }
+      .tracking-strip i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #738796;
+      }
+      .tracking-strip i.active {
+        background: #178260;
+        box-shadow: 0 0 0 4px #17826012;
+      }
+      .tracking-strip a {
+        margin-left: auto;
+        color: #176b87;
+        font-weight: 600;
       }
       @media (max-width: 1050px) {
         .hero,
@@ -447,6 +539,7 @@ export class ShipmentDetailPage implements OnInit, OnDestroy {
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroy$ = new Subject<void>();
   readonly loading = signal(true);
+  readonly pending = signal(false);
   readonly loadError = signal(false);
   readonly shipment = signal<ShipmentDetail | null>(null);
   readonly drivers = signal<Driver[]>([]);
@@ -524,30 +617,53 @@ export class ShipmentDetailPage implements OnInit, OnDestroy {
     this.shipmentAction('assign', { driverId: this.driver.value, vehicleId: this.vehicle.value });
   }
   shipmentAction(action: string, payload: unknown = {}): void {
-    this.api.shipmentAction(this.id, action, payload).subscribe((item) => {
-      this.shipment.set(item);
-      this.snackBar.open('Shipment updated.', 'Dismiss', { duration: 2500 });
-    });
+    if (this.pending()) return;
+    this.pending.set(true);
+    this.api
+      .shipmentAction(this.id, action, payload)
+      .pipe(finalize(() => this.pending.set(false)))
+      .subscribe({
+        next: (item) => {
+          this.shipment.set(item);
+          this.snackBar.open('Shipment updated.', 'Dismiss', { duration: 2500 });
+        },
+        error: () => {},
+      });
   }
   simulation(action: 'start' | 'pause'): void {
-    this.api.simulationAction(this.id, action).subscribe(() => {
-      this.snackBar.open(
-        `Demo simulation ${action === 'start' ? 'started' : 'paused'}.`,
-        'Dismiss',
-        { duration: 2200 },
-      );
-      this.refresh();
-    });
+    if (this.pending()) return;
+    this.pending.set(true);
+    this.api
+      .simulationAction(this.id, action)
+      .pipe(finalize(() => this.pending.set(false)))
+      .subscribe({
+        next: () => {
+          this.snackBar.open(
+            `Demo simulation ${action === 'start' ? 'started' : 'paused'}.`,
+            'Dismiss',
+            { duration: 2200 },
+          );
+          this.refresh();
+        },
+        error: () => {},
+      });
   }
   simulateIncident(): void {
+    if (this.pending()) return;
+    this.pending.set(true);
     this.api
       .simulationAction(this.id, 'incident', { type: this.incidentType.value })
-      .subscribe(() => {
-        this.snackBar.open('Demo incident opened.', 'Dismiss', { duration: 2500 });
-        this.refresh();
+      .pipe(finalize(() => this.pending.set(false)))
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Demo incident opened.', 'Dismiss', { duration: 2500 });
+          this.refresh();
+        },
+        error: () => {},
       });
   }
   deliver(): void {
+    if (this.pending()) return;
     this.dialog
       .open(ConfirmDialogComponent, {
         data: {
@@ -559,9 +675,22 @@ export class ShipmentDetailPage implements OnInit, OnDestroy {
       .afterClosed()
       .pipe(
         filter(Boolean),
-        switchMap(() => this.api.shipmentAction(this.id, 'deliver')),
+        switchMap(() => {
+          this.pending.set(true);
+          return this.api
+            .shipmentAction(this.id, 'deliver')
+            .pipe(finalize(() => this.pending.set(false)));
+        }),
       )
-      .subscribe((item) => this.shipment.set(item));
+      .subscribe({
+        next: (item) => {
+          this.shipment.set(item);
+          this.snackBar.open('Delivery confirmed. Fleet resources released.', 'Dismiss', {
+            duration: 3000,
+          });
+        },
+        error: () => {},
+      });
   }
   load(): void {
     this.loading.set(true);

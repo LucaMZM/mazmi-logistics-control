@@ -35,10 +35,10 @@ import { Dashboard } from '../../shared/models/models';
   template: `
     <app-page-header
       title="Operations overview"
-      subtitle="Live workload, inventory pressure and delivery health across the demo network."
+      subtitle="Your network at a glance. Monitor workload, stock pressure and delivery exceptions."
     >
       @if (auth.canOperate()) {
-        <a mat-stroked-button routerLink="/orders/new">New order</a>
+        <a mat-flat-button color="primary" routerLink="/orders/new">New order</a>
       }
     </app-page-header>
     @if (loading()) {
@@ -53,17 +53,36 @@ import { Dashboard } from '../../shared/models/models';
       />
     } @else if (dashboard(); as data) {
       <section class="metrics">
-        <app-metric-card label="Orders today" [value]="data.ordersToday" />
-        <app-metric-card label="Active shipments" [value]="data.activeShipments" tone="tracking" />
-        <app-metric-card label="Delayed shipments" [value]="data.delayedShipments" tone="warning" />
-        <app-metric-card label="Open incidents" [value]="data.openIncidents" tone="danger" />
+        <app-metric-card
+          label="Orders today"
+          [value]="data.ordersToday"
+          detail="Created across all warehouses"
+        />
+        <app-metric-card
+          label="Active shipments"
+          [value]="data.activeShipments"
+          tone="tracking"
+          detail="In the delivery workflow"
+        />
+        <app-metric-card
+          label="Delayed shipments"
+          [value]="data.delayedShipments"
+          tone="warning"
+          detail="Deliveries requiring attention"
+        />
+        <app-metric-card
+          label="Open incidents"
+          [value]="data.openIncidents"
+          tone="danger"
+          detail="Awaiting resolution"
+        />
       </section>
       <section class="primary-grid">
         <article class="section map-card">
           <header>
             <div>
-              <h2>Live shipments</h2>
-              <p>Simulated tracking positions · OpenStreetMap</p>
+              <h2>Network activity</h2>
+              <p>{{ data.activeShipmentMapItems.length }} active locations · Simulated tracking</p>
             </div>
             <span class="live-dot">SIMULATED</span>
           </header>
@@ -103,7 +122,7 @@ import { Dashboard } from '../../shared/models/models';
           <header>
             <div>
               <h2>Orders — last 7 days</h2>
-              <p>Daily volume in the demo environment</p>
+              <p>Daily order volume across all warehouses</p>
             </div>
           </header>
           <app-volume-chart [data]="data.orderVolumeLast7Days" />
@@ -161,14 +180,20 @@ import { Dashboard } from '../../shared/models/models';
       }
       .primary-grid {
         display: grid;
-        grid-template-columns: minmax(0, 2.15fr) minmax(300px, 0.85fr);
+        grid-template-columns: minmax(0, 1.8fr) minmax(320px, 1fr);
         gap: 18px;
         margin-bottom: 18px;
       }
       .secondary-grid {
         display: grid;
-        grid-template-columns: 1fr 1.25fr;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
         gap: 18px;
+        align-items: start;
+      }
+      .map-card {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
       }
       .section {
         background: #fff;
@@ -200,7 +225,9 @@ import { Dashboard } from '../../shared/models/models';
       }
       .map-wrap {
         position: relative;
-        height: 440px;
+        height: 380px;
+        flex: 1;
+        min-height: 380px;
       }
       .map-wrap app-operations-map {
         display: block;
@@ -253,38 +280,17 @@ import { Dashboard } from '../../shared/models/models';
         display: block;
       }
       .incident strong {
-        font-size: 12px;
+        font-size: 13px;
+        line-height: 1.4;
       }
       .incident small {
-        font-size: 10px;
+        font-size: 11px;
         color: #64748b;
         margin-top: 5px;
-      }
-      .table-wrap {
-        overflow: auto;
       }
       table {
         width: 100%;
         border-collapse: collapse;
-      }
-      th,
-      td {
-        text-align: left;
-        padding: 12px 16px;
-        border-bottom: 1px solid #eef2f7;
-        font-size: 11px;
-      }
-      th {
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        background: #f8fafc;
-        font-size: 9px;
-      }
-      td a {
-        color: #1d4ed8;
-        text-decoration: none;
-        font-weight: 700;
       }
       .numeric {
         text-align: right;

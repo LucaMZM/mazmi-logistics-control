@@ -84,7 +84,11 @@ export class ResolveIncidentDialog {
         (action)="load()"
       />
     } @else if (incident(); as item) {
-      <app-page-header eyebrow="Incident" [title]="item.title" [subtitle]="item.trackingNumber"
+      <app-page-header
+        eyebrow="Incidents"
+        backLink="/incidents"
+        [title]="item.title"
+        [subtitle]="item.trackingNumber"
         ><app-status-chip [status]="item.severity" /><app-status-chip [status]="item.status" />
         @if (item.status === 'OPEN' && auth.canOperate()) {
           <button mat-flat-button color="primary" (click)="resolve()">Resolve incident</button>

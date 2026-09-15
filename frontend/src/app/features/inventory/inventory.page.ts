@@ -5,8 +5,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { RouterLink } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, Subscription, takeUntil } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
 import { FeedbackStateComponent } from '../../shared/components/feedback-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state.component';
@@ -24,6 +25,7 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
     MatInputModule,
     MatSlideToggleModule,
     MatTabsModule,
+    MatPaginatorModule,
     FeedbackStateComponent,
     LoadingStateComponent,
     PageHeaderComponent,
@@ -93,6 +95,16 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
               <app-feedback-state
                 title="No stock levels found"
                 message="Try a different search or turn off the low-stock filter."
+              />
+            }
+            @if (total()) {
+              <mat-paginator
+                [length]="total()"
+                [pageIndex]="pageIndex"
+                [pageSize]="pageSize"
+                [pageSizeOptions]="[10, 20, 50]"
+                (page)="page($event)"
+                aria-label="Inventory pages"
               />
             }
           }
@@ -196,35 +208,13 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
       .filters mat-form-field {
         width: min(420px, 60%);
       }
-      .table-wrap {
-        overflow: auto;
-      }
       table {
         width: 100%;
         border-collapse: collapse;
         min-width: 850px;
       }
-      th,
-      td {
-        padding: 13px 16px;
-        text-align: left;
-        border-bottom: 1px solid #eef2f7;
-        font-size: 12px;
-      }
-      th {
-        font-size: 9px;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        color: #64748b;
-        background: #f8fafc;
-      }
       .numeric {
         text-align: right;
-      }
-      td a {
-        color: #1d4ed8;
-        text-decoration: none;
-        font-weight: 800;
       }
       .warehouse-grid {
         display: grid;
@@ -268,6 +258,7 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
 export class InventoryPage implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
   private readonly destroy$ = new Subject<void>();
+  private stockRequest?: Subscription;
   readonly loading = signal(true);
   readonly stockError = signal(false);
   readonly productsLoading = signal(true);
@@ -275,6 +266,9 @@ export class InventoryPage implements OnInit, OnDestroy {
   readonly warehousesLoading = signal(true);
   readonly warehousesError = signal(false);
   readonly stock = signal<Inventory[]>([]);
+  readonly total = signal(0);
+  pageIndex = 0;
+  pageSize = 20;
   readonly products = signal<Product[]>([]);
   readonly warehouses = signal<Warehouse[]>([]);
   readonly search = new FormControl('', { nonNullable: true });
@@ -285,20 +279,34 @@ export class InventoryPage implements OnInit, OnDestroy {
     this.loadWarehouses();
     this.search.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => this.loadStock());
-    this.lowStock.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => this.loadStock());
+      .subscribe(() => {
+        this.pageIndex = 0;
+        this.loadStock();
+      });
+    this.lowStock.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.pageIndex = 0;
+      this.loadStock();
+    });
   }
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
   loadStock(): void {
+    this.stockRequest?.unsubscribe();
     this.loading.set(true);
     this.stockError.set(false);
-    this.api
-      .inventory({ search: this.search.value, lowStock: this.lowStock.value, size: 100 })
+    this.stockRequest = this.api
+      .inventory({
+        search: this.search.value,
+        lowStock: this.lowStock.value,
+        page: this.pageIndex,
+        size: this.pageSize,
+      })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
+          this.total.set(result.totalElements);
           this.stock.set(result.content);
           this.loading.set(false);
         },
@@ -321,6 +329,11 @@ export class InventoryPage implements OnInit, OnDestroy {
         this.productsLoading.set(false);
       },
     });
+  }
+  page(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadStock();
   }
   loadWarehouses(): void {
     this.warehousesLoading.set(true);

@@ -4,6 +4,8 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { RouterLink } from '@angular/router';
 import {
   combineLatest,
@@ -11,6 +13,7 @@ import {
   distinctUntilChanged,
   startWith,
   Subject,
+  Subscription,
   takeUntil,
 } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
@@ -29,6 +32,8 @@ import { Driver, ShipmentSummary, Vehicle } from '../../shared/models/models';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatButtonModule,
+    MatPaginatorModule,
     FeedbackStateComponent,
     LoadingStateComponent,
     PageHeaderComponent,
@@ -81,6 +86,10 @@ import { Driver, ShipmentSummary, Vehicle } from '../../shared/models/models';
       </mat-form-field>
     </section>
     <section class="table-card">
+      <div class="list-summary">
+        <strong>Shipment register</strong><span>{{ total() }} matching shipments</span
+        ><button mat-button (click)="clearFilters()">Clear filters</button>
+      </div>
       @if (loading()) {
         <app-loading-state />
       } @else if (loadError()) {
@@ -143,6 +152,16 @@ import { Driver, ShipmentSummary, Vehicle } from '../../shared/models/models';
             message="No shipment matches the current filters."
           />
         }
+        @if (total()) {
+          <mat-paginator
+            [length]="total()"
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize"
+            [pageSizeOptions]="[10, 20, 50]"
+            (page)="page($event)"
+            aria-label="Shipment pages"
+          />
+        }
       }
     </section>`,
   styles: [
@@ -160,32 +179,10 @@ import { Driver, ShipmentSummary, Vehicle } from '../../shared/models/models';
       .filters mat-form-field {
         width: 100%;
       }
-      .table-wrap {
-        overflow: auto;
-      }
       table {
         width: 100%;
         min-width: 1000px;
         border-collapse: collapse;
-      }
-      th,
-      td {
-        padding: 13px 16px;
-        border-bottom: 1px solid #eef2f7;
-        text-align: left;
-        font-size: 11px;
-      }
-      th {
-        background: #f8fafc;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        font-size: 9px;
-      }
-      td a {
-        color: #1d4ed8;
-        text-decoration: none;
-        font-weight: 800;
       }
       .progress {
         display: inline-block;
@@ -219,9 +216,13 @@ import { Driver, ShipmentSummary, Vehicle } from '../../shared/models/models';
 export class ShipmentsPage implements OnInit, OnDestroy {
   private readonly api = inject(ApiService);
   private readonly destroy$ = new Subject<void>();
+  private request?: Subscription;
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly shipments = signal<ShipmentSummary[]>([]);
+  readonly total = signal(0);
+  pageIndex = 0;
+  pageSize = 20;
   readonly drivers = signal<Driver[]>([]);
   readonly vehicles = signal<Vehicle[]>([]);
   readonly statuses = ['CREATED', 'ASSIGNED', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'];
@@ -250,6 +251,7 @@ export class ShipmentsPage implements OnInit, OnDestroy {
     ])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([search, status, deliveryHealth, driver, vehicle]) => {
+        this.pageIndex = 0;
         this.load({ search, status, deliveryHealth, driver, vehicle });
       });
   }
@@ -268,19 +270,39 @@ export class ShipmentsPage implements OnInit, OnDestroy {
       vehicle: this.vehicle.value,
     });
   }
+  page(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.retry();
+  }
+  clearFilters(): void {
+    for (const control of [
+      this.search,
+      this.status,
+      this.deliveryHealth,
+      this.driver,
+      this.vehicle,
+    ])
+      control.setValue('');
+  }
 
   private load(filters: Record<string, string>): void {
+    this.request?.unsubscribe();
     this.loading.set(true);
     this.loadError.set(false);
-    this.api.shipments({ size: 100, ...filters }).subscribe({
-      next: (result) => {
-        this.shipments.set(result.content);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loadError.set(true);
-        this.loading.set(false);
-      },
-    });
+    this.request = this.api
+      .shipments({ page: this.pageIndex, size: this.pageSize, ...filters })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          this.total.set(result.totalElements);
+          this.shipments.set(result.content);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loadError.set(true);
+          this.loading.set(false);
+        },
+      });
   }
 }

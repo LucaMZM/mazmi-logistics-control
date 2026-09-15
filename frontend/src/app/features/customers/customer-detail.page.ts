@@ -33,7 +33,11 @@ import { Customer, OrderSummary } from '../../shared/models/models';
         (action)="load()"
       />
     } @else if (customer(); as item) {
-      <app-page-header eyebrow="Customer" [title]="item.companyName" [subtitle]="item.code"
+      <app-page-header
+        eyebrow="Customers"
+        backLink="/customers"
+        [title]="item.companyName"
+        [subtitle]="item.code"
         ><app-status-chip [status]="item.active ? 'AVAILABLE' : 'INACTIVE'"
       /></app-page-header>
       <section class="profile">
@@ -142,31 +146,10 @@ import { Customer, OrderSummary } from '../../shared/models/models';
         margin: 0;
         border-bottom: 1px solid #e2e8f0;
       }
-      .table-wrap {
-        overflow: auto;
-      }
       table {
         width: 100%;
         min-width: 650px;
         border-collapse: collapse;
-      }
-      th,
-      td {
-        padding: 13px 16px;
-        border-bottom: 1px solid #eef2f7;
-        text-align: left;
-        font-size: 11px;
-      }
-      th {
-        font-size: 9px;
-        background: #f8fafc;
-        color: #64748b;
-        text-transform: uppercase;
-      }
-      td a {
-        color: #1d4ed8;
-        font-weight: 800;
-        text-decoration: none;
       }
       @media (max-width: 700px) {
         .profile {

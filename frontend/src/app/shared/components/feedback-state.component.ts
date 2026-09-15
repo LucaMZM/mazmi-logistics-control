@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
       [attr.role]="kind === 'error' ? 'alert' : 'status'"
       aria-live="polite"
     >
+      <span class="state-symbol" aria-hidden="true">{{ kind === 'error' ? '!' : '—' }}</span>
       <strong>{{ title }}</strong>
       <p>{{ message }}</p>
       @if (actionLabel) {
@@ -43,6 +44,23 @@ import { MatButtonModule } from '@angular/material/button';
       }
       .error strong {
         color: #991b1b;
+      }
+      .state-symbol {
+        width: 36px;
+        height: 36px;
+        display: grid;
+        place-items: center;
+        background: #eef3f6;
+        border: 1px solid #dce6ec;
+        border-radius: 8px;
+        color: #47677a;
+        font-size: 18px;
+        margin-bottom: 14px;
+      }
+      .error .state-symbol {
+        color: #991b1b;
+        background: #fef2f2;
+        border-color: #fecaca;
       }
     `,
   ],

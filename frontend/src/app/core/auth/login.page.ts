@@ -16,7 +16,7 @@ import { AuthService } from './auth.service';
         <div class="brand-mark">MZ</div>
         <p class="eyebrow">MAZMI · LOGISTICS CONTROL</p>
         <h1 id="login-title">Operations sign in</h1>
-        <p class="intro">Access the fictional logistics operations environment.</p>
+        <p class="intro">Sign in to your logistics workspace.</p>
         <form [formGroup]="form" (ngSubmit)="submit()">
           <mat-form-field appearance="outline"
             ><mat-label>Email</mat-label
@@ -26,7 +26,8 @@ import { AuthService } from './auth.service';
               formControlName="email"
               autocomplete="username"
               spellcheck="false"
-          /></mat-form-field>
+            /><mat-error>Enter a valid email address.</mat-error></mat-form-field
+          >
           <mat-form-field appearance="outline"
             ><mat-label>Password</mat-label
             ><input
@@ -34,7 +35,8 @@ import { AuthService } from './auth.service';
               type="password"
               formControlName="password"
               autocomplete="current-password"
-          /></mat-form-field>
+            /><mat-error>Enter your password.</mat-error></mat-form-field
+          >
           <button
             mat-flat-button
             color="primary"
@@ -53,9 +55,16 @@ import { AuthService } from './auth.service';
         </div>
       </section>
       <aside>
-        <span>Functional portfolio application</span>
-        <h2>Control orders, stock, fleet and simulated deliveries from one workspace.</h2>
-        <p>All customers, vehicles, events and tracking positions are fictional.</p>
+        <span>CONNECTED LOGISTICS OPERATIONS</span>
+        <h2>Every order.<br />Every movement.<br />One clear view.</h2>
+        <p>
+          Connect warehouse preparation, stock reservations and delivery operations in a single
+          workspace.
+        </p>
+        <div class="journey">
+          <span>01 / Prepare</span><span>02 / Dispatch</span><span>03 / Deliver</span>
+        </div>
+        <small>Demo environment · Fictional data · Simulated tracking</small>
       </aside>
     </main>
   `,
@@ -87,6 +96,7 @@ import { AuthService } from './auth.service';
         color: #fff;
         font-weight: 800;
         margin-bottom: 28px;
+        border-radius: 8px;
       }
       .eyebrow {
         color: #1d4ed8;
@@ -134,7 +144,7 @@ import { AuthService } from './auth.service';
       aside {
         background: #0f172a;
         color: #fff;
-        padding: 12vw 10vw;
+        padding: 7vw;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -156,6 +166,24 @@ import { AuthService } from './auth.service';
         color: #94a3b8;
         max-width: 600px;
         line-height: 1.7;
+      }
+      .journey {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        padding: 28px 0;
+        margin-top: 20px;
+        border-top: 1px solid #334155;
+      }
+      .journey span {
+        font-size: 11px;
+        letter-spacing: 0.05em;
+        color: #cbd5e1;
+      }
+      aside small {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-top: 28px;
       }
       @media (max-width: 850px) {
         .login-shell {

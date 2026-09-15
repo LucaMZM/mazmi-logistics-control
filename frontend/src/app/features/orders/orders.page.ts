@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject, Subscription, takeUntil } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { ApiService } from '../../core/services/api.service';
 import { FeedbackStateComponent } from '../../shared/components/feedback-state.component';
@@ -60,6 +60,18 @@ import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/mod
       >
     </section>
     <section class="table-card">
+      <div class="list-summary">
+        <strong>Order register</strong
+        ><span>{{ result()?.totalElements ?? 0 }} matching orders</span
+        ><button
+          mat-button
+          type="button"
+          (click)="clearFilters()"
+          [disabled]="!search.value && !status.value"
+        >
+          Clear filters
+        </button>
+      </div>
       @if (loading()) {
         <app-loading-state />
       } @else if (loadError()) {
@@ -80,7 +92,7 @@ import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/mod
                 <th>Warehouse</th>
                 <th>Status</th>
                 <th>Priority</th>
-                <th>Total</th>
+                <th class="numeric">Total</th>
                 <th>Created</th>
               </tr>
             </thead>
@@ -94,7 +106,7 @@ import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/mod
                   <td>{{ order.warehouse }}</td>
                   <td><app-status-chip [status]="order.status" /></td>
                   <td><app-status-chip [status]="order.priority" /></td>
-                  <td>{{ order.totalAmount | currency: 'EUR' }}</td>
+                  <td class="numeric">{{ order.totalAmount | currency: 'EUR' }}</td>
                   <td>{{ order.createdAt | date: 'mediumDate' }}</td>
                 </tr>
               }
@@ -136,32 +148,10 @@ import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/mod
         background: #fff;
         border: 1px solid #e2e8f0;
       }
-      .table-wrap {
-        overflow: auto;
-      }
       table {
         width: 100%;
         border-collapse: collapse;
         min-width: 900px;
-      }
-      th,
-      td {
-        padding: 13px 16px;
-        border-bottom: 1px solid #eef2f7;
-        text-align: left;
-        font-size: 12px;
-      }
-      th {
-        background: #f8fafc;
-        color: #64748b;
-        font-size: 9px;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-      }
-      td a {
-        color: #1d4ed8;
-        text-decoration: none;
-        font-weight: 800;
       }
       @media (max-width: 650px) {
         .filters {
@@ -178,6 +168,7 @@ export class OrdersPage implements OnInit, OnDestroy {
   readonly auth = inject(AuthService);
   private readonly api = inject(ApiService);
   private readonly destroy$ = new Subject<void>();
+  private request?: Subscription;
   readonly loading = signal(true);
   readonly loadError = signal(false);
   readonly result = signal<PageResponse<OrderSummary> | null>(null);
@@ -219,16 +210,24 @@ export class OrdersPage implements OnInit, OnDestroy {
   retry(): void {
     this.load();
   }
+  clearFilters(): void {
+    this.search.setValue('', { emitEvent: false });
+    this.status.setValue('', { emitEvent: false });
+    this.pageIndex = 0;
+    this.load();
+  }
   private load(): void {
+    this.request?.unsubscribe();
     this.loading.set(true);
     this.loadError.set(false);
-    this.api
+    this.request = this.api
       .orders({
         search: this.search.value,
         status: this.status.value,
         page: this.pageIndex,
         size: this.pageSize,
       })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
           this.result.set(result);

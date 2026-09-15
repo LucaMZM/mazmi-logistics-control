@@ -4,7 +4,7 @@ const angular = require('angular-eslint');
 
 module.exports = tseslint.config(
   {
-    ignores: ['dist/**', 'coverage/**'],
+    ignores: ['.angular/**', 'dist/**', 'coverage/**'],
   },
   {
     files: ['**/*.ts'],

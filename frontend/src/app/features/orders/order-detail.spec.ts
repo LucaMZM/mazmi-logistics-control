@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { ApiService } from '../../core/services/api.service';
 import { OrderDetail } from '../../shared/models/models';
@@ -93,5 +93,16 @@ describe('OrderDetailPage actions', () => {
     expect(dialog.open).toHaveBeenCalledOnce();
     expect(api.orderAction).toHaveBeenCalledWith('order-1', 'cancel');
     expect(component.order()).toEqual(cancelled);
+  });
+  it('prevents duplicate transitions and re-enables actions after a failed request', () => {
+    const response = new Subject<OrderDetail>();
+    api.orderAction.mockReturnValue(response);
+    component.action('confirm');
+    component.action('confirm');
+    expect(api.orderAction).toHaveBeenCalledOnce();
+    expect(component.pending()).toBe(true);
+    response.error(new Error('Conflict'));
+    expect(component.pending()).toBe(false);
+    expect(component.order()).toEqual(draft);
   });
 });

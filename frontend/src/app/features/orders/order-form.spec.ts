@@ -33,4 +33,11 @@ describe('OrderFormPage validation', () => {
     expect(component.form.controls.shippingLatitude.hasError('max')).toBe(true);
     expect(component.form.controls.shippingLongitude.hasError('min')).toBe(true);
   });
+  it('rejects fractional quantities before creating an order', () => {
+    const quantity = component.items.at(0).controls.quantity;
+    quantity.setValue(1.5);
+    expect(quantity.invalid).toBe(true);
+    quantity.setValue(2);
+    expect(quantity.valid).toBe(true);
+  });
 });

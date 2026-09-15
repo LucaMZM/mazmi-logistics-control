@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { filter, switchMap } from 'rxjs';
+import { filter, finalize, switchMap } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { ApiService } from '../../core/services/api.service';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.component';
@@ -39,35 +39,57 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
       />
     } @else if (order(); as item) {
       <app-page-header
-        eyebrow="Order"
+        eyebrow="Orders"
+        backLink="/orders"
         [title]="item.orderNumber"
         [subtitle]="item.customer + ' · ' + item.warehouse"
       >
         <app-status-chip [status]="item.status" /><app-status-chip [status]="item.priority" />
         @if (auth.canOperate()) {
           @if (item.status === 'DRAFT') {
-            <button mat-flat-button color="primary" (click)="action('confirm')">
+            <button
+              mat-flat-button
+              color="primary"
+              [disabled]="pending() || !item.items.length"
+              (click)="action('confirm')"
+            >
               Confirm order
             </button>
           }
           @if (item.status === 'CONFIRMED') {
-            <button mat-flat-button color="primary" (click)="action('start-preparation')">
+            <button
+              mat-flat-button
+              color="primary"
+              [disabled]="pending()"
+              (click)="action('start-preparation')"
+            >
               Start preparation
             </button>
           }
           @if (item.status === 'PREPARING') {
-            <button mat-flat-button color="primary" (click)="action('mark-ready')">
+            <button
+              mat-flat-button
+              color="primary"
+              [disabled]="pending()"
+              (click)="action('mark-ready')"
+            >
               Mark as ready
             </button>
           }
           @if (canCancel(item.status)) {
-            <button mat-stroked-button color="warn" (click)="cancel()">Cancel</button>
+            <button mat-stroked-button color="warn" [disabled]="pending()" (click)="cancel()">
+              Cancel order
+            </button>
           }
         }
         @if (item.shipmentId) {
           <a mat-stroked-button [routerLink]="['/shipments', item.shipmentId]">View shipment</a>
         }
       </app-page-header>
+      <div class="workflow-note" role="status">
+        <strong>{{ pending() ? 'Updating order…' : 'Workflow status' }}</strong>
+        <span>{{ workflowHint(item.status) }}</span>
+      </div>
       <section class="summary-grid">
         <article class="section overview">
           <h2>Order summary</h2>
@@ -160,7 +182,7 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
     `
       .summary-grid {
         display: grid;
-        grid-template-columns: 1.7fr 1fr;
+        grid-template-columns: minmax(0, 1.7fr) minmax(240px, 1fr);
         gap: 18px;
         margin-bottom: 18px;
       }
@@ -176,13 +198,13 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
       }
       .details {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 30px;
         padding: 22px;
       }
       dl {
         display: grid;
-        grid-template-columns: 130px 1fr;
+        grid-template-columns: 95px minmax(0, 1fr);
         gap: 13px;
         margin: 0;
       }
@@ -230,6 +252,7 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
         place-items: center;
         font-style: normal;
         font-size: 9px;
+        border-radius: 50%;
       }
       .progress .complete {
         color: #15803d;
@@ -245,28 +268,12 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
       .progress .current i {
         border-color: #1d4ed8;
         background: #eff6ff;
-      }
-      .table-wrap {
-        overflow: auto;
+        color: #1d4ed8;
       }
       table {
         width: 100%;
         min-width: 650px;
         border-collapse: collapse;
-      }
-      th,
-      td {
-        padding: 13px 17px;
-        text-align: left;
-        border-bottom: 1px solid #eef2f7;
-        font-size: 12px;
-      }
-      th {
-        font-size: 9px;
-        text-transform: uppercase;
-        letter-spacing: 0.07em;
-        background: #f8fafc;
-        color: #64748b;
       }
       .numeric {
         text-align: right;
@@ -276,7 +283,19 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
         font-weight: 800;
         background: #f8fafc;
       }
-      @media (max-width: 900px) {
+      .workflow-note {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        background: #eaf3f6;
+        border: 1px solid #d1e4eb;
+        color: #315d70;
+        border-radius: 7px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        font-size: 13px;
+      }
+      @media (max-width: 1200px) {
         .summary-grid {
           grid-template-columns: 1fr;
         }
@@ -297,6 +316,7 @@ export class OrderDetailPage implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   readonly loading = signal(true);
+  readonly pending = signal(false);
   readonly loadError = signal(false);
   readonly order = signal<OrderDetail | null>(null);
   readonly flow: OrderStatus[] = [
@@ -313,12 +333,21 @@ export class OrderDetailPage implements OnInit {
     this.load();
   }
   action(action: string): void {
-    this.api.orderAction(this.id, action).subscribe((order) => {
-      this.order.set(order);
-      this.snackBar.open('Order workflow updated.', 'Dismiss', { duration: 2500 });
-    });
+    if (this.pending()) return;
+    this.pending.set(true);
+    this.api
+      .orderAction(this.id, action)
+      .pipe(finalize(() => this.pending.set(false)))
+      .subscribe({
+        next: (order) => {
+          this.order.set(order);
+          this.snackBar.open('Order workflow updated.', 'Dismiss', { duration: 2500 });
+        },
+        error: () => {},
+      });
   }
   cancel(): void {
+    if (this.pending()) return;
     this.dialog
       .open(ConfirmDialogComponent, {
         data: {
@@ -332,14 +361,33 @@ export class OrderDetailPage implements OnInit {
       .afterClosed()
       .pipe(
         filter(Boolean),
-        switchMap(() => this.api.orderAction(this.id, 'cancel')),
+        switchMap(() => {
+          this.pending.set(true);
+          return this.api
+            .orderAction(this.id, 'cancel')
+            .pipe(finalize(() => this.pending.set(false)));
+        }),
       )
-      .subscribe((order) => {
-        this.order.set(order);
-        this.snackBar.open('Order cancelled and reservations released.', 'Dismiss', {
-          duration: 3000,
-        });
+      .subscribe({
+        next: (order) => {
+          this.order.set(order);
+          this.snackBar.open('Order cancelled and reservations released.', 'Dismiss', {
+            duration: 3000,
+          });
+        },
+        error: () => {},
       });
+  }
+  workflowHint(status: OrderStatus): string {
+    return {
+      DRAFT: 'Review the items and delivery address. Confirmation reserves stock for this order.',
+      CONFIRMED: 'Stock is reserved. The warehouse can now start preparation.',
+      PREPARING: 'Preparation is in progress. Mark the order ready to create its shipment.',
+      READY: 'Ready for dispatch. Open the shipment to assign a driver and vehicle.',
+      SHIPPED: 'Stock has been dispatched. Follow the shipment for delivery updates.',
+      DELIVERED: 'Delivery complete. Assigned fleet resources have been released.',
+      CANCELLED: 'This order is closed. Any reserved stock has been released.',
+    }[status];
   }
   canCancel(status: OrderStatus): boolean {
     return !['SHIPPED', 'DELIVERED', 'CANCELLED'].includes(status);

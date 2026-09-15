@@ -136,27 +136,10 @@ import { DriverEditorDialog, VehicleEditorDialog } from './fleet-editor.dialogs'
         background: #fff;
         border: 1px solid #e2e8f0;
       }
-      .table-wrap {
-        overflow: auto;
-      }
       table {
         width: 100%;
         min-width: 760px;
         border-collapse: collapse;
-      }
-      th,
-      td {
-        padding: 14px 17px;
-        text-align: left;
-        border-bottom: 1px solid #eef2f7;
-        font-size: 11px;
-      }
-      th {
-        background: #f8fafc;
-        color: #64748b;
-        text-transform: uppercase;
-        font-size: 9px;
-        letter-spacing: 0.07em;
       }
       .numeric {
         text-align: right;

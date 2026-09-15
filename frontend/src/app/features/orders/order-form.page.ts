@@ -40,8 +40,9 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
   template: `
     <app-page-header
       eyebrow="Orders"
+      backLink="/orders"
       title="New order"
-      subtitle="Create a draft using server-owned product prices and customer address snapshots."
+      subtitle="Select a customer, choose your warehouse and add the products to ship."
       ><a mat-button routerLink="/orders">Cancel</a></app-page-header
     >
     @if (referenceLoading()) {
@@ -68,8 +69,8 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
                   <mat-option [value]="customer.id"
                     >{{ customer.code }} · {{ customer.companyName }}</mat-option
                   >
-                }
-              </mat-select></mat-form-field
+                }</mat-select
+              ><mat-error>Select a customer.</mat-error></mat-form-field
             ><mat-form-field appearance="outline"
               ><mat-label>Warehouse</mat-label
               ><mat-select formControlName="warehouseId">
@@ -77,8 +78,8 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
                   <mat-option [value]="warehouse.id"
                     >{{ warehouse.code }} · {{ warehouse.name }}</mat-option
                   >
-                }
-              </mat-select></mat-form-field
+                }</mat-select
+              ><mat-error>Select a warehouse.</mat-error></mat-form-field
             ><mat-form-field appearance="outline"
               ><mat-label>Priority</mat-label
               ><mat-select formControlName="priority"
@@ -91,37 +92,51 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
           </div>
         </section>
         <section class="section">
-          <h2>Shipping destination <span>Stored as an order snapshot</span></h2>
+          <h2>Shipping destination <span>Prefilled from the selected customer</span></h2>
           <div class="form-grid address">
             <mat-form-field appearance="outline"
               ><mat-label>Recipient / company</mat-label
-              ><input matInput formControlName="shippingName" /></mat-form-field
+              ><input matInput formControlName="shippingName" /><mat-error
+                >Enter a recipient.</mat-error
+              ></mat-form-field
             ><mat-form-field appearance="outline" class="wide"
               ><mat-label>Address</mat-label
-              ><input matInput formControlName="shippingAddress" /></mat-form-field
+              ><input matInput formControlName="shippingAddress" /><mat-error
+                >Enter a delivery address.</mat-error
+              ></mat-form-field
             ><mat-form-field appearance="outline"
               ><mat-label>City</mat-label
-              ><input matInput formControlName="shippingCity" /></mat-form-field
+              ><input matInput formControlName="shippingCity" /><mat-error
+                >Enter a city.</mat-error
+              ></mat-form-field
             ><mat-form-field appearance="outline"
               ><mat-label>Postal code</mat-label
-              ><input matInput formControlName="shippingPostalCode" /></mat-form-field
+              ><input matInput formControlName="shippingPostalCode" /><mat-error
+                >Enter a postal code.</mat-error
+              ></mat-form-field
             ><mat-form-field appearance="outline"
               ><mat-label>Country</mat-label
-              ><input matInput formControlName="shippingCountry" /></mat-form-field
+              ><input matInput formControlName="shippingCountry" /><mat-error
+                >Enter a country.</mat-error
+              ></mat-form-field
             ><mat-form-field appearance="outline"
               ><mat-label>Latitude</mat-label
-              ><input matInput type="number" formControlName="shippingLatitude" /></mat-form-field
+              ><input matInput type="number" formControlName="shippingLatitude" /><mat-error
+                >Latitude must be between −90 and 90.</mat-error
+              ></mat-form-field
             ><mat-form-field appearance="outline"
               ><mat-label>Longitude</mat-label
-              ><input matInput type="number" formControlName="shippingLongitude"
-            /></mat-form-field>
+              ><input matInput type="number" formControlName="shippingLongitude" /><mat-error
+                >Longitude must be between −180 and 180.</mat-error
+              ></mat-form-field
+            >
           </div>
         </section>
         <section class="section">
           <header>
             <div>
               <h2>Items</h2>
-              <p>Prices are loaded from the product catalogue and recalculated by the backend.</p>
+              <p>Catalogue prices apply. Stock is reserved when you confirm the draft.</p>
             </div>
             <button mat-stroked-button type="button" (click)="addItem()">Add product</button>
           </header>
@@ -135,12 +150,18 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
                       <mat-option [value]="product.id"
                         >{{ product.sku }} · {{ product.name }}</mat-option
                       >
-                    }
-                  </mat-select></mat-form-field
+                    }</mat-select
+                  ><mat-error>Select a product.</mat-error></mat-form-field
                 ><mat-form-field appearance="outline"
                   ><mat-label>Quantity</mat-label
-                  ><input matInput type="number" min="1" formControlName="quantity"
-                /></mat-form-field>
+                  ><input
+                    matInput
+                    type="number"
+                    min="1"
+                    step="1"
+                    formControlName="quantity"
+                  /><mat-error>Enter a whole number of at least 1.</mat-error></mat-form-field
+                >
                 <div class="price">
                   <span>Catalogue price</span
                   ><strong>{{
@@ -163,14 +184,9 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
         <footer>
           <div>
             <span>Estimated total</span><strong>{{ estimatedTotal() | currency: 'EUR' }}</strong
-            ><small>Final amount is calculated on the server.</small>
+            ><small>Stock will be reserved after confirmation.</small>
           </div>
-          <button
-            mat-flat-button
-            color="primary"
-            type="submit"
-            [disabled]="form.invalid || submitting()"
-          >
+          <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
             {{ submitting() ? 'Creating draft…' : 'Create draft order' }}
           </button>
         </footer>
@@ -263,8 +279,15 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
         align-items: center;
         gap: 35px;
         padding: 20px;
-        background: #0f172a;
-        color: #fff;
+        background: rgb(255 255 255 / 96%);
+        backdrop-filter: blur(10px);
+        color: #172b3a;
+        border: 1px solid #dde5eb;
+        border-radius: 8px;
+        position: sticky;
+        bottom: 12px;
+        z-index: 5;
+        box-shadow: 0 -4px 20px rgb(20 40 60 / 5%);
       }
       footer div {
         text-align: right;
@@ -277,7 +300,7 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
       footer span,
       footer small {
         font-size: 10px;
-        color: #94a3b8;
+        color: #5c6f7e;
       }
       footer strong {
         font-size: 22px;
@@ -314,8 +337,10 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
           grid-column: auto;
         }
         footer {
+          position: static;
           align-items: stretch;
           flex-direction: column;
+          gap: 18px;
         }
         footer div {
           text-align: left;
@@ -391,7 +416,7 @@ export class OrderFormPage implements OnInit {
     this.items.push(
       this.fb.group({
         productId: ['', Validators.required],
-        quantity: [1, [Validators.required, Validators.min(1)]],
+        quantity: [1, [Validators.required, Validators.min(1), Validators.pattern(/^\d+$/)]],
       }),
     );
   }
@@ -409,6 +434,7 @@ export class OrderFormPage implements OnInit {
     );
   }
   submit(): void {
+    if (this.submitting()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;

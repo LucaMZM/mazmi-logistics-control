@@ -10,12 +10,13 @@ import { Component, Input } from '@angular/core';
         display: inline-flex;
         align-items: center;
         padding: 4px 8px;
+        border-radius: 5px;
         border: 1px solid #cbd5e1;
         background: #f8fafc;
         color: #475569;
         font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.035em;
+        font-weight: 600;
+        letter-spacing: 0.01em;
         white-space: nowrap;
       }
       .status[data-status='DELIVERED'],
@@ -45,6 +46,13 @@ import { Component, Input } from '@angular/core';
         color: #b45309;
       }
       .status[data-status='IN_TRANSIT'],
+      .status[data-status='CONFIRMED'],
+      .status[data-status='PREPARING'],
+      .status[data-status='READY'],
+      .status[data-status='RESERVATION'],
+      .status[data-status='DISPATCH'],
+      .status[data-status='ON_ROUTE'],
+      .status[data-status='IN_SERVICE'],
       .status[data-status='SHIPPED'],
       .status[data-status='ASSIGNED'] {
         border-color: #bae6fd;

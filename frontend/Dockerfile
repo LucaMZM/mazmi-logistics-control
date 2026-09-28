@@ -5,7 +5,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM nginx:1.28-alpine
+FROM nginxinc/nginx-unprivileged:1.30.5-alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /workspace/dist/frontend/browser /usr/share/nginx/html
-EXPOSE 80
+EXPOSE 8080

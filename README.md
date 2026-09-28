@@ -166,10 +166,10 @@ Los guards de Angular adaptan la interfaz al rol, mientras que Spring Security c
 | Base de datos         | PostgreSQL / JDBC Driver                 | 17 / 42.7.11                              |
 | Migraciones           | Flyway                                   | 12.4.0                                    |
 | API                   | REST (`/api/v1`) / springdoc-openapi     | v1 / 3.0.3                                |
-| Tests frontend        | Vitest                                   | 4.1.10                                    |
+| Tests frontend        | Vitest                                   | 4.1.11                                    |
 | Tests backend         | JUnit Jupiter / Mockito / Testcontainers | 6.0.3 / 5.23.0 / 1.21.4                   |
-| Runtime frontend      | Node.js / npm                            | 24.15.0 / 10.9.7                          |
-| Infraestructura       | Docker Compose / Nginx                   | Compose v2 / 1.28                         |
+| Runtime frontend      | Node.js / npm                            | 24.15.0 / 11.12.1                         |
+| Infraestructura       | Docker Compose / Nginx                   | Compose v2 / 1.30.5                       |
 | Integración continua  | GitHub Actions                           | checkout v7, setup-node v7, setup-java v5 |
 
 ## Arquitectura
@@ -227,7 +227,7 @@ Antes de iniciar los contenedores, configura en `.env`:
 docker compose up --build
 ```
 
-Compose crea PostgreSQL, espera a su healthcheck, inicia el backend y finalmente publica el frontend Nginx.
+Compose crea PostgreSQL, espera a su healthcheck, inicia el backend y finalmente publica el frontend mediante Nginx ejecutado sin privilegios.
 
 | Recurso      | URL                                                                            |
 | ------------ | ------------------------------------------------------------------------------ |
@@ -282,6 +282,7 @@ cd frontend
 npm ci
 npm run format:check
 npm run lint
+npm run typecheck
 npm run test
 npm run build
 ```

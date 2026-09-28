@@ -44,7 +44,8 @@ export class AuthService {
   }
 
   hasRole(...roles: Role[]): boolean {
-    return !!this.userState() && roles.includes(this.userState()!.role);
+    const user = this.userState();
+    return !!user && roles.includes(user.role);
   }
   private csrf(): Observable<void> {
     return this.http.get('/api/v1/auth/csrf').pipe(map(() => undefined));

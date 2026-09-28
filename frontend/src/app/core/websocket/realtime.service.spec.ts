@@ -109,4 +109,24 @@ describe('RealtimeService', () => {
       client.subscriptions.filter((item) => item.destination === '/topic/shipments/shipment-1'),
     ).toHaveLength(1);
   });
+
+  it('keeps a new connection alive when the previous socket closes after logout', () => {
+    service.connect();
+    const previous = stomp.instances[0] as MockClient;
+    previous.connected = true;
+    previous.config.onConnect();
+
+    service.disconnect();
+    previous.active = true;
+    service.connect();
+    const current = stomp.instances[1] as MockClient;
+    expect(current).toBeDefined();
+    expect(service.status()).toBe('connecting');
+
+    previous.config.onWebSocketClose();
+    expect(service.status()).toBe('connecting');
+    current.connected = true;
+    current.config.onConnect();
+    expect(service.status()).toBe('connected');
+  });
 });

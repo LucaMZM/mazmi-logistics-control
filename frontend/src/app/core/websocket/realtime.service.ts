@@ -18,35 +18,42 @@ export class RealtimeService {
     if (this.client?.active) return;
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
     this.status.set('connecting');
-    this.client = new Client({
+    const client = new Client({
       brokerURL: `${protocol}://${location.host}/ws`,
       reconnectDelay: 2500,
       connectionTimeout: 6000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
       onConnect: () => {
+        if (this.client !== client) return;
         this.status.set('connected');
         this.subjects.forEach((_, id) => this.subscribe(id));
         this.subscribeDashboard();
         this.connectedSubject.next();
       },
       onWebSocketClose: () => {
+        if (this.client !== client) return;
         this.subscriptions.clear();
         this.dashboardSubscription = undefined;
         this.status.set(this.client?.active ? 'connecting' : 'offline');
       },
-      onStompError: () => this.status.set('connecting'),
+      onStompError: () => {
+        if (this.client === client) this.status.set('connecting');
+      },
     });
-    this.client.activate();
+    this.client = client;
+    client.activate();
   }
 
   disconnect(): void {
-    if (this.client?.connected) {
+    const client = this.client;
+    this.client = undefined;
+    if (client?.connected) {
       this.subscriptions.forEach((subscription) => subscription.unsubscribe());
       this.dashboardSubscription?.unsubscribe();
     }
     this.dashboardSubscription = undefined;
-    void this.client?.deactivate();
+    void client?.deactivate();
     this.subscriptions.clear();
     this.status.set('offline');
   }

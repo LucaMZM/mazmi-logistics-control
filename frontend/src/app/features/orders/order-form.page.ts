@@ -1,5 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   FormArray,
   FormControl,
@@ -352,6 +353,7 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
 export class OrderFormPage implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly api = inject(ApiService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   readonly customers = signal<Customer[]>([]);
@@ -380,7 +382,9 @@ export class OrderFormPage implements OnInit {
   ngOnInit(): void {
     this.addItem();
     this.loadReferences();
-    this.form.controls.customerId.valueChanges.subscribe((id) => this.prefillAddress(id));
+    this.form.controls.customerId.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((id) => this.prefillAddress(id));
   }
   loadReferences(): void {
     this.referenceLoading.set(true);

@@ -65,6 +65,8 @@ async function main() {
               (tile) =>
                 tile.complete &&
                 tile.naturalWidth > 0 &&
+                tile.classList.contains("leaflet-tile-loaded") &&
+                tile.style.opacity === "1" &&
                 Number(getComputedStyle(tile).opacity) === 1,
             )
           );

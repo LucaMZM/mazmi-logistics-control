@@ -49,7 +49,7 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
           CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
         run: node .github/scripts/capture-demo.cjs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: portfolio-screenshots
           path: ${{ runner.temp }}/portfolio-screenshots/

@@ -13,7 +13,7 @@ async function main() {
   const browser = await chromium.launch();
   try {
     const context = await browser.newContext({
-      viewport: { width: 1440, height: 1100 },
+      viewport: { width: 1440, height: 1440 },
       deviceScaleFactor: 1,
       locale: "en-GB",
       timezoneId: "Europe/Madrid",
@@ -61,13 +61,19 @@ async function main() {
           const tiles = [...document.querySelectorAll(".leaflet-tile")];
           return (
             tiles.length > 0 &&
-            tiles.every((tile) => tile.complete && tile.naturalWidth > 0)
+            tiles.every(
+              (tile) =>
+                tile.complete &&
+                tile.naturalWidth > 0 &&
+                Number(getComputedStyle(tile).opacity) === 1,
+            )
           );
         });
       }
       await page
         .locator(".mat-mdc-snack-bar-container")
         .waitFor({ state: "hidden" });
+      await page.mouse.move(0, 0);
     }
     const views = [];
     async function capture(name, route, heading, selector, map = false) {
@@ -178,7 +184,7 @@ async function main() {
           commit: process.env.GITHUB_SHA,
           run: process.env.GITHUB_RUN_ID,
           capturedAt: new Date().toISOString(),
-          viewport: { width: 1440, height: 1100 },
+          viewport: { width: 1440, height: 1440 },
           screenshots: views.map(({ name }) => name),
           mobileViewport: { width: 390, height: 844 },
           shipmentWebSocketVerified: true,

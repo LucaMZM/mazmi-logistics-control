@@ -7,6 +7,8 @@ import {
   Incident,
   Inventory,
   OrderDetail,
+  OrderPriority,
+  OrderStatus,
   OrderSummary,
   PageResponse,
   Product,
@@ -18,15 +20,25 @@ import {
   Warehouse,
 } from '../../shared/models/models';
 
+export interface OrderListParams {
+  search?: string;
+  status?: OrderStatus | '';
+  priority?: OrderPriority;
+  customer?: string;
+  warehouse?: string;
+  page?: number;
+  size?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private readonly http = inject(HttpClient);
   dashboard() {
     return this.http.get<Dashboard>('/api/v1/dashboard');
   }
-  orders(params: Record<string, string | number | undefined> = {}) {
+  orders(params: OrderListParams = {}) {
     return this.http.get<PageResponse<OrderSummary>>('/api/v1/orders', {
-      params: this.params(params),
+      params: this.params({ ...params }),
     });
   }
   order(id: string) {

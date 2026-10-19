@@ -1,6 +1,7 @@
 export type Role = 'ADMIN' | 'OPERATOR' | 'VIEWER';
 export type OrderStatus =
   'DRAFT' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+export type OrderPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
 export type ShipmentStatus = 'CREATED' | 'ASSIGNED' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
 export type DeliveryHealth = 'ON_TIME' | 'AT_RISK' | 'DELAYED';
 
@@ -67,7 +68,7 @@ export interface OrderSummary {
   customer: string;
   warehouse: string;
   status: OrderStatus;
-  priority: string;
+  priority: OrderPriority;
   totalAmount: number;
   createdAt: string;
 }

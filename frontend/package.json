@@ -26,6 +26,7 @@
     "@angular/material": "^22.1.1",
     "@angular/platform-browser": "^22.1.0",
     "@angular/router": "^22.1.0",
+    "@ngrx/signals": "22.0.1",
     "@stomp/stompjs": "^7.3.0",
     "chart.js": "^4.5.1",
     "leaflet": "^1.9.4",

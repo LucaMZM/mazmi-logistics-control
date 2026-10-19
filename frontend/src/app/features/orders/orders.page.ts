@@ -1,5 +1,6 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,17 +8,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
-import { debounceTime, distinctUntilChanged, Subject, Subscription, takeUntil } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
-import { ApiService } from '../../core/services/api.service';
 import { FeedbackStateComponent } from '../../shared/components/feedback-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state.component';
 import { PageHeaderComponent } from '../../shared/components/page-header.component';
 import { StatusChipComponent } from '../../shared/components/status-chip.component';
-import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/models';
+import { OrderStatus } from '../../shared/models/models';
+import { OrdersStore } from './orders.store';
 
 @Component({
   selector: 'app-orders-page',
+  providers: [OrdersStore],
   imports: [
     CurrencyPipe,
     DatePipe,
@@ -61,20 +62,14 @@ import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/mod
     </section>
     <section class="table-card">
       <div class="list-summary">
-        <strong>Order register</strong
-        ><span>{{ result()?.totalElements ?? 0 }} matching orders</span
-        ><button
-          mat-button
-          type="button"
-          (click)="clearFilters()"
-          [disabled]="!search.value && !status.value"
-        >
+        <strong>Order register</strong><span>{{ store.totalElements() }} matching orders</span
+        ><button mat-button type="button" (click)="clearFilters()" [disabled]="!store.hasFilters()">
           Clear filters
         </button>
       </div>
-      @if (loading()) {
+      @if (store.loading()) {
         <app-loading-state />
-      } @else if (loadError()) {
+      } @else if (store.loadError()) {
         <app-feedback-state
           kind="error"
           title="Orders unavailable"
@@ -98,7 +93,7 @@ import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/mod
               </tr>
             </thead>
             <tbody>
-              @for (order of result()?.content; track order.id) {
+              @for (order of store.result()?.content; track order.id) {
                 <tr>
                   <td data-label="Order">
                     <a [routerLink]="['/orders', order.id]">{{ order.orderNumber }}</a>
@@ -119,18 +114,18 @@ import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/mod
               }
             </tbody>
           </table>
-          @if (!result()?.content?.length) {
+          @if (!store.result()?.content?.length) {
             <app-feedback-state
               title="No orders found"
               message="Adjust the current filters or create a new draft order."
             />
           }
         </div>
-        @if (result()?.totalElements) {
+        @if (store.totalElements()) {
           <mat-paginator
-            [length]="result()?.totalElements ?? 0"
-            [pageIndex]="result()?.page ?? 0"
-            [pageSize]="pageSize"
+            [length]="store.totalElements()"
+            [pageIndex]="store.query().page"
+            [pageSize]="store.query().size"
             [pageSizeOptions]="[10, 20, 50]"
             (page)="page($event)"
           />
@@ -184,16 +179,11 @@ import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/mod
     `,
   ],
 })
-export class OrdersPage implements OnInit, OnDestroy {
+export class OrdersPage implements OnInit {
   readonly auth = inject(AuthService);
-  private readonly api = inject(ApiService);
-  private readonly destroy$ = new Subject<void>();
-  private request?: Subscription;
-  readonly loading = signal(true);
-  readonly loadError = signal(false);
-  readonly result = signal<PageResponse<OrderSummary> | null>(null);
+  readonly store = inject(OrdersStore);
   readonly search = new FormControl('', { nonNullable: true });
-  readonly status = new FormControl('', { nonNullable: true });
+  readonly status = new FormControl<OrderStatus | ''>('', { nonNullable: true });
   readonly statuses: OrderStatus[] = [
     'DRAFT',
     'CONFIRMED',
@@ -203,8 +193,14 @@ export class OrdersPage implements OnInit, OnDestroy {
     'DELIVERED',
     'CANCELLED',
   ];
-  private pageIndex = 0;
-  pageSize = 20;
+  constructor() {
+    this.search.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      this.store.setSearch(value);
+    });
+    this.status.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+      this.store.setStatus(value);
+    });
+  }
   nextStep(status: OrderStatus): string {
     if (!this.auth.canOperate()) return 'View details';
     switch (status) {
@@ -225,57 +221,17 @@ export class OrdersPage implements OnInit, OnDestroy {
     }
   }
   ngOnInit(): void {
-    this.load();
-    this.search.valueChanges
-      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.pageIndex = 0;
-        this.load();
-      });
-    this.status.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.pageIndex = 0;
-      this.load();
-    });
-  }
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.store.load();
   }
   page(event: PageEvent): void {
-    this.pageIndex = event.pageIndex;
-    this.pageSize = event.pageSize;
-    this.load();
+    this.store.setPage(event.pageIndex, event.pageSize);
   }
   retry(): void {
-    this.load();
+    this.store.retry();
   }
   clearFilters(): void {
     this.search.setValue('', { emitEvent: false });
     this.status.setValue('', { emitEvent: false });
-    this.pageIndex = 0;
-    this.load();
-  }
-  private load(): void {
-    this.request?.unsubscribe();
-    this.loading.set(true);
-    this.loadError.set(false);
-    this.request = this.api
-      .orders({
-        search: this.search.value,
-        status: this.status.value,
-        page: this.pageIndex,
-        size: this.pageSize,
-      })
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (result) => {
-          this.result.set(result);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loadError.set(true);
-          this.loading.set(false);
-        },
-      });
+    this.store.clearFilters();
   }
 }

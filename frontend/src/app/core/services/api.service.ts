@@ -1,11 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import {
   Customer,
   Dashboard,
   Driver,
   Incident,
   Inventory,
+  IncidentType,
   OrderDetail,
   OrderPriority,
   OrderStatus,
@@ -13,7 +15,9 @@ import {
   PageResponse,
   Product,
   ShipmentDetail,
+  ShipmentStatus,
   ShipmentSummary,
+  DeliveryHealth,
   StockMovement,
   UserRecord,
   Vehicle,
@@ -28,6 +32,21 @@ export interface OrderListParams {
   warehouse?: string;
   page?: number;
   size?: number;
+}
+
+export interface ShipmentListParams {
+  search?: string;
+  status?: ShipmentStatus | '';
+  deliveryHealth?: DeliveryHealth | '';
+  driver?: string;
+  vehicle?: string;
+  page?: number;
+  size?: number;
+}
+
+export interface AssignShipmentRequest {
+  driverId: string;
+  vehicleId: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -64,18 +83,31 @@ export class ApiService {
   inventoryAction(id: string, action: 'receive' | 'adjust', payload: unknown) {
     return this.http.post<Inventory>(`/api/v1/inventory/${id}/${action}`, payload);
   }
-  shipments(params: Record<string, string | number | undefined> = {}) {
+  shipments(params: ShipmentListParams = {}) {
     return this.http.get<PageResponse<ShipmentSummary>>('/api/v1/shipments', {
-      params: this.params(params),
+      params: this.params({ ...params }),
     });
   }
   shipment(id: string) {
     return this.http.get<ShipmentDetail>(`/api/v1/shipments/${id}`);
   }
-  shipmentAction(id: string, action: string, payload: unknown = {}) {
-    return this.http.post<ShipmentDetail>(`/api/v1/shipments/${id}/${action}`, payload);
+  assignShipment(id: string, payload: AssignShipmentRequest) {
+    return this.http.post<ShipmentDetail>(`/api/v1/shipments/${id}/assign`, payload);
   }
-  simulationAction(id: string, action: string, payload: unknown = {}) {
+  shipmentAction(id: string, action: 'start' | 'deliver' | 'cancel') {
+    return this.http.post<ShipmentDetail>(`/api/v1/shipments/${id}/${action}`, {});
+  }
+  simulationAction(id: string, action: 'start' | 'pause'): Observable<ShipmentDetail>;
+  simulationAction(
+    id: string,
+    action: 'incident',
+    payload: { type: IncidentType },
+  ): Observable<Incident>;
+  simulationAction(
+    id: string,
+    action: 'start' | 'pause' | 'incident',
+    payload: { type: IncidentType } | Record<string, never> = {},
+  ) {
     return this.http.post<ShipmentDetail | Incident>(
       `/api/v1/shipments/${id}/simulation/${action}`,
       payload,

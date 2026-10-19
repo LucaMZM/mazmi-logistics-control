@@ -4,6 +4,7 @@ export type OrderStatus =
 export type OrderPriority = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT';
 export type ShipmentStatus = 'CREATED' | 'ASSIGNED' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
 export type DeliveryHealth = 'ON_TIME' | 'AT_RISK' | 'DELAYED';
+export type IncidentType = 'TRAFFIC' | 'VEHICLE' | 'WEATHER' | 'ADDRESS' | 'CUSTOMER' | 'OTHER';
 
 export interface AuthUser {
   id: string;
@@ -183,10 +184,10 @@ export interface ShipmentSummary {
   orderNumber: string;
   status: ShipmentStatus;
   deliveryHealth: DeliveryHealth;
-  driver?: string;
-  vehicle?: string;
+  driver: string | null;
+  vehicle: string | null;
   progress: number;
-  eta?: string;
+  eta: string | null;
   updatedAt: string;
 }
 export interface TrackingEvent {
@@ -208,17 +209,17 @@ export interface ShipmentDetail {
   currentLongitude: number;
   progress: number;
   simulationActive: boolean;
-  eta?: string;
-  departedAt?: string;
-  deliveredAt?: string;
+  eta: string | null;
+  departedAt: string | null;
+  deliveredAt: string | null;
   warehouseLatitude: number;
   warehouseLongitude: number;
   destinationLatitude: number;
   destinationLongitude: number;
-  driverId?: string;
-  driver?: string;
-  vehicleId?: string;
-  vehicle?: string;
+  driverId: string | null;
+  driver: string | null;
+  vehicleId: string | null;
+  vehicle: string | null;
   events: TrackingEvent[];
   openIncidents: Array<{
     id: string;
@@ -237,8 +238,8 @@ export interface RealtimeUpdate {
   longitude: number;
   progress: number;
   simulationActive: boolean;
-  eta?: string;
-  latestEvent?: TrackingEvent;
+  eta: string | null;
+  latestEvent: TrackingEvent | null;
 }
 export interface UserRecord {
   id: string;

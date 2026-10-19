@@ -1,5 +1,6 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -7,10 +8,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { filter, finalize, forkJoin, Subject, switchMap, takeUntil } from 'rxjs';
+import { distinctUntilChanged, filter, finalize, map } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { ApiService } from '../../core/services/api.service';
-import { RealtimeService } from '../../core/websocket/realtime.service';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.component';
 import { FeedbackStateComponent } from '../../shared/components/feedback-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state.component';
@@ -20,11 +20,12 @@ import {
 } from '../../shared/components/operations-map.component';
 import { PageHeaderComponent } from '../../shared/components/page-header.component';
 import { StatusChipComponent } from '../../shared/components/status-chip.component';
-import { Driver, RealtimeUpdate, ShipmentDetail, Vehicle } from '../../shared/models/models';
-import { mergeShipmentRealtime } from './shipment-update';
+import { IncidentType, ShipmentDetail } from '../../shared/models/models';
+import { ShipmentDetailStore } from './shipment-detail.store';
 
 @Component({
   selector: 'app-shipment-detail-page',
+  providers: [ShipmentDetailStore],
   imports: [
     DatePipe,
     DecimalPipe,
@@ -546,28 +547,26 @@ import { mergeShipmentRealtime } from './shipment-update';
     `,
   ],
 })
-export class ShipmentDetailPage implements OnInit, OnDestroy {
+export class ShipmentDetailPage implements OnInit {
   readonly auth = inject(AuthService);
   private readonly api = inject(ApiService);
   private readonly route = inject(ActivatedRoute);
-  private readonly realtime = inject(RealtimeService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly destroy$ = new Subject<void>();
-  readonly loading = signal(true);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly store = inject(ShipmentDetailStore);
+  readonly loading = this.store.loading;
   readonly pending = signal(false);
-  readonly loadError = signal(false);
-  readonly shipment = signal<ShipmentDetail | null>(null);
-  readonly drivers = signal<Driver[]>([]);
-  readonly vehicles = signal<Vehicle[]>([]);
+  readonly loadError = this.store.loadError;
+  readonly shipment = this.store.shipment;
   readonly driver = new FormControl('', { nonNullable: true });
   readonly vehicle = new FormControl('', { nonNullable: true });
-  readonly incidentType = new FormControl('TRAFFIC', { nonNullable: true });
+  readonly incidentType = new FormControl<IncidentType>('TRAFFIC', { nonNullable: true });
   readonly availableDrivers = computed(() =>
-    this.drivers().filter((item) => item.active && item.status === 'AVAILABLE'),
+    this.store.drivers().filter((item) => item.active && item.status === 'AVAILABLE'),
   );
   readonly availableVehicles = computed(() =>
-    this.vehicles().filter((item) => item.active && item.status === 'AVAILABLE'),
+    this.store.vehicles().filter((item) => item.active && item.status === 'AVAILABLE'),
   );
   readonly mapPoints = computed<OperationMapPoint[]>(() => {
     const item = this.shipment();
@@ -612,74 +611,94 @@ export class ShipmentDetailPage implements OnInit, OnDestroy {
       [item.destinationLatitude, item.destinationLongitude],
     ];
   });
-  private id = '';
+  private actionSequence = 0;
   ngOnInit(): void {
-    this.id = this.route.snapshot.paramMap.get('id') ?? '';
-    this.load();
-    this.realtime
-      .watchShipment(this.id)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((update) => this.applyRealtime(update));
-    this.realtime
-      .watchConnected()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.refresh());
-  }
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.route.paramMap
+      .pipe(
+        map((params) => params.get('id') ?? ''),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((id) => {
+        this.actionSequence++;
+        this.pending.set(false);
+        this.driver.setValue('', { emitEvent: false });
+        this.vehicle.setValue('', { emitEvent: false });
+        this.store.open(id);
+      });
   }
   assign(): void {
-    this.shipmentAction('assign', { driverId: this.driver.value, vehicleId: this.vehicle.value });
-  }
-  shipmentAction(action: string, payload: unknown = {}): void {
-    if (this.pending()) return;
-    this.pending.set(true);
+    if (!this.driver.value || !this.vehicle.value) return;
+    const context = this.beginAction();
+    if (!context) return;
     this.api
-      .shipmentAction(this.id, action, payload)
-      .pipe(finalize(() => this.pending.set(false)))
+      .assignShipment(context.id, { driverId: this.driver.value, vehicleId: this.vehicle.value })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.finishAction(context)),
+      )
       .subscribe({
-        next: (item) => {
-          this.shipment.set(item);
-          this.snackBar.open('Shipment updated.', 'Dismiss', { duration: 2500 });
-        },
+        next: (item) => this.acceptAction(context, item, 'Shipment updated.'),
+        error: () => {},
+      });
+  }
+  shipmentAction(action: 'start' | 'deliver' | 'cancel'): void {
+    const context = this.beginAction();
+    if (!context) return;
+    this.api
+      .shipmentAction(context.id, action)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.finishAction(context)),
+      )
+      .subscribe({
+        next: (item) => this.acceptAction(context, item, 'Shipment updated.'),
         error: () => {},
       });
   }
   simulation(action: 'start' | 'pause'): void {
-    if (this.pending()) return;
-    this.pending.set(true);
+    const context = this.beginAction();
+    if (!context) return;
     this.api
-      .simulationAction(this.id, action)
-      .pipe(finalize(() => this.pending.set(false)))
+      .simulationAction(context.id, action)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.finishAction(context)),
+      )
       .subscribe({
-        next: () => {
+        next: (item) => {
+          if (!this.isCurrentAction(context)) return;
+          this.store.acceptAction(context.id, context.revision, item);
           this.snackBar.open(
             `Demo simulation ${action === 'start' ? 'started' : 'paused'}.`,
             'Dismiss',
             { duration: 2200 },
           );
-          this.refresh();
         },
         error: () => {},
       });
   }
   simulateIncident(): void {
-    if (this.pending()) return;
-    this.pending.set(true);
+    const context = this.beginAction();
+    if (!context) return;
     this.api
-      .simulationAction(this.id, 'incident', { type: this.incidentType.value })
-      .pipe(finalize(() => this.pending.set(false)))
+      .simulationAction(context.id, 'incident', { type: this.incidentType.value })
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.finishAction(context)),
+      )
       .subscribe({
         next: () => {
+          if (!this.isCurrentAction(context)) return;
           this.snackBar.open('Demo incident opened.', 'Dismiss', { duration: 2500 });
-          this.refresh();
+          this.store.refresh();
         },
         error: () => {},
       });
   }
   deliver(): void {
     if (this.pending()) return;
+    const id = this.store.id();
     this.dialog
       .open(ConfirmDialogComponent, {
         data: {
@@ -689,52 +708,46 @@ export class ShipmentDetailPage implements OnInit, OnDestroy {
         },
       })
       .afterClosed()
-      .pipe(
-        filter(Boolean),
-        switchMap(() => {
-          this.pending.set(true);
-          return this.api
-            .shipmentAction(this.id, 'deliver')
-            .pipe(finalize(() => this.pending.set(false)));
-        }),
-      )
-      .subscribe({
-        next: (item) => {
-          this.shipment.set(item);
-          this.snackBar.open('Delivery confirmed. Fleet resources released.', 'Dismiss', {
-            duration: 3000,
+      .pipe(filter(Boolean), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.store.id() !== id) return;
+        const context = this.beginAction();
+        if (!context) return;
+        this.api
+          .shipmentAction(context.id, 'deliver')
+          .pipe(
+            takeUntilDestroyed(this.destroyRef),
+            finalize(() => this.finishAction(context)),
+          )
+          .subscribe({
+            next: (item) =>
+              this.acceptAction(context, item, 'Delivery confirmed. Fleet resources released.'),
+            error: () => {},
           });
-        },
-        error: () => {},
       });
   }
   load(): void {
-    this.loading.set(true);
-    this.loadError.set(false);
-    forkJoin({
-      shipment: this.api.shipment(this.id),
-      drivers: this.api.drivers(),
-      vehicles: this.api.vehicles(),
-    }).subscribe({
-      next: ({ shipment, drivers, vehicles }) => {
-        this.shipment.set(shipment);
-        this.drivers.set(drivers);
-        this.vehicles.set(vehicles);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loadError.set(true);
-        this.loading.set(false);
-      },
-    });
+    this.store.load();
   }
-  private refresh(): void {
-    this.api.shipment(this.id).subscribe((item) => this.shipment.set(item));
+  private beginAction(): { id: string; sequence: number; revision: number } | null {
+    const id = this.store.id();
+    if (!id || this.pending()) return null;
+    this.pending.set(true);
+    return { id, sequence: ++this.actionSequence, revision: this.store.revision() };
   }
-  private applyRealtime(update: RealtimeUpdate): void {
-    const current = this.shipment();
-    if (!current) return;
-    this.shipment.set(mergeShipmentRealtime(current, update));
-    if (update.status === 'DELIVERED') this.refresh();
+  private isCurrentAction(context: { id: string; sequence: number }): boolean {
+    return this.store.id() === context.id && this.actionSequence === context.sequence;
+  }
+  private finishAction(context: { id: string; sequence: number }): void {
+    if (this.isCurrentAction(context)) this.pending.set(false);
+  }
+  private acceptAction(
+    context: { id: string; sequence: number; revision: number },
+    item: ShipmentDetail,
+    message: string,
+  ): void {
+    if (!this.isCurrentAction(context)) return;
+    this.store.acceptAction(context.id, context.revision, item);
+    this.snackBar.open(message, 'Dismiss', { duration: 2500 });
   }
 }

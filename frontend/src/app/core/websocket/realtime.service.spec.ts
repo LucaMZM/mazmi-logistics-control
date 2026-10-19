@@ -86,6 +86,8 @@ describe('RealtimeService', () => {
       longitude: -3.7,
       progress: 50,
       simulationActive: true,
+      eta: null,
+      latestEvent: null,
     } satisfies RealtimeUpdate;
     subscription?.callback({ body: JSON.stringify(update) });
     expect(await updatePromise).toEqual(update);

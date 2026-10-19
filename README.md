@@ -45,9 +45,9 @@ Los datos del perfil demo son ficticios. Las posiciones de los envíos se calcul
 
 ## Capturas
 
-### Visión operativa
+### Centro de operaciones
 
-![Dashboard de Mazmi Logistics Control con indicadores, mapa de envíos, incidencias e inventario crítico](docs/screenshots/dashboard.png)
+![Centro de operaciones con pulso logístico, cola de atención, mapa de envíos e inventario crítico](docs/screenshots/dashboard.png)
 
 ### Seguimiento simulado de envíos
 
@@ -310,6 +310,8 @@ cd backend
 El backend combina JUnit Jupiter, Mockito y tests de integración contra PostgreSQL real mediante Testcontainers. Se validan reglas de inventario, restricciones de base de datos, seguridad, transiciones, asignación de flota, capacidad y rollback transaccional.
 
 El workflow de GitHub Actions ejecuta jobs independientes para frontend y backend con Node.js 24.15.0 y Java 21. Formato, lint, tests y builds forman parte de la validación automatizada.
+
+El workflow manual [Capture demo screenshots](https://github.com/LucaMZM/mazmi-logistics-control/actions/workflows/capture-demo.yml) arranca la aplicación completa con Docker Compose en Ubuntu. Playwright captura el entorno demo real y comprueba autenticación, mapas, actualizaciones WebSocket y ausencia de desbordamiento en móvil. Las imágenes y el informe de ejecución se publican como artifact descargable.
 
 ## Estructura del proyecto
 

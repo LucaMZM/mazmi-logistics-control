@@ -88,9 +88,10 @@ Las transiciones se exponen como acciones de negocio explícitas. Las transaccio
 
 ### Dashboard
 
-- KPIs de pedidos del día, envíos activos, envíos retrasados e incidencias abiertas.
+- Pulso operativo de pedidos, envíos activos, retrasos e incidencias con acceso a sus registros.
+- Cola de atención con envíos en riesgo, incidencias abiertas y stock crítico.
 - Volumen de pedidos de los últimos siete días.
-- Inventario crítico y últimas incidencias.
+- Inventario crítico con acceso directo al nivel de stock.
 - Mapa de envíos activos con estado de entrega y progreso simulado.
 - Endpoint agregado para evitar múltiples consultas independientes desde el frontend.
 
@@ -98,7 +99,7 @@ Las transiciones se exponen como acciones de negocio explícitas. Las transaccio
 
 - Creación de pedidos en estado borrador con cliente, almacén, prioridad y dirección de entrega.
 - Precios de producto y totales calculados por el backend.
-- Listado paginado, filtros y vista de detalle.
+- Listado paginado, filtros, siguiente paso visible y vista de detalle.
 - Transiciones explícitas de confirmación, preparación y pedido listo.
 - Cancelación controlada con liberación de reservas cuando corresponde.
 - Creación automática del envío al completar la preparación.

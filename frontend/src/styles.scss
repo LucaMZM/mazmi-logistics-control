@@ -1,7 +1,7 @@
 @use '@angular/material' as mat;
 
-$primary: mat.m2-define-palette(mat.$m2-blue-palette, 700);
-$accent: mat.m2-define-palette(mat.$m2-cyan-palette, 700);
+$primary: mat.m2-define-palette(mat.$m2-cyan-palette, 800);
+$accent: mat.m2-define-palette(mat.$m2-teal-palette, 700);
 $warn: mat.m2-define-palette(mat.$m2-red-palette, 700);
 $theme: mat.m2-define-light-theme(
   (
@@ -22,13 +22,13 @@ $theme: mat.m2-define-light-theme(
 
 :root {
   --surface: #fff;
-  --canvas: #f4f6f8;
-  --ink: #172b3a;
-  --muted: #5c6f7e;
-  --line: #dde5eb;
-  --accent: #176b87;
-  --radius: 8px;
-  --shadow: 0 2px 4px rgb(20 40 60 / 3%);
+  --canvas: #f1f4f3;
+  --ink: #142a33;
+  --muted: #536872;
+  --line: #d8e2e0;
+  --accent: #087c83;
+  --radius: 7px;
+  --shadow: 0 1px 2px rgb(17 47 55 / 4%);
   color-scheme: light;
   font-family:
     Inter,
@@ -37,8 +37,8 @@ $theme: mat.m2-define-light-theme(
     BlinkMacSystemFont,
     'Segoe UI',
     sans-serif;
-  color: #0f172a;
-  background: #f5f7fa;
+  color: var(--ink);
+  background: var(--canvas);
   font-synthesis: none;
 }
 
@@ -49,7 +49,7 @@ html,
 body {
   margin: 0;
   min-height: 100%;
-  background: #f5f7fa;
+  background: var(--canvas);
 }
 body {
   min-width: 320px;
@@ -89,7 +89,7 @@ select {
 }
 
 :focus-visible {
-  outline: 3px solid #187b9b;
+  outline: 3px solid #087c83;
   outline-offset: 3px;
 }
 .sr-only {
@@ -113,13 +113,13 @@ select {
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 15px 18px;
+  padding: 13px 18px;
   border-bottom: 1px solid var(--line);
-  font-size: 13px;
+  font-size: 14px;
 }
 .content .list-summary span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
 }
 .content .numeric {
   text-align: right;
@@ -164,11 +164,11 @@ select {
 }
 .content .table-wrap th {
   padding: 13px 18px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 650;
   letter-spacing: 0.035em;
-  color: #526777;
-  background: #f8fafb;
+  color: #536872;
+  background: #f7f9f8;
   white-space: nowrap;
 }
 .content .table-wrap td {
@@ -182,10 +182,10 @@ select {
 }
 .content .table-wrap tbody tr:hover,
 .content .table-wrap tbody tr:focus-within {
-  background: #f4f8fa;
+  background: #eef6f5;
 }
 .content .table-wrap td a {
-  color: #176b87;
+  color: var(--accent);
   font-weight: 650;
   text-underline-offset: 4px;
 }
@@ -208,7 +208,7 @@ select {
   font-size: 13px;
 }
 .content dt {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 .content .section h2,
@@ -225,7 +225,7 @@ select {
 }
 .content .section header p,
 .content .section header a {
-  font-size: 12px;
+  font-size: 13px;
 }
 .content .filters .mat-mdc-form-field-subscript-wrapper {
   display: none;
@@ -258,6 +258,57 @@ select {
 }
 .leaflet-tile-pane {
   filter: saturate(0.55);
+}
+@media (max-width: 760px) {
+  .content .responsive-table {
+    min-width: 0;
+  }
+  .content .responsive-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .content .responsive-table tbody {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+  }
+  .content .responsive-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+    padding: 15px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .content .responsive-table td,
+  .content .responsive-table td.numeric {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    text-align: left;
+    border: 0;
+    overflow-wrap: anywhere;
+  }
+  .content .responsive-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 3px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .content .responsive-table td:first-child,
+  .content .responsive-table td[data-wide] {
+    grid-column: 1 / -1;
+  }
 }
 @media (max-width: 600px) {
   .content .filters mat-form-field {

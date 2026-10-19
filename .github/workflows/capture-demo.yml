@@ -1,0 +1,66 @@
+name: Capture demo screenshots
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: capture-demo
+  cancel-in-progress: false
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.15.0
+      - name: Install isolated capture tools
+        run: |
+          npm install --prefix "$RUNNER_TEMP/capture-tools" --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/capture-tools/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Prepare ephemeral demo environment
+        shell: bash
+        run: |
+          DB_PASSWORD=$(openssl rand -hex 24)
+          SIGNING_SECRET=$(openssl rand -hex 32)
+          echo "::add-mask::$DB_PASSWORD"
+          echo "::add-mask::$SIGNING_SECRET"
+          umask 077
+          {
+            echo 'POSTGRES_DB=mazmi_capture'
+            echo 'POSTGRES_USER=mazmi_capture'
+            echo "POSTGRES_PASSWORD=$DB_PASSWORD"
+            echo "JWT_SECRET=$SIGNING_SECRET"
+            echo 'SPRING_PROFILES_ACTIVE=demo'
+            echo 'DEMO_ENABLED=true'
+            echo 'COOKIE_SECURE=false'
+            echo 'ALLOWED_ORIGIN=http://localhost:4200'
+            echo 'SWAGGER_ENABLED=true'
+          } > "$RUNNER_TEMP/capture.env"
+      - name: Build and start the full application
+        run: docker compose --env-file "$RUNNER_TEMP/capture.env" -p mazmi-capture up --build --detach --wait --wait-timeout 240
+      - name: Capture desktop and verify mobile
+        env:
+          NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
+          CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
+        run: node .github/scripts/capture-demo.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-screenshots
+          path: ${{ runner.temp }}/portfolio-screenshots/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Service diagnostics on failure
+        if: failure()
+        run: docker compose --env-file "$RUNNER_TEMP/capture.env" -p mazmi-capture logs --no-color --tail 100
+      - name: Stop temporary services
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/capture.env" ]; then
+            docker compose --env-file "$RUNNER_TEMP/capture.env" -p mazmi-capture down --volumes --remove-orphans
+          fi

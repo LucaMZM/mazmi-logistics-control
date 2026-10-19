@@ -75,8 +75,8 @@ import { mergeShipmentRealtime } from './shipment-update';
                       : 'Simulation paused'
           }}</span
         >
-        <span
-          >{{ item.currentLatitude | number: '1.4-4' }},
+        <span class="position-label"
+          >Simulated position · {{ item.currentLatitude | number: '1.4-4' }},
           {{ item.currentLongitude | number: '1.4-4' }}</span
         >
         @if (pending()) {
@@ -124,6 +124,10 @@ import { mergeShipmentRealtime } from './shipment-update';
           @if (auth.canOperate()) {
             <fieldset class="controls" [disabled]="pending()">
               <legend class="sr-only">Shipment actions</legend>
+              <div class="controls-heading">
+                <strong>Operational controls</strong
+                ><span>Actions follow the current shipment state.</span>
+              </div>
               @if (item.status === 'CREATED') {
                 <mat-form-field appearance="outline"
                   ><mat-label>Driver</mat-label
@@ -199,7 +203,7 @@ import { mergeShipmentRealtime } from './shipment-update';
                   (click)="simulateIncident()"
                 >
                   Simulate incident</button
-                ><button mat-button [disabled]="pending()" (click)="deliver()">
+                ><button mat-stroked-button [disabled]="pending()" (click)="deliver()">
                   Deliver manually
                 </button>
               }
@@ -254,7 +258,7 @@ import { mergeShipmentRealtime } from './shipment-update';
     `
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 2fr) 340px;
+        grid-template-columns: minmax(0, 2fr) minmax(330px, 370px);
         gap: 18px;
         margin-bottom: 18px;
       }
@@ -268,7 +272,7 @@ import { mergeShipmentRealtime } from './shipment-update';
       }
       .map-panel {
         position: relative;
-        min-height: 470px;
+        min-height: 510px;
         height: 100%;
       }
       .map-panel app-operations-map {
@@ -282,7 +286,6 @@ import { mergeShipmentRealtime } from './shipment-update';
         top: 15px;
         background: rgb(255 255 255 / 94%);
         backdrop-filter: blur(8px);
-        border-radius: 6px;
         border: 1px solid #e2e8f0;
         padding: 7px 10px;
         font-size: 10px;
@@ -310,40 +313,40 @@ import { mergeShipmentRealtime } from './shipment-update';
         display: block;
       }
       .summary header span {
-        font-size: 10px;
-        color: #64748b;
+        font-size: 11px;
+        color: var(--muted);
       }
       .summary header strong {
-        font-size: 14px;
+        font-size: 15px;
         margin-top: 4px;
       }
       .summary header a {
-        font-size: 10px;
-        color: #1d4ed8;
+        font-size: 12px;
+        color: var(--accent);
         text-decoration: none;
         font-weight: 700;
       }
       .summary dl {
         display: grid;
-        grid-template-columns: 130px 1fr;
-        gap: 14px;
+        grid-template-columns: 122px 1fr;
+        gap: 15px;
         margin: 0;
         padding: 21px 18px;
         border-bottom: 1px solid #e2e8f0;
       }
       .summary dt {
-        font-size: 10px;
-        color: #64748b;
+        font-size: 12px;
+        color: var(--muted);
       }
       .summary dd {
-        font-size: 11px;
+        font-size: 13px;
         margin: 0;
       }
       .progress-head {
         display: flex;
         justify-content: space-between;
         padding: 18px 18px 8px;
-        font-size: 11px;
+        font-size: 12px;
       }
       .progress {
         height: 7px;
@@ -368,6 +371,18 @@ import { mergeShipmentRealtime } from './shipment-update';
       .controls mat-form-field {
         width: 100%;
       }
+      .controls-heading {
+        display: grid;
+        gap: 2px;
+        margin-bottom: 3px;
+      }
+      .controls-heading strong {
+        font-size: 13px;
+      }
+      .controls-heading span {
+        color: var(--muted);
+        font-size: 11px;
+      }
       .availability-note {
         margin: -3px 0 3px;
         color: #92400e;
@@ -381,7 +396,6 @@ import { mergeShipmentRealtime } from './shipment-update';
         align-items: start;
       }
       .incidents {
-        border-radius: var(--radius);
         overflow: hidden;
       }
       .timeline ol {
@@ -487,7 +501,6 @@ import { mergeShipmentRealtime } from './shipment-update';
         padding: 12px 16px;
         background: #edf4f7;
         border: 1px solid #d5e5ed;
-        border-radius: 7px;
         margin-bottom: 18px;
         font-size: 12px;
         color: #375a6d;
@@ -497,6 +510,9 @@ import { mergeShipmentRealtime } from './shipment-update';
         align-items: center;
         gap: 8px;
         font-weight: 600;
+      }
+      .tracking-strip .position-label {
+        font-variant-numeric: tabular-nums;
       }
       .tracking-strip i {
         width: 7px;

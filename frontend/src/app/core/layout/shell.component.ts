@@ -33,7 +33,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
           ><strong>MAZMI</strong><span>Logistics Control</span></a
         >
         <nav aria-label="Primary navigation">
-          <p>Workspace</p>
+          <p>Command center</p>
           @for (item of navigation; track item.path) {
             @if (item.path === '/customers') {
               <p>Resources</p>
@@ -76,7 +76,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
             ☰
           </button>
           <div class="route">
-            <span>Operations</span><strong>{{ pageTitle() }}</strong>
+            <span>MAZMI / Operations</span><strong>{{ pageTitle() }}</strong>
           </div>
           <div class="account">
             <span
@@ -107,40 +107,40 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
     `
       .workspace {
         min-height: 100vh;
-        background: #f5f7fa;
+        background: var(--canvas);
       }
       .sidebar {
         position: fixed;
         inset: 0 auto 0 0;
-        width: 244px;
-        background: #0f172a;
-        color: #cbd5e1;
+        width: 248px;
+        background: #102831;
+        color: #d0e0e1;
         display: flex;
         flex-direction: column;
         z-index: 30;
       }
       .brand {
-        height: 76px;
+        height: 78px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         padding: 0 26px;
         color: #fff;
         text-decoration: none;
-        border-bottom: 1px solid #1e293b;
+        border-bottom: 1px solid rgb(215 236 237 / 12%);
       }
       .brand strong {
-        font-size: 19px;
-        letter-spacing: 0.14em;
+        font-size: 20px;
+        letter-spacing: 0.18em;
       }
       .brand span {
         font-size: 11px;
-        color: #94a3b8;
+        color: #a6c0c3;
         letter-spacing: 0.04em;
         margin-top: 2px;
       }
       nav {
-        padding: 22px 13px;
+        padding: 18px 13px;
         display: grid;
         align-content: start;
         gap: 4px;
@@ -152,7 +152,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         display: flex;
         align-items: center;
         gap: 13px;
-        color: #94a3b8;
+        color: #aec5c8;
         text-decoration: none;
         padding: 10px 12px;
         font-size: 13px;
@@ -166,18 +166,18 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
       }
       nav a:hover {
         color: #f8fafc;
-        background: #172033;
+        background: #1a3a43;
       }
       nav a.active {
         color: #fff;
-        background: #1e293b;
-        border-left-color: #38bdf8;
+        background: #21414a;
+        border-left-color: #2ac5ba;
       }
       nav p {
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.14em;
-        color: #94a3b8;
+        color: #91adb2;
         margin: 25px 12px 7px;
       }
       .demo-flag {
@@ -186,14 +186,14 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         align-items: center;
         margin: 16px;
         padding: 15px;
-        border: 1px solid #334155;
-        background: #111c30;
+        border: 1px solid #3b5c63;
+        background: #19343e;
         border-radius: 6px;
       }
       .demo-flag > span {
         width: 8px;
         height: 8px;
-        background: #22d3ee;
+        background: #2ac5ba;
       }
       .demo-flag strong,
       .demo-flag small {
@@ -201,26 +201,26 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
       }
       .demo-flag strong {
         font-size: 11px;
-        color: #e2e8f0;
+        color: #e2f1f0;
       }
       .demo-flag small {
         font-size: 10px;
-        color: #94a3b8;
+        color: #a4c2c3;
         margin-top: 3px;
       }
       .main {
-        margin-left: 244px;
+        margin-left: 248px;
         min-height: 100vh;
       }
       .topbar {
-        height: 68px;
-        background: rgb(255 255 255 / 94%);
-        backdrop-filter: blur(12px);
-        border-bottom: 1px solid #e2e8f0;
+        height: 64px;
+        background: rgb(255 255 255 / 96%);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--line);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 30px;
+        padding: 0 28px;
         position: sticky;
         top: 0;
         z-index: 20;
@@ -231,12 +231,12 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
       }
       .route span {
         font-size: 10px;
-        color: #94a3b8;
+        color: #658088;
         text-transform: uppercase;
         letter-spacing: 0.1em;
       }
       .route strong {
-        font-size: 14px;
+        font-size: 15px;
         margin-top: 3px;
       }
       .account {
@@ -265,7 +265,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
       }
       .identity {
         text-align: right;
-        border-left: 1px solid #e2e8f0;
+        border-left: 1px solid var(--line);
         padding-left: 20px;
       }
       .identity strong,
@@ -281,8 +281,8 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         margin-top: 2px;
       }
       .content {
-        padding: 30px;
-        max-width: 1600px;
+        padding: 28px;
+        max-width: 1720px;
         margin: 0 auto;
       }
       .skip-link {
@@ -397,9 +397,9 @@ export class ShellComponent implements OnInit, OnDestroy {
   readonly isMobile = signal(false);
   private navigationSubscription?: Subscription;
   readonly mobileOpen = signal(false);
-  readonly pageTitle = signal('Operations overview');
+  readonly pageTitle = signal('Command center');
   readonly navigation: { path: string; label: string; icon: IconName }[] = [
-    { path: '/dashboard', label: 'Overview', icon: 'overview' },
+    { path: '/dashboard', label: 'Command center', icon: 'overview' },
     { path: '/orders', label: 'Orders', icon: 'orders' },
     { path: '/inventory', label: 'Inventory', icon: 'inventory' },
     { path: '/shipments', label: 'Shipments', icon: 'shipments' },
@@ -447,8 +447,8 @@ export class ShellComponent implements OnInit, OnDestroy {
     this.pageTitle.set(
       url.startsWith('/admin')
         ? 'User administration'
-        : route?.label === 'Overview'
-          ? 'Operations overview'
+        : route?.label === 'Command center'
+          ? 'Command center'
           : (route?.label ?? 'Operations'),
     );
   }

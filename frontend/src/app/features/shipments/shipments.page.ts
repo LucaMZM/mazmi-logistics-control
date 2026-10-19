@@ -88,7 +88,9 @@ import { Driver, ShipmentSummary, Vehicle } from '../../shared/models/models';
     <section class="table-card">
       <div class="list-summary">
         <strong>Shipment register</strong><span>{{ total() }} matching shipments</span
-        ><button mat-button (click)="clearFilters()">Clear filters</button>
+        ><button mat-button (click)="clearFilters()" [disabled]="!filtersActive()">
+          Clear filters
+        </button>
       </div>
       @if (loading()) {
         <app-loading-state />
@@ -103,31 +105,33 @@ import { Driver, ShipmentSummary, Vehicle } from '../../shared/models/models';
       } @else {
         @if (shipments().length) {
           <div class="table-wrap">
-            <table>
+            <table class="responsive-table" aria-label="Shipments">
               <thead>
                 <tr>
-                  <th>Tracking</th>
-                  <th>Order</th>
+                  <th>Shipment</th>
                   <th>Status</th>
                   <th>Delivery health</th>
                   <th>Driver</th>
                   <th>Vehicle</th>
                   <th>Progress</th>
                   <th>ETA</th>
+                  <th>Detail</th>
                 </tr>
               </thead>
               <tbody>
                 @for (item of shipments(); track item.id) {
                   <tr>
-                    <td>
-                      <a [routerLink]="['/shipments', item.id]">{{ item.trackingNumber }}</a>
+                    <td data-label="Shipment" data-wide>
+                      <a [routerLink]="['/shipments', item.id]">{{ item.trackingNumber }}</a
+                      ><small class="subline">Order {{ item.orderNumber }}</small>
                     </td>
-                    <td>{{ item.orderNumber }}</td>
-                    <td><app-status-chip [status]="item.status" /></td>
-                    <td><app-status-chip [status]="item.deliveryHealth" /></td>
-                    <td>{{ item.driver || 'Unassigned' }}</td>
-                    <td>{{ item.vehicle || 'Unassigned' }}</td>
-                    <td>
+                    <td data-label="Status"><app-status-chip [status]="item.status" /></td>
+                    <td data-label="Delivery health">
+                      <app-status-chip [status]="item.deliveryHealth" />
+                    </td>
+                    <td data-label="Driver">{{ item.driver || 'Not assigned' }}</td>
+                    <td data-label="Vehicle">{{ item.vehicle || 'Not assigned' }}</td>
+                    <td data-label="Progress">
                       <div
                         class="progress"
                         role="progressbar"
@@ -140,7 +144,12 @@ import { Driver, ShipmentSummary, Vehicle } from '../../shared/models/models';
                       </div>
                       <small>{{ item.progress }}%</small>
                     </td>
-                    <td>{{ item.eta ? (item.eta | date: 'short') : '—' }}</td>
+                    <td data-label="ETA">
+                      {{ item.eta ? (item.eta | date: 'short') : 'Pending' }}
+                    </td>
+                    <td data-label="Detail" data-wide>
+                      <a [routerLink]="['/shipments', item.id]">Open tracking →</a>
+                    </td>
                   </tr>
                 }
               </tbody>
@@ -181,21 +190,27 @@ import { Driver, ShipmentSummary, Vehicle } from '../../shared/models/models';
       }
       table {
         width: 100%;
-        min-width: 1000px;
+        min-width: 950px;
         border-collapse: collapse;
+      }
+      .subline {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 11px;
       }
       .progress {
         display: inline-block;
-        width: 80px;
-        height: 5px;
-        background: #e2e8f0;
+        width: 86px;
+        height: 6px;
+        background: #dce8e6;
         margin-right: 7px;
         vertical-align: middle;
       }
       .progress span {
         display: block;
         height: 100%;
-        background: #0891b2;
+        background: var(--accent);
       }
       small {
         color: #64748b;
@@ -283,7 +298,18 @@ export class ShipmentsPage implements OnInit, OnDestroy {
       this.driver,
       this.vehicle,
     ])
-      control.setValue('');
+      control.setValue('', { emitEvent: false });
+    this.pageIndex = 0;
+    this.retry();
+  }
+  filtersActive(): boolean {
+    return !!(
+      this.search.value ||
+      this.status.value ||
+      this.deliveryHealth.value ||
+      this.driver.value ||
+      this.vehicle.value
+    );
   }
 
   private load(filters: Record<string, string>): void {

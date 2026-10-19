@@ -44,6 +44,7 @@ import { Incident } from '../../shared/models/models';
           ><mat-option value="CRITICAL">Critical</mat-option></mat-select
         ></mat-form-field
       >
+      <span class="result-count">{{ incidents().length }} visible incidents</span>
     </div>
     <section>
       @if (loading()) {
@@ -59,28 +60,28 @@ import { Incident } from '../../shared/models/models';
       } @else {
         @if (incidents().length) {
           <div class="table-wrap">
-            <table>
+            <table class="responsive-table" aria-label="Incidents">
               <thead>
                 <tr>
+                  <th>Title</th>
                   <th>Status</th>
                   <th>Severity</th>
-                  <th>Type</th>
                   <th>Shipment</th>
-                  <th>Title</th>
+                  <th>Type</th>
                   <th>Opened</th>
                 </tr>
               </thead>
               <tbody>
                 @for (item of incidents(); track item.id) {
                   <tr>
-                    <td><app-status-chip [status]="item.status" /></td>
-                    <td><app-status-chip [status]="item.severity" /></td>
-                    <td>{{ item.type.replaceAll('_', ' ') }}</td>
-                    <td>{{ item.trackingNumber }}</td>
-                    <td>
+                    <td data-label="Incident" data-wide>
                       <a [routerLink]="['/incidents', item.id]">{{ item.title }}</a>
                     </td>
-                    <td>{{ item.openedAt | date: 'short' }}</td>
+                    <td data-label="Status"><app-status-chip [status]="item.status" /></td>
+                    <td data-label="Severity"><app-status-chip [status]="item.severity" /></td>
+                    <td data-label="Shipment">{{ item.trackingNumber }}</td>
+                    <td data-label="Type">{{ item.type.replaceAll('_', ' ') }}</td>
+                    <td data-label="Opened">{{ item.openedAt | date: 'short' }}</td>
                   </tr>
                 }
               </tbody>
@@ -104,14 +105,33 @@ import { Incident } from '../../shared/models/models';
       .filters mat-form-field {
         width: 190px;
       }
+      .result-count {
+        margin-left: auto;
+        align-self: center;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
       section {
         background: #fff;
         border: 1px solid #e2e8f0;
       }
       table {
         width: 100%;
-        min-width: 850px;
+        min-width: 800px;
         border-collapse: collapse;
+      }
+      @media (max-width: 600px) {
+        .filters {
+          flex-wrap: wrap;
+        }
+        .filters mat-form-field {
+          width: calc(50% - 6px);
+        }
+        .result-count {
+          width: 100%;
+          margin-left: 0;
+        }
       }
     `,
   ],

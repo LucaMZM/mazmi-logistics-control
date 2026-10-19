@@ -84,7 +84,7 @@ import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/mod
         />
       } @else {
         <div class="table-wrap">
-          <table>
+          <table class="responsive-table" aria-label="Orders">
             <thead>
               <tr>
                 <th>Order</th>
@@ -94,20 +94,27 @@ import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/mod
                 <th>Priority</th>
                 <th class="numeric">Total</th>
                 <th>Created</th>
+                <th>Next step</th>
               </tr>
             </thead>
             <tbody>
               @for (order of result()?.content; track order.id) {
                 <tr>
-                  <td>
+                  <td data-label="Order">
                     <a [routerLink]="['/orders', order.id]">{{ order.orderNumber }}</a>
                   </td>
-                  <td>{{ order.customer }}</td>
-                  <td>{{ order.warehouse }}</td>
-                  <td><app-status-chip [status]="order.status" /></td>
-                  <td><app-status-chip [status]="order.priority" /></td>
-                  <td class="numeric">{{ order.totalAmount | currency: 'EUR' }}</td>
-                  <td>{{ order.createdAt | date: 'mediumDate' }}</td>
+                  <td data-label="Customer">{{ order.customer }}</td>
+                  <td data-label="Warehouse">{{ order.warehouse }}</td>
+                  <td data-label="Status"><app-status-chip [status]="order.status" /></td>
+                  <td data-label="Priority"><app-status-chip [status]="order.priority" /></td>
+                  <td data-label="Total" class="numeric">
+                    {{ order.totalAmount | currency: 'EUR' }}
+                  </td>
+                  <td data-label="Created">{{ order.createdAt | date: 'mediumDate' }}</td>
+                  <td data-label="Next step" data-wide class="next-step">
+                    <span>{{ nextStep(order.status) }}</span
+                    ><a [routerLink]="['/orders', order.id]">Open →</a>
+                  </td>
                 </tr>
               }
             </tbody>
@@ -151,7 +158,20 @@ import { OrderStatus, PageResponse, OrderSummary } from '../../shared/models/mod
       table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 900px;
+        min-width: 1050px;
+      }
+      .next-step {
+        min-width: 145px;
+      }
+      .next-step span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .next-step a {
+        display: inline-block;
+        margin-top: 2px;
+        font-size: 12px;
       }
       @media (max-width: 650px) {
         .filters {
@@ -185,6 +205,25 @@ export class OrdersPage implements OnInit, OnDestroy {
   ];
   private pageIndex = 0;
   pageSize = 20;
+  nextStep(status: OrderStatus): string {
+    if (!this.auth.canOperate()) return 'View details';
+    switch (status) {
+      case 'DRAFT':
+        return 'Review and confirm';
+      case 'CONFIRMED':
+        return 'Start preparation';
+      case 'PREPARING':
+        return 'Mark ready';
+      case 'READY':
+        return 'Assign shipment';
+      case 'SHIPPED':
+        return 'Track delivery';
+      case 'DELIVERED':
+        return 'Delivery complete';
+      case 'CANCELLED':
+        return 'Closed';
+    }
+  }
   ngOnInit(): void {
     this.load();
     this.search.valueChanges

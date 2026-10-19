@@ -44,6 +44,7 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
               ><mat-label>Search SKU or product</mat-label
               ><input matInput [formControl]="search" /></mat-form-field
             ><mat-slide-toggle [formControl]="lowStock">Low stock only</mat-slide-toggle>
+            <span class="stock-count">{{ total() }} stock positions</span>
           </div>
           @if (loading()) {
             <app-loading-state />
@@ -58,7 +59,7 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
           } @else {
             @if (stock().length) {
               <div class="table-wrap">
-                <table>
+                <table class="responsive-table" aria-label="Warehouse stock">
                   <thead>
                     <tr>
                       <th>SKU</th>
@@ -74,18 +75,25 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
                   <tbody>
                     @for (item of stock(); track item.id) {
                       <tr>
-                        <td>
+                        <td data-label="SKU">
                           <a [routerLink]="['/inventory', item.id]">{{ item.sku }}</a>
                         </td>
-                        <td>{{ item.product }}</td>
-                        <td>{{ item.warehouse }}</td>
-                        <td class="numeric">{{ item.onHand }}</td>
-                        <td class="numeric">{{ item.reserved }}</td>
-                        <td class="numeric">
+                        <td data-label="Product">{{ item.product }}</td>
+                        <td data-label="Warehouse">{{ item.warehouse }}</td>
+                        <td data-label="On hand" class="numeric">{{ item.onHand }}</td>
+                        <td data-label="Reserved" class="numeric">{{ item.reserved }}</td>
+                        <td
+                          data-label="Available"
+                          class="numeric availability"
+                          [class.is-low]="item.available <= item.reorderLevel"
+                        >
                           <strong>{{ item.available }}</strong>
+                          <span class="stock-track" aria-hidden="true"
+                            ><span [style.width.%]="stockBar(item)"></span
+                          ></span>
                         </td>
-                        <td class="numeric">{{ item.reorderLevel }}</td>
-                        <td><app-status-chip [status]="item.stockStatus" /></td>
+                        <td data-label="Reorder" class="numeric">{{ item.reorderLevel }}</td>
+                        <td data-label="Status"><app-status-chip [status]="item.stockStatus" /></td>
                       </tr>
                     }
                   </tbody>
@@ -122,7 +130,7 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
             />
           } @else if (products().length) {
             <div class="table-wrap">
-              <table>
+              <table class="responsive-table" aria-label="Products">
                 <thead>
                   <tr>
                     <th>SKU</th>
@@ -136,14 +144,16 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
                 <tbody>
                   @for (product of products(); track product.id) {
                     <tr>
-                      <td>
+                      <td data-label="SKU">
                         <strong>{{ product.sku }}</strong>
                       </td>
-                      <td>{{ product.name }}</td>
-                      <td>{{ product.category }}</td>
-                      <td class="numeric">{{ product.weightKg }} kg</td>
-                      <td class="numeric">{{ product.unitPrice | currency: 'EUR' }}</td>
-                      <td>
+                      <td data-label="Product">{{ product.name }}</td>
+                      <td data-label="Category">{{ product.category }}</td>
+                      <td data-label="Weight" class="numeric">{{ product.weightKg }} kg</td>
+                      <td data-label="Unit price" class="numeric">
+                        {{ product.unitPrice | currency: 'EUR' }}
+                      </td>
+                      <td data-label="Status">
                         <app-status-chip [status]="product.active ? 'AVAILABLE' : 'INACTIVE'" />
                       </td>
                     </tr>
@@ -208,6 +218,12 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
       .filters mat-form-field {
         width: min(420px, 60%);
       }
+      .stock-count {
+        margin-left: auto;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
       table {
         width: 100%;
         border-collapse: collapse;
@@ -215,6 +231,27 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
       }
       .numeric {
         text-align: right;
+      }
+      .availability strong {
+        color: var(--ink);
+      }
+      .availability.is-low strong {
+        color: #a4551d;
+      }
+      .stock-track {
+        display: block;
+        width: 72px;
+        height: 4px;
+        margin: 5px 0 0 auto;
+        background: #dce8e6;
+      }
+      .stock-track span {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+      }
+      .availability.is-low .stock-track span {
+        background: #c9752a;
       }
       .warehouse-grid {
         display: grid;
@@ -251,6 +288,12 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
         .filters mat-form-field {
           width: 100%;
         }
+        .stock-count {
+          margin-left: 0;
+        }
+        .stock-track {
+          margin-left: 0;
+        }
       }
     `,
   ],
@@ -273,6 +316,10 @@ export class InventoryPage implements OnInit, OnDestroy {
   readonly warehouses = signal<Warehouse[]>([]);
   readonly search = new FormControl('', { nonNullable: true });
   readonly lowStock = new FormControl(false, { nonNullable: true });
+  stockBar(item: Inventory): number {
+    if (item.reorderLevel <= 0) return item.available > 0 ? 100 : 0;
+    return Math.max(0, Math.min(100, (item.available / item.reorderLevel) * 100));
+  }
   ngOnInit(): void {
     this.loadStock();
     this.loadProducts();

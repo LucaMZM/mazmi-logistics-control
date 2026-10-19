@@ -25,18 +25,18 @@ import { RouterLink } from '@angular/router';
         justify-content: space-between;
         align-items: flex-end;
         gap: 20px;
-        margin-bottom: 24px;
+        margin-bottom: 22px;
       }
       p {
         font-size: 11px;
         letter-spacing: 0.12em;
         font-weight: 700;
-        color: #1d4ed8;
+        color: var(--accent);
         text-transform: uppercase;
         margin: 0 0 6px;
       }
       p a {
-        color: #176b87;
+        color: var(--accent);
         text-decoration: none;
         display: inline-block;
         padding: 3px 0;
@@ -45,16 +45,16 @@ import { RouterLink } from '@angular/router';
         text-decoration: underline;
       }
       h1 {
-        font-size: clamp(24px, 2.2vw, 30px);
+        font-size: clamp(27px, 2.2vw, 33px);
         letter-spacing: -0.035em;
         overflow-wrap: anywhere;
         line-height: 1.2;
         margin: 0;
-        color: #0f172a;
+        color: var(--ink);
       }
       span {
         display: block;
-        color: #64748b;
+        color: var(--muted);
         font-size: 14px;
         line-height: 1.6;
         margin-top: 6px;

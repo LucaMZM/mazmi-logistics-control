@@ -733,12 +733,13 @@ export class ShipmentDetailPage implements OnInit {
     const id = this.store.id();
     if (!id || this.pending()) return null;
     this.pending.set(true);
-    return { id, sequence: ++this.actionSequence, revision: this.store.revision() };
+    return { id, sequence: ++this.actionSequence, revision: this.store.beginAction() };
   }
   private isCurrentAction(context: { id: string; sequence: number }): boolean {
     return this.store.id() === context.id && this.actionSequence === context.sequence;
   }
-  private finishAction(context: { id: string; sequence: number }): void {
+  private finishAction(context: { id: string; sequence: number; revision: number }): void {
+    this.store.finishAction(context.id, context.revision);
     if (this.isCurrentAction(context)) this.pending.set(false);
   }
   private acceptAction(

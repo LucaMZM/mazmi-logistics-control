@@ -1,13 +1,13 @@
 # Mazmi Logistics Control
 
 [![CI](https://github.com/LucaMZM/mazmi-logistics-control/actions/workflows/ci.yml/badge.svg)](https://github.com/LucaMZM/mazmi-logistics-control/actions/workflows/ci.yml)
-![Angular 22.1.1](https://img.shields.io/badge/Angular-22.1.1-DD0031?style=for-the-badge&logo=angular&logoColor=white)
+![Angular 22.2.3](https://img.shields.io/badge/Angular-22.2.3-DD0031?style=for-the-badge&logo=angular&logoColor=white)
 ![TypeScript 6.0.3](https://img.shields.io/badge/TypeScript-6.0.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Spring Boot 4.1.0](https://img.shields.io/badge/Spring_Boot-4.1.0-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Spring Boot 4.1.1](https://img.shields.io/badge/Spring_Boot-4.1.1-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
 ![Java 21](https://img.shields.io/badge/Java-21-E76F00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![PostgreSQL 17](https://img.shields.io/badge/PostgreSQL-17-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 <br>
-![Angular Material 22.1.1](https://img.shields.io/badge/Angular_Material-22.1.1-757DE8?style=for-the-badge&logo=angular&logoColor=white)
+![Angular Material 22.2.3](https://img.shields.io/badge/Angular_Material-22.2.3-757DE8?style=for-the-badge&logo=angular&logoColor=white)
 ![Leaflet 1.9.4](https://img.shields.io/badge/Leaflet-1.9.4-199900?style=for-the-badge&logo=leaflet&logoColor=white)
 ![STOMP.js 7.3.0](https://img.shields.io/badge/STOMP.js-7.3.0-455A64?style=for-the-badge)
 ![Docker Compose](https://img.shields.io/badge/Docker_Compose-v2-2496ED?style=for-the-badge&logo=docker&logoColor=white)
@@ -167,13 +167,13 @@ Los guards de Angular adaptan la interfaz al rol, mientras que Spring Security c
 
 | Área             | Tecnologías                                                            | Uso dentro del proyecto                                    |
 | ---------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Frontend         | Angular 22.1.1 · TypeScript 6.0.3                                      | SPA, navegación y componentes de la consola logística.     |
-| Interfaz         | Angular Material 22.1.1 · SCSS                                         | Formularios, tablas y sistema visual responsive.           |
-| Reactividad      | Angular Signals · RxJS 7.8.2                                           | Estado de la interfaz y flujos asíncronos.                 |
+| Frontend         | Angular 22.2.3 · TypeScript 6.0.3                                      | SPA, navegación y componentes de la consola logística.     |
+| Interfaz         | Angular Material 22.2.3 · SCSS                                         | Formularios, tablas y sistema visual responsive.           |
+| Reactividad      | Angular Signals · NgRx SignalStore 22.0.1 · RxJS 7.8.2                 | Estado de la interfaz y flujos asíncronos.                 |
 | Mapas y gráficos | Leaflet 1.9.4 · OpenStreetMap · Chart.js 4.5.1                         | Mapa de envíos e indicadores del dashboard.                |
 | Tiempo real      | STOMP.js 7.3.0 · WebSocket                                             | Actualizaciones de seguimiento y dashboard.                |
-| Backend          | Java 21 · Spring Boot 4.1.0                                            | API y reglas de negocio en un monolito modular.            |
-| Seguridad        | Spring Security 7.1.0 · JJWT 0.12.6                                    | Roles, JWT en cookie HttpOnly y protección CSRF.           |
+| Backend          | Java 21 · Spring Boot 4.1.1                                            | API y reglas de negocio en un monolito modular.            |
+| Seguridad        | Spring Security 7.1.1 · JJWT 0.12.6                                    | Roles, JWT en cookie HttpOnly y protección CSRF.           |
 | Persistencia     | PostgreSQL 17 · Spring Data JPA · Hibernate ORM                        | Datos transaccionales y control del inventario.            |
 | Migraciones      | Flyway 12.4.0                                                          | Evolución versionada del esquema de base de datos.         |
 | API              | REST `/api/v1` · springdoc-openapi 3.0.3                               | Endpoints de negocio y documentación OpenAPI.              |

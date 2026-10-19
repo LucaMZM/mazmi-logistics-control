@@ -3,8 +3,11 @@ package com.mazmi.logistics.users;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.mazmi.logistics.orders.OrderController;
+import com.mazmi.logistics.orders.OrderService;
 import com.mazmi.logistics.users.dto.UserResponse;
 import java.time.Instant;
 import java.util.List;
@@ -23,7 +26,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 class AuthorizationRulesTest {
   @Configuration
   @EnableMethodSecurity
-  @Import(UserController.class)
+  @Import({UserController.class, OrderController.class})
   static class Config {
     @Bean
     UserService userService() {
@@ -40,9 +43,16 @@ class AuthorizationRulesTest {
                       Instant.now())));
       return service;
     }
+
+    @Bean
+    OrderService orderService() {
+      return mock(OrderService.class);
+    }
   }
 
   @Autowired UserController controller;
+  @Autowired OrderController orderController;
+  @Autowired OrderService orderService;
 
   @Test
   @WithMockUser(roles = "VIEWER")
@@ -60,5 +70,20 @@ class AuthorizationRulesTest {
   @WithMockUser(roles = "ADMIN")
   void adminCanManageUsers() {
     assertThat(controller.list()).hasSize(1);
+  }
+
+  @Test
+  @WithMockUser(roles = "VIEWER")
+  void viewerCannotConfirmOrders() {
+    assertThatThrownBy(() -> orderController.confirm(UUID.randomUUID()))
+        .isInstanceOf(AccessDeniedException.class);
+  }
+
+  @Test
+  @WithMockUser(roles = "OPERATOR")
+  void operatorCanConfirmOrders() {
+    UUID orderId = UUID.randomUUID();
+    orderController.confirm(orderId);
+    verify(orderService).confirm(orderId);
   }
 }

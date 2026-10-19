@@ -136,7 +136,9 @@ describe('ShipmentDetailStore', () => {
     finishLoad('a');
     store.refresh();
     const stale = http.expectOne('/api/v1/shipments/a');
-    store.acceptAction('a', store.revision(), shipment('a', 70));
+    const startedAt = store.beginAction();
+    store.acceptAction('a', startedAt, shipment('a', 70));
+    store.finishAction('a', startedAt);
     stale.flush(shipment('a', 10));
     expect(store.shipment()?.progress).toBe(70);
     store.refresh();
@@ -149,12 +151,29 @@ describe('ShipmentDetailStore', () => {
   it('ignores an action response from the previous route', () => {
     store.open('a');
     finishLoad('a');
-    const startedAt = store.revision();
+    const startedAt = store.beginAction();
     store.open('b');
     finishLoad('b');
     store.acceptAction('a', startedAt, shipment('a', 90));
     expect(store.shipment()?.id).toBe('b');
     expect(store.shipment()?.progress).toBe(10);
+  });
+
+  it('keeps only changes needed by an in-flight action and reconciles its late response', () => {
+    store.open('a');
+    finishLoad('a');
+    for (let progress = 11; progress < 40; progress++) topics.get('a')?.next(update('a', progress));
+    const startedAt = store.beginAction();
+    store.refresh();
+    const stale = http.expectOne('/api/v1/shipments/a');
+    topics.get('a')?.next(update('a', 60));
+    stale.flush(shipment('a', 10));
+    store.acceptAction('a', startedAt, shipment('a', 15));
+    store.finishAction('a', startedAt);
+    expect(store.shipment()?.progress).toBe(60);
+    store.refresh();
+    http.expectOne('/api/v1/shipments/a').flush(shipment('a', 65));
+    expect(store.shipment()?.progress).toBe(65);
   });
 
   it('refreshes incident details after an incident event from another operator', () => {

@@ -40,10 +40,21 @@ export const ShipmentDetailStore = signalStore(
       let revision = 0;
       let nextRead = 0;
       let latestAppliedRead = 0;
+      let fullReadStartedAt: number | null = null;
+      let refreshReadStartedAt: number | null = null;
+      let actionStartedAt: number | null = null;
       let changes: Array<
         | { revision: number; kind: 'realtime'; value: RealtimeUpdate }
         | { revision: number; kind: 'action'; value: ShipmentDetail }
       > = [];
+
+      function compact(): void {
+        const pending = [fullReadStartedAt, refreshReadStartedAt, actionStartedAt].filter(
+          (value): value is number => value !== null,
+        );
+        const oldest = pending.length ? Math.min(...pending) : revision;
+        changes = changes.filter((entry) => entry.revision > oldest);
+      }
 
       function reconcile(snapshot: ShipmentDetail, startedAt: number): ShipmentDetail {
         return changes
@@ -59,17 +70,27 @@ export const ShipmentDetailStore = signalStore(
         const id = store.id();
         if (!id) return;
         refreshLoad?.unsubscribe();
+        refreshReadStartedAt = startedAt;
+        compact();
         const read = ++nextRead;
         refreshLoad = api
           .shipment(id)
           .pipe(takeUntilDestroyed(destroyRef))
           .subscribe({
             next: (snapshot) => {
-              if (store.id() !== id || read < latestAppliedRead) return;
-              latestAppliedRead = read;
-              patchState(store, { shipment: reconcile(snapshot, startedAt) });
+              if (store.id() !== id) return;
+              if (read >= latestAppliedRead) {
+                latestAppliedRead = read;
+                patchState(store, { shipment: reconcile(snapshot, startedAt) });
+              }
+              refreshReadStartedAt = null;
+              compact();
             },
-            error: () => {},
+            error: () => {
+              if (store.id() !== id) return;
+              refreshReadStartedAt = null;
+              compact();
+            },
           });
       }
 
@@ -79,6 +100,8 @@ export const ShipmentDetailStore = signalStore(
         fullLoad?.unsubscribe();
         patchState(store, { loading: true, loadError: false });
         const startedAt = revision;
+        fullReadStartedAt = startedAt;
+        compact();
         const read = ++nextRead;
         fullLoad = forkJoin({
           shipment: api.shipment(id),
@@ -97,9 +120,14 @@ export const ShipmentDetailStore = signalStore(
                 loading: false,
               });
               latestAppliedRead = Math.max(latestAppliedRead, read);
+              fullReadStartedAt = null;
+              compact();
             },
             error: () => {
-              if (store.id() === id) patchState(store, { loading: false, loadError: true });
+              if (store.id() !== id) return;
+              patchState(store, { loading: false, loadError: true });
+              fullReadStartedAt = null;
+              compact();
             },
           });
       }
@@ -124,6 +152,9 @@ export const ShipmentDetailStore = signalStore(
           revision = 0;
           nextRead = 0;
           latestAppliedRead = 0;
+          fullReadStartedAt = null;
+          refreshReadStartedAt = null;
+          actionStartedAt = null;
           changes = [];
           patchState(store, { ...initialState, id });
           shipmentUpdates = realtime
@@ -141,17 +172,27 @@ export const ShipmentDetailStore = signalStore(
                 update.latestEvent?.type === 'RESUMED'
               )
                 refresh(beforeUpdate);
+              compact();
             });
           load();
         },
         load,
         refresh,
-        revision: () => revision,
+        beginAction(): number {
+          actionStartedAt = revision;
+          return revision;
+        },
+        finishAction(id: string, startedAt: number): void {
+          if (store.id() !== id || actionStartedAt !== startedAt) return;
+          actionStartedAt = null;
+          compact();
+        },
         acceptAction(id: string, startedAt: number, shipment: ShipmentDetail): void {
           if (store.id() !== id) return;
           const current = reconcile(shipment, startedAt);
           changes.push({ revision: ++revision, kind: 'action', value: current });
           patchState(store, { shipment: current });
+          compact();
         },
       };
     },

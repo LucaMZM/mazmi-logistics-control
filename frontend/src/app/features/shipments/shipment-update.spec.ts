@@ -51,4 +51,79 @@ describe('shipment realtime update', () => {
     expect(result.events).toHaveLength(1);
     expect(mergeShipmentRealtime(result, update).events).toHaveLength(1);
   });
+
+  it('does not move tracking backwards when an older frame arrives later', () => {
+    const current: ShipmentDetail = {
+      ...shipment,
+      progress: 60,
+      currentLatitude: 1.6,
+      deliveryHealth: 'DELAYED',
+      events: [
+        {
+          id: 'newer',
+          type: 'CHECKPOINT',
+          description: 'Newer checkpoint',
+          eventTime: '2026-10-20T12:01:00Z',
+        },
+      ],
+    };
+    const result = mergeShipmentRealtime(current, {
+      id: 's1',
+      status: 'IN_TRANSIT',
+      deliveryHealth: 'ON_TIME',
+      latitude: 1.2,
+      longitude: 1.2,
+      progress: 30,
+      simulationActive: true,
+      eta: null,
+      latestEvent: {
+        id: 'older',
+        type: 'CHECKPOINT',
+        description: 'Older checkpoint',
+        eventTime: '2026-10-20T12:00:00Z',
+      },
+    });
+    expect(result.progress).toBe(60);
+    expect(result.currentLatitude).toBe(1.6);
+    expect(result.deliveryHealth).toBe('DELAYED');
+    expect(result.events.map((event) => event.id)).toEqual(['older', 'newer']);
+    const sameProgress = mergeShipmentRealtime(result, {
+      id: 's1',
+      status: 'IN_TRANSIT',
+      deliveryHealth: 'ON_TIME',
+      latitude: 1.2,
+      longitude: 1.2,
+      progress: 60,
+      simulationActive: true,
+      eta: null,
+      latestEvent: {
+        id: 'earliest',
+        type: 'CHECKPOINT',
+        description: 'Earliest checkpoint',
+        eventTime: '2026-10-20T11:59:00Z',
+      },
+    });
+    expect(sameProgress.deliveryHealth).toBe('DELAYED');
+    expect(sameProgress.events.map((event) => event.id)).toEqual(['earliest', 'older', 'newer']);
+  });
+
+  it('does not reopen a delivered shipment after a delayed in-transit frame', () => {
+    const result = mergeShipmentRealtime(
+      { ...shipment, status: 'DELIVERED', progress: 100, simulationActive: false },
+      {
+        id: 's1',
+        status: 'IN_TRANSIT',
+        deliveryHealth: 'ON_TIME',
+        latitude: 1.5,
+        longitude: 1.5,
+        progress: 92,
+        simulationActive: true,
+        eta: null,
+        latestEvent: null,
+      },
+    );
+    expect(result.status).toBe('DELIVERED');
+    expect(result.progress).toBe(100);
+    expect(result.simulationActive).toBe(false);
+  });
 });

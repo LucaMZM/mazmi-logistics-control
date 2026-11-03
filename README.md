@@ -11,7 +11,7 @@
 ![Leaflet 1.9.4](https://img.shields.io/badge/Leaflet-1.9.4-199900?style=for-the-badge&logo=leaflet&logoColor=white)
 ![STOMP.js 7.3.0](https://img.shields.io/badge/STOMP.js-7.3.0-455A64?style=for-the-badge)
 ![Docker Compose](https://img.shields.io/badge/Docker_Compose-v2-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Licencia MIT](https://img.shields.io/badge/Licencia-MIT-16A34A?style=for-the-badge)
+[![All Rights Reserved](https://img.shields.io/badge/License-All_Rights_Reserved-344966?style=for-the-badge)](LICENSE)
 
 Plataforma full-stack de operaciones logísticas para coordinar pedidos, inventario, envíos, flota, incidencias y seguimiento simulado en tiempo real desde un único panel.
 
@@ -348,4 +348,4 @@ Desarrollador web · Valencia, España
 
 ## Licencia
 
-Este proyecto se distribuye bajo la [licencia MIT](LICENSE).
+**All Rights Reserved — licencia propietaria.** El código original es público únicamente para revisión y evaluación de portfolio. No se autoriza copiarlo, modificarlo, redistribuirlo ni utilizarlo comercialmente sin autorización previa por escrito. Consulta [LICENSE](LICENSE). Los permisos ya otorgados bajo MIT para versiones anteriores no se revocan retroactivamente.

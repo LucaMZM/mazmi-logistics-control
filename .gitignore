@@ -21,3 +21,12 @@ backend/.settings/
 data/
 *.sql.dump
 *.sqlite
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+credentials*.json
+secrets*.json
+*.backup
+*.sql.gz

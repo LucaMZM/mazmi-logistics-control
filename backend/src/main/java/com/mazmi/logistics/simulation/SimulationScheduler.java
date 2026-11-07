@@ -3,11 +3,14 @@ package com.mazmi.logistics.simulation;
 import com.mazmi.logistics.shipments.ShipmentRepository;
 import com.mazmi.logistics.shipments.ShipmentStatus;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SimulationScheduler {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SimulationScheduler.class);
   private final ShipmentRepository shipments;
   private final SimulationService simulation;
 
@@ -25,6 +28,10 @@ public class SimulationScheduler {
   }
 
   private void advanceSafely(UUID id) {
-    simulation.advance(id);
+    try {
+      simulation.advance(id);
+    } catch (RuntimeException exception) {
+      LOGGER.error("Simulation tick failed for shipment {}. Retrying next tick.", id, exception);
+    }
   }
 }

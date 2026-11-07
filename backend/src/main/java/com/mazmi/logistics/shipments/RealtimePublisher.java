@@ -46,11 +46,19 @@ public class RealtimePublisher {
   }
 
   private void send(UUID shipmentId, ShipmentDtos.Realtime update) {
+    sendTo("/topic/shipments/" + shipmentId, shipmentId, update);
+    sendTo("/topic/dashboard", shipmentId, update);
+  }
+
+  private void sendTo(String destination, UUID shipmentId, ShipmentDtos.Realtime update) {
     try {
-      messaging.convertAndSend("/topic/shipments/" + shipmentId, update);
-      messaging.convertAndSend("/topic/dashboard", update);
+      messaging.convertAndSend(destination, update);
     } catch (RuntimeException exception) {
-      LOGGER.warn("Realtime update could not be published for shipment {}", shipmentId, exception);
+      LOGGER.warn(
+          "Realtime update for shipment {} could not be published to {}",
+          shipmentId,
+          destination,
+          exception);
     }
   }
 }

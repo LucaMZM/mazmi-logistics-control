@@ -25,6 +25,8 @@ Los paquetes siguen los dominios operativos: autenticación, usuarios, clientes,
 
 Los precios proceden del catálogo y los actores del contexto de seguridad. El navegador no decide identidades, precios ni estados arbitrarios. PostgreSQL añade restricciones de saldo, claves únicas, claves foráneas e índices únicos parciales para las asignaciones activas de flota.
 
+La salud de entrega se calcula considerando todas las incidencias abiertas: `DELAYED` si alguna supera severidad baja, `AT_RISK` si solo quedan leves y `ON_TIME` si no queda ninguna. Resolver una incidencia no registra reanudación mientras existan otras abiertas.
+
 ## Autenticación y seguridad
 
 Spring Security devuelve un JWT de duración limitada en una cookie HttpOnly y SameSite. No se guarda en Web Storage. La cookie legible `XSRF-TOKEN` y la cabecera `X-XSRF-TOKEN` protegen las mutaciones. El secreto, la opción Secure y el único origen permitido se configuran mediante variables de entorno.

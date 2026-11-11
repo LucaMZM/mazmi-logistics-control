@@ -137,6 +137,21 @@ module.exports = async function verifyLogistics(context, baseURL) {
   assert.equal(shipment.deliveryHealth, "DELAYED");
   assert.notEqual(shipment.eta, eta);
   assert(shipment.events.some((event) => event.type === "INCIDENT"));
+  const minor = await request(
+    `/shipments/${shipment.id}/incidents`,
+    "POST",
+    {
+      type: "ADDRESS",
+      severity: "LOW",
+      title: "Comprobar dirección",
+      description: "Incidencia secundaria de prueba",
+    },
+    201,
+  );
+  assert.equal(
+    (await request(`/shipments/${shipment.id}`)).deliveryHealth,
+    "DELAYED",
+  );
   const resolved = await request(`/incidents/${incident.id}/resolve`, "POST", {
     resolutionNote: "Verificación del flujo demo completada",
   });
@@ -145,6 +160,12 @@ module.exports = async function verifyLogistics(context, baseURL) {
     resolved.resolutionNote,
     "Verificación del flujo demo completada",
   );
+  shipment = await request(`/shipments/${shipment.id}`);
+  assert.equal(shipment.deliveryHealth, "AT_RISK");
+  assert(!shipment.events.some((event) => event.type === "RESUMED"));
+  await request(`/incidents/${minor.id}/resolve`, "POST", {
+    resolutionNote: "Dirección confirmada",
+  });
   shipment = await request(`/shipments/${shipment.id}`);
   assert.equal(shipment.deliveryHealth, "ON_TIME");
   assert(shipment.events.some((event) => event.type === "RESUMED"));

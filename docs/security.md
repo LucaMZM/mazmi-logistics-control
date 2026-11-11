@@ -21,6 +21,8 @@ Se actualizaron Angular CLI/build a 22.2.6 y Vitest a 4.1.12 para corregir aviso
 
 Referencias: [Vitest](https://github.com/advisories/GHSA-qxg6-89mg-rqv8), [Vite](https://github.com/advisories/GHSA-rq7h-c2jc-7f22), [minimatch](https://github.com/advisories/GHSA-g3hv-75wg-m249).
 
+La consulta OSV de las 119 coordenadas Maven del classpath runtime no devolvió vulnerabilidades conocidas en esa fecha. Es una comprobación de dependencias, no una garantía de ausencia de problemas en la aplicación.
+
 ## Límites que requieren una fase específica
 
 - Logout elimina la cookie del navegador, pero no revoca una copia del JWT antes de su caducidad.

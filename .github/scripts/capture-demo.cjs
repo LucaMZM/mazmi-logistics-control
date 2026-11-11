@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const { chromium } = require("playwright");
+const verifyLogistics = require("./verify-logistics.cjs");
 
 const baseURL = "http://localhost:4200";
 const output = process.env.CAPTURE_DIR;
@@ -155,6 +156,31 @@ async function main() {
       "table tbody tr",
     );
 
+    for (const viewport of [
+      { width: 1280, height: 900 },
+      { width: 768, height: 1024 },
+    ]) {
+      await page.setViewportSize(viewport);
+      for (const view of views) {
+        await page.goto(`${baseURL}${view.route}`);
+        await ready(view.heading, view.selector, view.map);
+        assert(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth + 1,
+          ),
+          `${view.route} overflows at ${viewport.width}`,
+        );
+        if (
+          view.name === "dashboard.png" ||
+          view.name === "shipment-tracking.png"
+        ) {
+          await page.screenshot({
+            path: path.join(output, "review", `${viewport.width}-${view.name}`),
+            animations: "disabled",
+          });
+        }
+      }
+    }
     await page.setViewportSize({ width: 390, height: 844 });
     for (const view of views) {
       await page.goto(`${baseURL}${view.route}`);
@@ -176,6 +202,42 @@ async function main() {
         animations: "disabled",
       });
     }
+    await page.getByRole("button", { name: "Toggle navigation" }).focus();
+    await page.keyboard.press("Enter");
+    await page.locator(".sidebar-open").waitFor();
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(
+      () => document.activeElement?.id === "navigation-toggle",
+    );
+    const publicationRejected = await page.evaluate(
+      () =>
+        new Promise((resolve, reject) => {
+          const socket = new WebSocket(`ws://${location.host}/ws`);
+          const timeout = setTimeout(() => {
+            socket.close();
+            reject(new Error("STOMP security check timed out"));
+          }, 10000);
+          socket.onopen = () =>
+            socket.send("CONNECT\naccept-version:1.2\nhost:localhost\n\n\0");
+          socket.onmessage = (event) => {
+            if (event.data.startsWith("CONNECTED"))
+              socket.send(
+                'SEND\ndestination:/topic/dashboard\ncontent-type:application/json\n\n{"forged":true}\0',
+              );
+            if (event.data.startsWith("ERROR")) {
+              clearTimeout(timeout);
+              socket.close();
+              resolve(true);
+            }
+          };
+        }),
+    );
+    assert.equal(
+      publicationRejected,
+      true,
+      "Clients must not publish operational updates",
+    );
+    const businessFlow = await verifyLogistics(context, baseURL);
     await page.getByRole("button", { name: "Log out", exact: true }).click();
     await page.waitForURL("**/login");
     assert.deepEqual(errors, [], "Unexpected JavaScript errors");
@@ -190,6 +252,8 @@ async function main() {
           screenshots: views.map(({ name }) => name),
           mobileViewport: { width: 390, height: 844 },
           shipmentWebSocketVerified: true,
+          clientPublicationRejected: publicationRejected,
+          businessFlow,
           javascriptErrors: errors,
         },
         null,

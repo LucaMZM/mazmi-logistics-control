@@ -1,5 +1,13 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -25,6 +33,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
 
 @Component({
   selector: 'app-shipment-detail-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ShipmentDetailStore],
   imports: [
     DatePipe,
@@ -87,8 +96,27 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       </div>
       <section class="hero">
         <article class="map-panel">
-          <div class="map-label"><span></span>Simulated tracking</div>
-          <app-operations-map [points]="mapPoints()" [route]="routePoints()" />
+          <div class="route-heading">
+            <div>
+              <span>Origin</span><strong>Warehouse</strong
+              ><small
+                >{{ item.warehouseLatitude | number: '1.3-3' }},
+                {{ item.warehouseLongitude | number: '1.3-3' }}</small
+              >
+            </div>
+            <span class="route-connector" aria-hidden="true">→</span>
+            <div>
+              <span>Destination</span><strong>Delivery location</strong
+              ><small
+                >{{ item.destinationLatitude | number: '1.3-3' }},
+                {{ item.destinationLongitude | number: '1.3-3' }}</small
+              >
+            </div>
+          </div>
+          <div class="route-map">
+            <div class="map-label"><span></span>Simulated tracking</div>
+            <app-operations-map [points]="mapPoints()" [route]="routePoints()" />
+          </div>
         </article>
         <aside class="summary">
           <header>
@@ -120,7 +148,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
             aria-valuemax="100"
             [attr.aria-valuenow]="item.progress"
           >
-            <span [style.width.%]="item.progress"></span>
+            <span [style.transform]="'scaleX(' + item.progress / 100 + ')'"></span>
           </div>
           @if (auth.canOperate()) {
             <fieldset class="controls" [disabled]="pending()">
@@ -216,10 +244,10 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         <article class="timeline">
           <header>
             <h2>Tracking timeline</h2>
-            <span>{{ item.events.length }} operational events</span>
+            <span>{{ item.events.length }} events · Latest first</span>
           </header>
           <ol>
-            @for (event of item.events; track event.id) {
+            @for (event of recentEvents(); track event.id) {
               <li>
                 <i [attr.data-type]="event.type"></i>
                 <div>
@@ -272,11 +300,43 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         min-width: 0;
       }
       .map-panel {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .route-heading {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--line);
+      }
+      .route-heading div {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+      }
+      .route-heading span,
+      .route-heading small {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .route-heading strong {
+        font-size: 14px;
+      }
+      .route-heading .route-connector {
+        font-size: 24px;
+        color: var(--accent);
+      }
+      .route-map {
         position: relative;
-        min-height: 510px;
-        height: 100%;
+        min-height: 420px;
+        flex: 1;
       }
       .map-panel app-operations-map {
+        position: absolute;
+        inset: 0;
         display: block;
         height: 100%;
       }
@@ -347,7 +407,12 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         display: flex;
         justify-content: space-between;
         padding: 18px 18px 8px;
-        font-size: 12px;
+        font-size: 13px;
+      }
+      .progress-head strong {
+        font-size: 22px;
+        line-height: 1;
+        color: var(--accent);
       }
       .progress {
         height: 7px;
@@ -358,7 +423,8 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         display: block;
         height: 100%;
         background: #0891b2;
-        transition: width 0.4s;
+        transform-origin: left;
+        transition: transform 180ms var(--ease-out);
       }
       .controls {
         border: 0;
@@ -382,12 +448,12 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       }
       .controls-heading span {
         color: var(--muted);
-        font-size: 11px;
+        font-size: 12px;
       }
       .availability-note {
         margin: -3px 0 3px;
         color: #92400e;
-        font-size: 10px;
+        font-size: 12px;
         line-height: 1.5;
       }
       .lower {
@@ -406,12 +472,12 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       }
       .timeline header h2,
       .incidents header h2 {
-        font-size: 13px;
+        font-size: 15px;
         margin: 0;
       }
       .timeline header span,
       .incidents header > span {
-        font-size: 10px;
+        font-size: 12px;
         color: #64748b;
       }
       .timeline ol {
@@ -467,26 +533,25 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         color: #64748b;
       }
       .incidents > a {
-        display: flex;
-        justify-content: space-between;
-        gap: 14px;
+        display: grid;
+        gap: 8px;
         padding: 17px;
         border-bottom: 1px solid #eef2f7;
         text-decoration: none;
         color: #0f172a;
       }
       .incidents > a strong {
-        font-size: 11px;
+        font-size: 13px;
         margin-left: 8px;
       }
       .incidents > a p {
-        font-size: 10px;
-        color: #64748b;
+        font-size: 13px;
+        color: var(--muted);
         margin: 8px 0 0;
       }
       .incidents > a > span {
-        font-size: 9px;
-        color: #94a3b8;
+        font-size: 12px;
+        color: var(--muted);
         white-space: nowrap;
       }
       .empty {
@@ -541,7 +606,22 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       }
       @media (max-width: 600px) {
         .map-panel {
-          height: 390px;
+          height: auto;
+        }
+        .route-map {
+          min-height: 330px;
+        }
+        .route-heading {
+          gap: 8px;
+          padding: 16px;
+        }
+        .timeline header,
+        .incidents header {
+          flex-wrap: wrap;
+          gap: 4px;
+          height: auto;
+          min-height: 68px;
+          padding: 14px 18px;
         }
       }
     `,
@@ -559,6 +639,9 @@ export class ShipmentDetailPage implements OnInit {
   readonly pending = signal(false);
   readonly loadError = this.store.loadError;
   readonly shipment = this.store.shipment;
+  readonly recentEvents = computed(() =>
+    [...(this.shipment()?.events ?? [])].sort((a, b) => b.eventTime.localeCompare(a.eventTime)),
+  );
   readonly driver = new FormControl('', { nonNullable: true });
   readonly vehicle = new FormControl('', { nonNullable: true });
   readonly incidentType = new FormControl<IncidentType>('TRAFFIC', { nonNullable: true });

@@ -79,7 +79,11 @@ import { Incident } from '../../shared/models/models';
                     </td>
                     <td data-label="Status"><app-status-chip [status]="item.status" /></td>
                     <td data-label="Severity"><app-status-chip [status]="item.severity" /></td>
-                    <td data-label="Shipment">{{ item.trackingNumber }}</td>
+                    <td data-label="Shipment">
+                      <a [routerLink]="['/shipments', item.shipmentId]">{{
+                        item.trackingNumber
+                      }}</a>
+                    </td>
                     <td data-label="Type">{{ item.type.replaceAll('_', ' ') }}</td>
                     <td data-label="Opened">{{ item.openedAt | date: 'short' }}</td>
                   </tr>

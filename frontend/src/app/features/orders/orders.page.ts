@@ -1,5 +1,5 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,6 +18,7 @@ import { OrdersStore } from './orders.store';
 
 @Component({
   selector: 'app-orders-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [OrdersStore],
   imports: [
     CurrencyPipe,
@@ -60,14 +61,20 @@ import { OrdersStore } from './orders.store';
         </mat-select></mat-form-field
       >
     </section>
-    <section class="table-card">
+    <section class="table-card" [attr.aria-busy]="store.loading()">
       <div class="list-summary">
-        <strong>Order register</strong><span>{{ store.totalElements() }} matching orders</span
+        <strong>Order register</strong
+        ><span role="status">
+          @if (store.loading()) {
+            Updating results…
+          } @else {
+            {{ store.totalElements() }} matching orders
+          }</span
         ><button mat-button type="button" (click)="clearFilters()" [disabled]="!store.hasFilters()">
           Clear filters
         </button>
       </div>
-      @if (store.loading()) {
+      @if (store.loading() && !store.result()) {
         <app-loading-state />
       } @else if (store.loadError()) {
         <app-feedback-state
@@ -123,11 +130,13 @@ import { OrdersStore } from './orders.store';
         </div>
         @if (store.totalElements()) {
           <mat-paginator
+            [disabled]="store.loading()"
             [length]="store.totalElements()"
-            [pageIndex]="store.query().page"
+            [pageIndex]="store.result()?.page ?? 0"
             [pageSize]="store.query().size"
             [pageSizeOptions]="[10, 20, 50]"
             (page)="page($event)"
+            aria-label="Order pages"
           />
         }
       }

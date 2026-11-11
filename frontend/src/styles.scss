@@ -29,6 +29,8 @@ $theme: mat.m2-define-light-theme(
   --accent: #087c83;
   --radius: 7px;
   --shadow: 0 1px 2px rgb(17 47 55 / 4%);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   color-scheme: light;
   font-family:
     Inter,
@@ -61,6 +63,28 @@ input,
 textarea,
 select {
   font: inherit;
+}
+button,
+a {
+  touch-action: manipulation;
+}
+button {
+  transition: transform 140ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  button:active:not(:disabled):not(:focus-visible) {
+    transform: scale(0.97);
+  }
+}
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  scroll-margin-top: 80px;
+}
+:focus-visible {
+  scroll-margin-block: 80px 24px;
+  transition: none !important;
 }
 .mat-mdc-form-field {
   --mdc-outlined-text-field-container-shape: 6px;
@@ -172,7 +196,7 @@ select {
   white-space: nowrap;
 }
 .content .table-wrap td {
-  padding: 15px 18px;
+  padding: 14px 18px;
   font-size: 13px;
   line-height: 1.5;
   border-color: #edf1f4;
@@ -180,9 +204,13 @@ select {
 .content .table-wrap tbody tr {
   transition: background-color 140ms ease;
 }
-.content .table-wrap tbody tr:hover,
 .content .table-wrap tbody tr:focus-within {
   background: #eef6f5;
+}
+@media (hover: hover) and (pointer: fine) {
+  .content .table-wrap tbody tr:hover {
+    background: #eef6f5;
+  }
 }
 .content .table-wrap td a {
   color: var(--accent);
@@ -236,6 +264,7 @@ select {
 }
 .mat-mdc-dialog-content {
   line-height: 1.6;
+  overscroll-behavior: contain;
 }
 .mat-mdc-dialog-actions {
   border-top: 1px solid var(--line);
@@ -300,10 +329,8 @@ select {
     display: block;
     margin-bottom: 3px;
     color: var(--muted);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 650;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
   }
   .content .responsive-table td:first-child,
   .content .responsive-table td[data-wide] {
@@ -315,7 +342,7 @@ select {
     width: 100%;
     flex: 1 1 100%;
   }
-  .content .table-wrap td {
+  .content .table-wrap table:not(.responsive-table) td {
     padding: 13px 14px;
   }
   .mat-mdc-dialog-content {
@@ -323,6 +350,9 @@ select {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  button:active:not(:disabled):not(:focus-visible) {
+    transform: none;
+  }
   *,
   *::before,
   *::after {

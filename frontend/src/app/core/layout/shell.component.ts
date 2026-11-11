@@ -13,7 +13,11 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
   imports: [RouterOutlet, RouterLink, RouterLinkActive, MatButtonModule, A11yModule, IconComponent],
   host: { '(document:keydown.escape)': 'closeNavigation()' },
   template: `
-    <div class="workspace" [class.sidebar-open]="mobileOpen()">
+    <div
+      class="workspace"
+      [class.sidebar-open]="mobileOpen()"
+      [class.keyboard-navigation]="keyboardNavigation()"
+    >
       <a class="skip-link" href="#main-content">Skip to content</a>
       <aside
         id="primary-sidebar"
@@ -25,7 +29,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
           class="close-navigation"
           type="button"
           aria-label="Close navigation"
-          (click)="closeNavigation()"
+          (click)="closeNavigation($event)"
         >
           ×
         </button>
@@ -68,7 +72,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
             class="menu"
             type="button"
             id="navigation-toggle"
-            (click)="toggleNavigation()"
+            (click)="toggleNavigation($event)"
             aria-label="Toggle navigation"
             aria-controls="primary-sidebar"
             [attr.aria-expanded]="mobileOpen()"
@@ -335,7 +339,10 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         }
         .sidebar {
           transform: translateX(-100%);
-          transition: transform 0.2s;
+          transition: transform 220ms var(--ease-drawer);
+        }
+        .keyboard-navigation .sidebar {
+          transition: none;
         }
         .sidebar-open .sidebar {
           transform: none;
@@ -397,6 +404,7 @@ export class ShellComponent implements OnInit, OnDestroy {
   readonly isMobile = signal(false);
   private navigationSubscription?: Subscription;
   readonly mobileOpen = signal(false);
+  readonly keyboardNavigation = signal(false);
   readonly pageTitle = signal('Command center');
   readonly navigation: { path: string; label: string; icon: IconName }[] = [
     { path: '/dashboard', label: 'Command center', icon: 'overview' },
@@ -426,16 +434,17 @@ export class ShellComponent implements OnInit, OnDestroy {
     this.realtime.disconnect();
   }
   logout(): void {
-    this.realtime.disconnect();
     this.auth.logout();
   }
-  toggleNavigation(): void {
+  toggleNavigation(event?: MouseEvent): void {
+    this.keyboardNavigation.set(event?.detail === 0);
     this.mobileOpen.set(!this.mobileOpen());
     if (this.mobileOpen())
       setTimeout(() => document.querySelector<HTMLButtonElement>('.close-navigation')?.focus());
   }
-  closeNavigation(): void {
+  closeNavigation(event?: MouseEvent): void {
     if (!this.mobileOpen()) return;
+    this.keyboardNavigation.set(!event || event.detail === 0);
     this.mobileOpen.set(false);
     setTimeout(() => document.getElementById('navigation-toggle')?.focus());
   }

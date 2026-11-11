@@ -93,6 +93,7 @@ Las transiciones se exponen como acciones de negocio explícitas. Las transaccio
 - Volumen de pedidos de los últimos siete días.
 - Inventario crítico con acceso directo al nivel de stock.
 - Mapa de envíos activos con estado de entrega y progreso simulado.
+- Priorización de incidencias por severidad y conservación del último resumen si falla la actualización.
 - Endpoint agregado para evitar múltiples consultas independientes desde el frontend.
 
 ### Pedidos
@@ -177,7 +178,7 @@ Los guards de Angular adaptan la interfaz al rol, mientras que Spring Security c
 | Persistencia     | PostgreSQL 17 · Spring Data JPA · Hibernate ORM                        | Datos transaccionales y control del inventario.            |
 | Migraciones      | Flyway 12.4.0                                                          | Evolución versionada del esquema de base de datos.         |
 | API              | REST `/api/v1` · springdoc-openapi 3.0.3                               | Endpoints de negocio y documentación OpenAPI.              |
-| Pruebas          | Vitest 4.1.11 · JUnit Jupiter · Mockito 5.23.0 · Testcontainers 1.21.4 | Pruebas de frontend, backend e integración con PostgreSQL. |
+| Pruebas          | Vitest 4.1.12 · JUnit Jupiter · Mockito 5.23.0 · Testcontainers 1.21.4 | Pruebas de frontend, backend e integración con PostgreSQL. |
 | Entorno          | Node.js 24.15.0 · npm 11.12.1 · Docker Compose                         | Instalación y builds reproducibles.                        |
 | Servidor web     | Nginx 1.30.5                                                           | Sirve la SPA y actúa como proxy de API y WebSocket.        |
 | CI               | GitHub Actions                                                         | Formato, análisis estático, pruebas y builds.              |
@@ -199,6 +200,8 @@ flowchart LR
 El frontend es una SPA Angular servida por Nginx. Las peticiones REST bajo `/api/v1` y la conexión WebSocket `/ws` se redirigen al backend Spring Boot. La persistencia utiliza Spring Data JPA sobre PostgreSQL, con un esquema creado y versionado exclusivamente mediante Flyway.
 
 El backend mantiene una arquitectura monolítica modular organizada por dominios: autenticación, usuarios, clientes, almacenes, productos, inventario, pedidos, flota, envíos, incidencias, simulación y dashboard. Los controladores trabajan con DTOs y los servicios concentran las reglas transaccionales y las transiciones de estado.
+
+Pedidos, envíos, detalle de seguimiento y dashboard utilizan SignalStores locales. Las consultas obsoletas se cancelan; el dashboard agrupa ráfagas de eventos y muestra el último resumen válido si pierde la conexión. El detalle reconcilia respuestas HTTP con actualizaciones STOMP sin retroceder el progreso. Angular CLI y build utilizan la revisión 22.2.6.
 
 Más detalle en [Arquitectura](docs/architecture.md) y [Modelo de datos](docs/data-model.md).
 
@@ -281,7 +284,7 @@ El endpoint STOMP es `ws://localhost:8080/ws`. Durante la simulación, el backen
 - `/topic/shipments/{id}`: detalle en tiempo real de un envío;
 - `/topic/dashboard`: actualizaciones para el mapa y los indicadores operativos.
 
-La autenticación WebSocket utiliza la misma cookie JWT que la API.
+La autenticación WebSocket utiliza la misma cookie JWT que la API. El canal entrante permite únicamente suscripciones a los topics operativos previstos y mensajes de conexión/desconexión; los clientes no pueden publicar eventos de negocio.
 
 ## Tests y CI
 
@@ -311,7 +314,7 @@ El backend combina JUnit Jupiter, Mockito y tests de integración contra Postgre
 
 El workflow de GitHub Actions ejecuta jobs independientes para frontend y backend con Node.js 24.15.0 y Java 21. Formato, lint, tests y builds forman parte de la validación automatizada.
 
-El workflow manual [Capture demo screenshots](https://github.com/LucaMZM/mazmi-logistics-control/actions/workflows/capture-demo.yml) arranca la aplicación completa con Docker Compose en Ubuntu. Playwright captura el entorno demo real y comprueba autenticación, mapas, actualizaciones WebSocket y ausencia de desbordamiento en móvil. Las imágenes y el informe de ejecución se publican como artifact descargable.
+El workflow manual [Capture demo screenshots](https://github.com/LucaMZM/mazmi-logistics-control/actions/workflows/capture-demo.yml) arranca la aplicación completa con Docker Compose en Ubuntu. Playwright captura el entorno demo real y comprueba autenticación, mapas, actualizaciones WebSocket, navegación por teclado y desbordamientos en escritorio, portátil, tablet y móvil. También ejecuta mediante la API el ciclo de pedido, reserva, asignación, salida, incidencia, resolución y entrega simulada, y comprueba CSRF y el bloqueo de publicaciones STOMP desde el cliente. Las imágenes y el informe se publican como artifact descargable. Las operaciones afectan únicamente a una base de datos temporal.
 
 ## Estructura del proyecto
 
@@ -338,7 +341,9 @@ mazmi-logistics-control/
 - Envíos parciales y transferencias entre almacenes.
 - Integración opcional con un proveedor real de rutas.
 - Exportaciones operativas en CSV y PDF.
-- Suite end-to-end de navegador y mayor cobertura de accesibilidad.
+- Ampliar las pruebas de formularios en navegador y la cobertura con lectores de pantalla.
+
+El alcance y las limitaciones de seguridad se detallan en [Seguridad](docs/security.md).
 
 ## Autor
 

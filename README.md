@@ -17,6 +17,8 @@ Plataforma full-stack de operaciones logísticas para coordinar pedidos, inventa
 
 ## Índice
 
+Fleet Twin incorpora una primera maqueta 3D interactiva en `/digital-twin`, vinculada a registros reales de flota. [Arquitectura, controles, assets y límites](docs/digital-twin.md).
+
 - [Descripción](#descripción)
 - [Capturas](#capturas)
 - [Problema que resuelve](#problema-que-resuelve)

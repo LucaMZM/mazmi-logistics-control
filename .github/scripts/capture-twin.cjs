@@ -1,0 +1,35 @@
+const assert = require('node:assert/strict');
+const path = require('node:path');
+
+module.exports = async function captureTwin(page, output) {
+  await page.setViewportSize({width:1440,height:1100});
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.goto('http://localhost:4200/digital-twin');
+  await page.getByRole('heading',{name:'Fleet Twin',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Open vehicle in 3D',exact:true}).click();
+  await page.getByRole('button',{name:'Inspect vehicle',exact:true}).waitFor();
+  const inspect=page.getByRole('button',{name:'Inspect vehicle',exact:true});
+  await inspect.click();
+  await page.getByRole('button',{name:'Overview',exact:true}).click();
+  const canvas=page.locator('app-digital-twin-page canvas');
+  await canvas.waitFor();
+  assert(await canvas.evaluate(c=>c.width>0 && c.height>0));
+  const plate=await page.locator('app-digital-twin-page h3').innerText();
+  const records=await (await page.request.get('http://localhost:4200/api/v1/vehicles')).json();
+  assert(records.some(v=>v.registrationPlate===plate));
+  await page.screenshot({path:path.join(output,'fleet-twin.png')});
+  const before = await canvas.screenshot();
+  await page.getByRole('button',{name:'Play manoeuvre',exact:true}).click();
+  await page.waitForTimeout(1800);
+  await page.getByRole('button',{name:'Pause manoeuvre',exact:true}).click();
+  assert(!before.equals(await canvas.screenshot()), 'The vehicle manoeuvre must change the rendered scene');
+  await page.setViewportSize({width:390,height:844});
+  await page.emulateMedia({reducedMotion:'reduce'});
+  assert(await page.getByRole('button',{name:'Play manoeuvre',exact:true}).isDisabled());
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await page.screenshot({path:path.join(output,'fleet-twin-mobile.png'),fullPage:true});
+  await canvas.evaluate(c=>{const gl=c.getContext('webgl2');gl.getExtension('WEBGL_lose_context').loseContext();});
+  await page.getByText('3D context lost.',{exact:false}).waitFor();
+  await page.getByRole('button',{name:'Retry 3D',exact:true}).click();
+  await inspect.click();
+};

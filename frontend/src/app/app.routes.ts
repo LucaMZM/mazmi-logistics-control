@@ -9,6 +9,11 @@ export const routes: Routes = [
     loadComponent: () => import('./core/layout/shell.component').then((m) => m.ShellComponent),
     children: [
       {
+        path: 'digital-twin',
+        loadComponent: () =>
+          import('./features/digital-twin/digital-twin.page').then((m) => m.DigitalTwinPage),
+      },
+      {
         path: 'dashboard',
         loadComponent: () =>
           import('./features/dashboard/dashboard.page').then((m) => m.DashboardPage),

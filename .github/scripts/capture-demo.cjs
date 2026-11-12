@@ -11,7 +11,7 @@ assert(output, "CAPTURE_DIR must identify the artifact directory");
 async function main() {
   await fs.mkdir(output, { recursive: true });
   await fs.mkdir(path.join(output, "review"), { recursive: true });
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
   try {
     const context = await browser.newContext({
       viewport: { width: 1440, height: 1440 },
@@ -273,6 +273,7 @@ async function main() {
       "Clients must not publish operational updates",
     );
     const businessFlow = await verifyLogistics(context, baseURL);
+    await require('./capture-twin.cjs')(page, output);
     await page.getByRole("button", { name: "Log out", exact: true }).click();
     await page.waitForURL("**/login");
     assert.deepEqual(errors, [], "Unexpected JavaScript errors");

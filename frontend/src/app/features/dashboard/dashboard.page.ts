@@ -1,22 +1,18 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
-import { ApiService } from '../../core/services/api.service';
-import { RealtimeService } from '../../core/websocket/realtime.service';
 import { FeedbackStateComponent } from '../../shared/components/feedback-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state.component';
-import {
-  OperationMapPoint,
-  OperationsMapComponent,
-} from '../../shared/components/operations-map.component';
+import { OperationsMapComponent } from '../../shared/components/operations-map.component';
 import { PageHeaderComponent } from '../../shared/components/page-header.component';
 import { VolumeChartComponent } from '../../shared/components/volume-chart.component';
-import { Dashboard } from '../../shared/models/models';
+import { DashboardStore } from './dashboard.store';
 
 @Component({
   selector: 'app-dashboard-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [DashboardStore],
   imports: [
     RouterLink,
     MatButtonModule,
@@ -37,7 +33,7 @@ import { Dashboard } from '../../shared/models/models';
     </app-page-header>
     @if (loading()) {
       <app-loading-state />
-    } @else if (loadError()) {
+    } @else if (loadError() && !dashboard()) {
       <app-feedback-state
         kind="error"
         title="Dashboard unavailable"
@@ -46,6 +42,12 @@ import { Dashboard } from '../../shared/models/models';
         (action)="retry()"
       />
     } @else if (dashboard(); as data) {
+      @if (loadError()) {
+        <div class="refresh-warning" role="status">
+          <span>Live summary could not refresh. Showing the last successful update.</span>
+          <button mat-button (click)="retry()">Retry</button>
+        </div>
+      }
       <section class="pulse" aria-label="Operational pulse">
         <a routerLink="/orders"
           ><span>Orders today</span><strong>{{ data.ordersToday }}</strong
@@ -55,11 +57,11 @@ import { Dashboard } from '../../shared/models/models';
           ><span>Active shipments</span><strong>{{ data.activeShipments }}</strong
           ><small>View routes →</small></a
         >
-        <a routerLink="/shipments" class="attention-metric"
+        <a routerLink="/shipments" [class.attention-metric]="data.delayedShipments > 0"
           ><span>Delayed shipments</span><strong>{{ data.delayedShipments }}</strong
           ><small>Review deliveries →</small></a
         >
-        <a routerLink="/incidents" class="attention-metric"
+        <a routerLink="/incidents" [class.attention-metric]="data.openIncidents > 0"
           ><span>Open incidents</span><strong>{{ data.openIncidents }}</strong
           ><small>Resolve exceptions →</small></a
         >
@@ -69,7 +71,7 @@ import { Dashboard } from '../../shared/models/models';
           <header>
             <div>
               <h2>Needs attention</h2>
-              <p>Current exceptions from live operational data</p>
+              <p>Delivery risk and highest-severity open incidents</p>
             </div>
           </header>
           @for (item of riskShipments(); track item.id) {
@@ -95,14 +97,10 @@ import { Dashboard } from '../../shared/models/models';
               <span aria-hidden="true">→</span>
             </a>
           }
-          @for (item of data.criticalInventory.slice(0, 2); track item.inventoryId) {
-            <a class="attention-row" [routerLink]="['/inventory', item.inventoryId]">
-              <span class="signal signal-stock">STOCK</span>
-              <span
-                ><strong>{{ item.sku }} · {{ item.product }}</strong
-                ><small>{{ item.warehouse }} · {{ item.available }} available</small></span
-              >
-              <span aria-hidden="true">→</span>
+          @if (data.criticalInventory.length) {
+            <a class="stock-alert" routerLink="/inventory">
+              <strong>{{ data.criticalInventory.length }} stock positions at reorder level</strong>
+              <span>Review availability below</span>
             </a>
           }
           @if (
@@ -193,6 +191,31 @@ import { Dashboard } from '../../shared/models/models';
   `,
   styles: [
     `
+      .refresh-warning {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 16px;
+        margin-bottom: 16px;
+        background: #fff6e7;
+        border: 1px solid #e7ceaa;
+        color: #854715;
+        font-size: 13px;
+      }
+      .stock-alert {
+        display: grid;
+        gap: 3px;
+        padding: 13px 18px;
+        color: #854715;
+        background: #fffaf2;
+        border-bottom: 1px solid var(--line);
+        text-decoration: none;
+        font-size: 12px;
+      }
+      .stock-alert span {
+        color: var(--muted);
+      }
       .pulse {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -228,7 +251,7 @@ import { Dashboard } from '../../shared/models/models';
         background: #fff2df;
       }
       .pulse span {
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 650;
         color: var(--muted);
       }
@@ -244,13 +267,13 @@ import { Dashboard } from '../../shared/models/models';
         color: #a74f1b;
       }
       .pulse small {
-        font-size: 11px;
+        font-size: 12px;
         color: var(--accent);
         font-weight: 650;
       }
       .primary-grid {
         display: grid;
-        grid-template-columns: minmax(310px, 0.8fr) minmax(0, 1.5fr);
+        grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.5fr);
         gap: 18px;
         margin-bottom: 18px;
       }
@@ -272,10 +295,10 @@ import { Dashboard } from '../../shared/models/models';
       }
       .attention-row {
         display: grid;
-        grid-template-columns: 52px minmax(0, 1fr) auto;
+        grid-template-columns: 44px minmax(0, 1fr) auto;
         align-items: center;
         gap: 12px;
-        padding: 14px 18px;
+        padding: 11px 18px;
         border-bottom: 1px solid var(--line);
         color: var(--ink);
         text-decoration: none;
@@ -301,11 +324,11 @@ import { Dashboard } from '../../shared/models/models';
       }
       .attention-row small {
         margin-top: 3px;
-        font-size: 11px;
+        font-size: 12px;
         color: var(--muted);
       }
       .signal {
-        font-size: 9px;
+        font-size: 10px;
         font-weight: 800;
         letter-spacing: 0.08em;
       }
@@ -442,68 +465,16 @@ import { Dashboard } from '../../shared/models/models';
     `,
   ],
 })
-export class DashboardPage implements OnInit, OnDestroy {
+export class DashboardPage {
   readonly auth = inject(AuthService);
-  private readonly api = inject(ApiService);
-  private readonly realtime = inject(RealtimeService);
-  private readonly destroy$ = new Subject<void>();
-  readonly loading = signal(true);
-  readonly loadError = signal(false);
-  readonly dashboard = signal<Dashboard | null>(null);
-  readonly mapPoints = signal<OperationMapPoint[]>([]);
-  readonly riskShipments = computed(() =>
-    (this.dashboard()?.activeShipmentMapItems ?? [])
-      .filter((item) => item.deliveryHealth !== 'ON_TIME')
-      .slice(0, 3),
-  );
-  readonly openIncidents = computed(() =>
-    (this.dashboard()?.recentIncidents ?? [])
-      .filter((incident) => incident.status === 'OPEN')
-      .slice(0, 3),
-  );
-  ngOnInit(): void {
-    this.load();
-    this.realtime
-      .watchDashboard()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.load(false));
-    this.realtime
-      .watchConnected()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.load(false));
-  }
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  private readonly store = inject(DashboardStore);
+  readonly loading = this.store.loading;
+  readonly loadError = this.store.loadError;
+  readonly dashboard = this.store.dashboard;
+  readonly mapPoints = this.store.mapPoints;
+  readonly riskShipments = this.store.riskShipments;
+  readonly openIncidents = this.store.openIncidents;
   retry(): void {
-    this.load();
-  }
-  private load(showLoading = true): void {
-    if (showLoading) {
-      this.loading.set(true);
-      this.loadError.set(false);
-    }
-    this.api.dashboard().subscribe({
-      next: (data) => {
-        this.dashboard.set(data);
-        this.mapPoints.set(
-          data.activeShipmentMapItems.map((item) => ({
-            id: item.id,
-            latitude: item.latitude,
-            longitude: item.longitude,
-            label: `${item.trackingNumber} · ${item.progress}%`,
-            kind: 'vehicle',
-            health: item.deliveryHealth,
-          })),
-        );
-        this.loadError.set(false);
-        this.loading.set(false);
-      },
-      error: () => {
-        if (!this.dashboard()) this.loadError.set(true);
-        this.loading.set(false);
-      },
-    });
+    this.store.refresh();
   }
 }

@@ -131,4 +131,41 @@ describe('RealtimeService', () => {
     current.config.onConnect();
     expect(service.status()).toBe('connected');
   });
+
+  it('ignores queued frames from a disconnected session and keeps one shared subscription', () => {
+    const receive = vi.fn();
+    const first = service.watchShipment('shipment-1').subscribe(receive);
+    const second = service.watchShipment('shipment-1').subscribe(receive);
+    const dashboard = service.watchDashboard().subscribe(receive);
+    service.connect();
+    const client = stomp.instances[0] as MockClient;
+    client.connected = true;
+    client.config.onConnect();
+    expect(
+      client.subscriptions.filter((item) => item.destination.includes('/shipments/')),
+    ).toHaveLength(1);
+    const oldSubscriptions = [...client.subscriptions];
+    service.disconnect();
+    service.connect();
+    for (const subscription of oldSubscriptions) subscription.callback({ body: '{}' });
+    expect(receive).not.toHaveBeenCalled();
+    first.unsubscribe();
+    second.unsubscribe();
+    dashboard.unsubscribe();
+  });
+
+  it('ignores old frames after reconnecting the same client', () => {
+    const receive = vi.fn();
+    const watcher = service.watchShipment('shipment-1').subscribe(receive);
+    service.connect();
+    const client = stomp.instances[0] as MockClient;
+    client.connected = true;
+    client.config.onConnect();
+    const old = client.subscriptions[0];
+    client.config.onWebSocketClose();
+    client.config.onConnect();
+    old.callback({ body: '{}' });
+    expect(receive).not.toHaveBeenCalled();
+    watcher.unsubscribe();
+  });
 });

@@ -7,10 +7,10 @@ import {
   OnDestroy,
   ViewChild,
 } from '@angular/core';
-import { Chart, registerables } from 'chart.js';
+import { BarController, BarElement, CategoryScale, Chart, LinearScale, Tooltip } from 'chart.js';
 import { DailyVolume } from '../models/models';
 
-Chart.register(...registerables);
+Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip);
 
 @Component({
   selector: 'app-volume-chart',

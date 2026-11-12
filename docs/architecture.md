@@ -1,6 +1,6 @@
-# Architecture
+# Arquitectura
 
-Mazmi Logistics Control is a modular monolith with a separate Angular single-page application.
+Mazmi Logistics Control es un monolito modular con una SPA Angular independiente.
 
 ```mermaid
 flowchart TB
@@ -15,28 +15,36 @@ flowchart TB
     Spring -->|"JPA / transactions"| PostgreSQL
 ```
 
-## Backend boundaries
+## Límites del backend
 
-Packages follow the business domains: authentication, users, customers, warehouses, products, inventory, orders, fleet, shipments, incidents, simulation and dashboard. Controllers translate HTTP requests into DTOs; services own transitions and transactional rules; repositories own persistence queries. JPA entities are not returned directly by controllers.
+Los paquetes siguen los dominios operativos: autenticación, usuarios, clientes, almacenes, productos, inventario, pedidos, flota, envíos, incidencias, simulación y dashboard. Los controladores trabajan con DTOs; los servicios mantienen las transacciones y transiciones; los repositorios concentran las consultas. Las entidades JPA no se devuelven directamente.
 
-Inventory mutations pass through `InventoryService`, update an optimistic-locked `InventoryLevel`, validate the resulting balance and write a `StockMovement`. Order confirmation reserves every line in a single transaction, so an insufficient line rolls back the entire reservation. Shipment departure dispatches the reserved stock and claims both fleet resources in the same operation.
+`InventoryService` valida los saldos, modifica `InventoryLevel` con bloqueo optimista y registra cada `StockMovement`. Confirmar un pedido reserva todas las líneas en una transacción: si falta stock, se revierte la operación completa. La salida despacha las reservas y ocupa conductor y vehículo conjuntamente.
 
-## Backend as source of truth
+## Fuente de verdad
 
-The browser never supplies order prices, creator identities or arbitrary workflow states. Prices come from active products, actors come from the security context and transitions are exposed as explicit actions. PostgreSQL check, unique and foreign-key constraints provide a second integrity layer.
+Los precios proceden del catálogo y los actores del contexto de seguridad. El navegador no decide identidades, precios ni estados arbitrarios. PostgreSQL añade restricciones de saldo, claves únicas, claves foráneas e índices únicos parciales para las asignaciones activas de flota.
 
-## Authentication and security
+La salud de entrega se calcula considerando todas las incidencias abiertas: `DELAYED` si alguna supera severidad baja, `AT_RISK` si solo quedan leves y `ON_TIME` si no queda ninguna. Resolver una incidencia no registra reanudación mientras existan otras abiertas.
 
-Spring Security signs a short-lived access JWT using an environment-provided secret and returns it in an HttpOnly, SameSite cookie. The browser does not persist the token in Web Storage. A readable `XSRF-TOKEN` cookie is paired with Angular's `X-XSRF-TOKEN` header for state-changing requests. Cookie security and the single allowed development origin are configurable.
+## Autenticación y seguridad
 
-Method authorization allows viewers to read, operators to run logistics workflows and administrators to manage users. The WebSocket handshake passes through the same cookie authentication filter.
+Spring Security devuelve un JWT de duración limitada en una cookie HttpOnly y SameSite. No se guarda en Web Storage. La cookie legible `XSRF-TOKEN` y la cabecera `X-XSRF-TOKEN` protegen las mutaciones. El secreto, la opción Secure y el único origen permitido se configuran mediante variables de entorno.
 
-## Realtime simulation
+La autorización de métodos permite lectura a VIEWER, operaciones a OPERATOR y administración de usuarios a ADMIN. El handshake WebSocket utiliza la autenticación de cookie. `WebSocketInboundGuard` permite las suscripciones previstas y rechaza publicaciones del cliente y destinos arbitrarios. Véanse las [limitaciones de sesión](security.md).
 
-A scheduler advances only shipments that are both `IN_TRANSIT` and explicitly simulation-active. The position is deterministic between stored warehouse coordinates and the order destination snapshot. The scheduler writes checkpoint events only at business milestones and publishes compact update DTOs over STOMP. At 100%, it calls the same delivery service used by manual delivery.
+## Estado Angular y tiempo real
 
-## Docker topology
+`OrdersStore`, `ShipmentsStore`, `ShipmentDetailStore` y `DashboardStore` tienen alcance local. RxJS controla cancelación, debounce y eventos; Signals mantiene el estado y `computed` deriva los datos de presentación. El dashboard agrupa eventos durante 250 ms, cancela lecturas obsoletas y conserva el último resultado ante errores. El detalle reconcilia las lecturas HTTP con el historial de cambios recibidos durante cada petición.
 
-Compose starts PostgreSQL, waits for database health, starts the backend and then starts the Nginx frontend after Actuator reports healthy. Nginx serves the SPA, falls back to `index.html`, and proxies REST and WebSocket traffic to the backend.
+`RealtimeService` comparte una suscripción por envío, libera el topic cuando desaparece su último observador y reconstruye suscripciones al reconectar. Una revisión de conexión impide aplicar callbacks de sockets antiguos. El cierre de sesión desconecta el socket al abandonar la consola, no antes de confirmar el logout HTTP.
 
-The Compose demo defaults are explicit environment settings: demo seeding and Swagger can both be disabled without changing an image. Outside the demo profile, API documentation is disabled by default. HTTPS deployments must enable secure cookies and configure their exact browser origin.
+El scheduler avanza únicamente envíos `IN_TRANSIT` con simulación activa. Aísla el fallo de cada envío para continuar con los demás. Al alcanzar el 100 % utiliza el mismo servicio de entrega que la acción manual. Los eventos STOMP se publican después del commit; el fallo de un topic no impide intentar el otro. No existe una cola persistente de eventos ni garantía de entrega del broker.
+
+## Despliegue y validación
+
+Compose inicia PostgreSQL, espera su healthcheck, inicia el backend y después Nginx cuando Actuator está saludable. Nginx sirve la SPA con fallback y proxy REST/WebSocket.
+
+Demo y Swagger se pueden desactivar sin cambiar las imágenes. Fuera del perfil demo, OpenAPI está desactivado por defecto. Un despliegue HTTPS debe activar cookies Secure y configurar el origen exacto.
+
+El workflow manual de capturas levanta una base vacía en Ubuntu, ejecuta el flujo logístico por API y revisa la aplicación con Chromium en cuatro tamaños. Las capturas son de la aplicación real y los datos temporales se eliminan al terminar.

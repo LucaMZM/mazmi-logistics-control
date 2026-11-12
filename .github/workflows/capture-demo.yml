@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   capture:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
@@ -57,7 +57,10 @@ jobs:
           retention-days: 7
       - name: Service diagnostics on failure
         if: failure()
-        run: docker compose --env-file "$RUNNER_TEMP/capture.env" -p mazmi-capture logs --no-color --tail 100
+        run: |
+          if [ -f "$RUNNER_TEMP/capture.env" ]; then
+            docker compose --env-file "$RUNNER_TEMP/capture.env" -p mazmi-capture logs --no-color --tail 100
+          fi
       - name: Stop temporary services
         if: always()
         run: |

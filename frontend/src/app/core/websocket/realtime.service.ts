@@ -12,6 +12,7 @@ export class RealtimeService {
   private readonly connectedSubject = new Subject<void>();
   private dashboardSubscription?: StompSubscription;
   private client?: Client;
+  private connectionRevision = 0;
   readonly status = signal<'offline' | 'connecting' | 'connected'>('offline');
 
   connect(): void {
@@ -26,6 +27,7 @@ export class RealtimeService {
       heartbeatOutgoing: 10000,
       onConnect: () => {
         if (this.client !== client) return;
+        this.connectionRevision++;
         this.status.set('connected');
         this.subjects.forEach((_, id) => this.subscribe(id));
         this.subscribeDashboard();
@@ -33,6 +35,7 @@ export class RealtimeService {
       },
       onWebSocketClose: () => {
         if (this.client !== client) return;
+        this.connectionRevision++;
         this.subscriptions.clear();
         this.dashboardSubscription = undefined;
         this.status.set(this.client?.active ? 'connecting' : 'offline');
@@ -46,6 +49,7 @@ export class RealtimeService {
   }
 
   disconnect(): void {
+    this.connectionRevision++;
     const client = this.client;
     this.client = undefined;
     if (client?.connected) {
@@ -96,16 +100,27 @@ export class RealtimeService {
 
   private subscribe(id: string): void {
     this.subscriptions.get(id)?.unsubscribe();
-    const subscription = this.client?.subscribe(`/topic/shipments/${id}`, (message: IMessage) =>
-      this.subjects.get(id)?.next(JSON.parse(message.body) as RealtimeUpdate),
-    );
+    const client = this.client;
+    const revision = this.connectionRevision;
+    const subscription = client?.subscribe(`/topic/shipments/${id}`, (message: IMessage) => {
+      if (
+        this.client !== client ||
+        this.connectionRevision !== revision ||
+        this.subscriptions.get(id) !== subscription
+      )
+        return;
+      this.subjects.get(id)?.next(JSON.parse(message.body) as RealtimeUpdate);
+    });
     if (subscription) this.subscriptions.set(id, subscription);
   }
 
   private subscribeDashboard(): void {
     this.dashboardSubscription?.unsubscribe();
-    this.dashboardSubscription = this.client?.subscribe('/topic/dashboard', (message: IMessage) =>
-      this.dashboardSubject.next(JSON.parse(message.body) as RealtimeUpdate),
-    );
+    const client = this.client;
+    const revision = this.connectionRevision;
+    this.dashboardSubscription = client?.subscribe('/topic/dashboard', (message: IMessage) => {
+      if (this.client !== client || this.connectionRevision !== revision) return;
+      this.dashboardSubject.next(JSON.parse(message.body) as RealtimeUpdate);
+    });
   }
 }

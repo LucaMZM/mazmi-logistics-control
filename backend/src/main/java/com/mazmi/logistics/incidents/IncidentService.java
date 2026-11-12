@@ -54,10 +54,7 @@ public class IncidentService {
     incident.setStatus(IncidentStatus.OPEN);
     incident.setCreatedBy(currentUser.require());
     incidents.save(incident);
-    shipment.setDeliveryHealth(
-        request.severity() == IncidentSeverity.LOW
-            ? DeliveryHealth.AT_RISK
-            : DeliveryHealth.DELAYED);
+    updateDeliveryHealth(shipment);
     long delayMinutes =
         request.severity() == IncidentSeverity.CRITICAL
             ? 120
@@ -94,16 +91,29 @@ public class IncidentService {
     incident.setResolutionNote(resolutionNote);
     incident.setResolvedAt(Instant.now());
     Shipment shipment = incident.getShipment();
-    if (!incidents.existsByShipmentIdAndStatus(shipment.getId(), IncidentStatus.OPEN))
-      shipment.setDeliveryHealth(DeliveryHealth.ON_TIME);
+    updateDeliveryHealth(shipment);
     TrackingEvent event =
         shipmentService.addEvent(
             shipment,
-            TrackingEventType.RESUMED,
+            shipment.getDeliveryHealth() == DeliveryHealth.ON_TIME
+                ? TrackingEventType.RESUMED
+                : TrackingEventType.INCIDENT,
             "Incident resolved: " + resolutionNote,
             shipment.getCurrentLatitude(),
             shipment.getCurrentLongitude());
     publisher.shipment(shipment, ShipmentDtos.Event.from(event));
     return IncidentDtos.Response.from(incident);
+  }
+
+  private void updateDeliveryHealth(Shipment shipment) {
+    var open =
+        incidents.findByShipmentIdAndStatusOrderByOpenedAtDesc(
+            shipment.getId(), IncidentStatus.OPEN);
+    shipment.setDeliveryHealth(
+        open.isEmpty()
+            ? DeliveryHealth.ON_TIME
+            : open.stream().anyMatch(incident -> incident.getSeverity() != IncidentSeverity.LOW)
+                ? DeliveryHealth.DELAYED
+                : DeliveryHealth.AT_RISK);
   }
 }

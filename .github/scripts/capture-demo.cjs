@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
 const { chromium } = require("playwright");
+const verifyLogistics = require("./verify-logistics.cjs");
 
 const baseURL = "http://localhost:4200";
 const output = process.env.CAPTURE_DIR;
@@ -71,6 +72,16 @@ async function main() {
             )
           );
         });
+        assert(
+          await page.locator(".leaflet-control-zoom").evaluate((control) => {
+            const panel = control.closest(".map-panel, .map-wrap");
+            if (!panel) return false;
+            const bounds = panel.getBoundingClientRect();
+            const zoom = control.getBoundingClientRect();
+            return zoom.bottom <= bounds.bottom && zoom.top >= bounds.top;
+          }),
+          "Map zoom controls must not be clipped",
+        );
       }
       await page
         .locator(".mat-mdc-snack-bar-container")
@@ -107,6 +118,31 @@ async function main() {
         (item) => item.progress < 80 && item.deliveryHealth === "DELAYED",
       ) ?? content.find((item) => item.progress < 80);
     assert(shipment, "The demo must contain an in-transit shipment");
+    const initialTracking = await context.request.get(
+      `${baseURL}/api/v1/shipments/${shipment.id}`,
+    );
+    assert.equal(initialTracking.status(), 200);
+    const initialDetail = await initialTracking.json();
+    assert(
+      Date.parse(initialDetail.departedAt) <= Date.now(),
+      "Demo departure cannot be in the future",
+    );
+    assert(
+      Date.parse(initialDetail.eta) >= Date.parse(initialDetail.departedAt),
+      "ETA must follow departure",
+    );
+    for (const event of initialDetail.events) {
+      assert(
+        Date.parse(event.eventTime) <= Date.now(),
+        "Demo events cannot be in the future",
+      );
+      const checkpoint = /checkpoint (\d+)%/.exec(event.description);
+      if (checkpoint)
+        assert(
+          Number(checkpoint[1]) <= initialDetail.progress,
+          "Checkpoint must not exceed current progress",
+        );
+    }
     await page.goto(`${baseURL}/shipments/${shipment.id}`);
     await ready(shipment.trackingNumber, ".controls", true);
     await page.locator(".connection.connected").waitFor();
@@ -155,6 +191,31 @@ async function main() {
       "table tbody tr",
     );
 
+    for (const viewport of [
+      { width: 1280, height: 900 },
+      { width: 768, height: 1024 },
+    ]) {
+      await page.setViewportSize(viewport);
+      for (const view of views) {
+        await page.goto(`${baseURL}${view.route}`);
+        await ready(view.heading, view.selector, view.map);
+        assert(
+          await page.evaluate(
+            () => document.documentElement.scrollWidth <= innerWidth + 1,
+          ),
+          `${view.route} overflows at ${viewport.width}`,
+        );
+        if (
+          view.name === "dashboard.png" ||
+          view.name === "shipment-tracking.png"
+        ) {
+          await page.screenshot({
+            path: path.join(output, "review", `${viewport.width}-${view.name}`),
+            animations: "disabled",
+          });
+        }
+      }
+    }
     await page.setViewportSize({ width: 390, height: 844 });
     for (const view of views) {
       await page.goto(`${baseURL}${view.route}`);
@@ -176,6 +237,42 @@ async function main() {
         animations: "disabled",
       });
     }
+    await page.getByRole("button", { name: "Toggle navigation" }).focus();
+    await page.keyboard.press("Enter");
+    await page.locator(".sidebar-open").waitFor();
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(
+      () => document.activeElement?.id === "navigation-toggle",
+    );
+    const publicationRejected = await page.evaluate(
+      () =>
+        new Promise((resolve, reject) => {
+          const socket = new WebSocket(`ws://${location.host}/ws`);
+          const timeout = setTimeout(() => {
+            socket.close();
+            reject(new Error("STOMP security check timed out"));
+          }, 10000);
+          socket.onopen = () =>
+            socket.send("CONNECT\naccept-version:1.2\nhost:localhost\n\n\0");
+          socket.onmessage = (event) => {
+            if (event.data.startsWith("CONNECTED"))
+              socket.send(
+                'SEND\ndestination:/topic/dashboard\ncontent-type:application/json\n\n{"forged":true}\0',
+              );
+            if (event.data.startsWith("ERROR")) {
+              clearTimeout(timeout);
+              socket.close();
+              resolve(true);
+            }
+          };
+        }),
+    );
+    assert.equal(
+      publicationRejected,
+      true,
+      "Clients must not publish operational updates",
+    );
+    const businessFlow = await verifyLogistics(context, baseURL);
     await page.getByRole("button", { name: "Log out", exact: true }).click();
     await page.waitForURL("**/login");
     assert.deepEqual(errors, [], "Unexpected JavaScript errors");
@@ -190,6 +287,8 @@ async function main() {
           screenshots: views.map(({ name }) => name),
           mobileViewport: { width: 390, height: 844 },
           shipmentWebSocketVerified: true,
+          clientPublicationRejected: publicationRejected,
+          businessFlow,
           javascriptErrors: errors,
         },
         null,

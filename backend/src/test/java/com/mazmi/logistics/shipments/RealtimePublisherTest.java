@@ -1,8 +1,10 @@
 package com.mazmi.logistics.shipments;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -47,6 +49,33 @@ class RealtimePublisherTest {
     Shipment shipment = shipment();
 
     publisher.shipment(shipment, null);
+
+    verify(messaging)
+        .convertAndSend(
+            eq("/topic/shipments/" + shipment.getId()), any(ShipmentDtos.Realtime.class));
+  }
+
+  @Test
+  void aBrokenShipmentTopicDoesNotPreventDashboardDelivery() {
+    Shipment shipment = shipment();
+    doThrow(new IllegalStateException("Shipment topic unavailable"))
+        .when(messaging)
+        .convertAndSend(
+            eq("/topic/shipments/" + shipment.getId()), any(ShipmentDtos.Realtime.class));
+
+    assertThatCode(() -> publisher.shipment(shipment, null)).doesNotThrowAnyException();
+
+    verify(messaging).convertAndSend(eq("/topic/dashboard"), any(ShipmentDtos.Realtime.class));
+  }
+
+  @Test
+  void aBrokenDashboardTopicDoesNotPropagateToTheBusinessTransaction() {
+    Shipment shipment = shipment();
+    doThrow(new IllegalStateException("Dashboard topic unavailable"))
+        .when(messaging)
+        .convertAndSend(eq("/topic/dashboard"), any(ShipmentDtos.Realtime.class));
+
+    assertThatCode(() -> publisher.shipment(shipment, null)).doesNotThrowAnyException();
 
     verify(messaging)
         .convertAndSend(

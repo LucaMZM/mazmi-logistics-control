@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,6 +17,7 @@ import { ShipmentsStore } from './shipments.store';
 
 @Component({
   selector: 'app-shipments-page',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [ShipmentsStore],
   imports: [
     DatePipe,
@@ -87,14 +88,20 @@ import { ShipmentsStore } from './shipments.store';
         (action)="store.loadLookups()"
       />
     }
-    <section class="table-card">
+    <section class="table-card" [attr.aria-busy]="store.loading()">
       <div class="list-summary">
-        <strong>Shipment register</strong><span>{{ store.total() }} matching shipments</span
+        <strong>Shipment register</strong
+        ><span role="status">
+          @if (store.loading()) {
+            Updating results…
+          } @else {
+            {{ store.total() }} matching shipments
+          }</span
         ><button mat-button (click)="clearFilters()" [disabled]="!store.filtersActive()">
           Clear filters
         </button>
       </div>
-      @if (store.loading()) {
+      @if (store.loading() && !store.result()) {
         <app-loading-state />
       } @else if (store.loadError()) {
         <app-feedback-state
@@ -165,8 +172,9 @@ import { ShipmentsStore } from './shipments.store';
         }
         @if (store.total()) {
           <mat-paginator
+            [disabled]="store.loading()"
             [length]="store.total()"
-            [pageIndex]="store.query().page"
+            [pageIndex]="store.result()?.page ?? 0"
             [pageSize]="store.query().size"
             [pageSizeOptions]="[10, 20, 50]"
             (page)="page($event)"

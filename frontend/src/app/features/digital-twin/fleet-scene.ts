@@ -13,6 +13,8 @@ export class FleetScene {
   private frame = 0;
   private disposed = false;
   private moving = false;
+  private bodyColor = '';
+  private selected = false;
   private elapsed = 0;
   private previous = 0;
   private focusTarget?: T.Vector3;
@@ -38,6 +40,7 @@ export class FleetScene {
     private readonly stopped: () => void,
   ) {}
   init(plate: string, color: string) {
+    this.bodyColor = color;
     try {
       this.renderer = new T.WebGLRenderer({ antialias: true, alpha: false });
       this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
@@ -110,7 +113,10 @@ export class FleetScene {
     }
   };
   private readonly hover = (e: PointerEvent) => {
-    if (this.renderer) this.renderer.domElement.style.cursor = this.hit(e) ? 'pointer' : 'grab';
+    const hit = this.hit(e);
+    if (this.renderer) this.renderer.domElement.style.cursor = hit ? 'pointer' : 'grab';
+    this.assets.highlightBody(this.bodyColor, hit || this.selected);
+    this.invalidate();
   };
   private readonly contextLost = (e: Event) => {
     e.preventDefault();
@@ -178,6 +184,8 @@ export class FleetScene {
     else this.previous = 0;
   };
   focus(instant = true) {
+    this.selected = true;
+    this.assets.highlightBody(this.bodyColor, true);
     if (!this.van || !this.controls) return;
     const target = this.van.position.clone().add(new T.Vector3(0, 1, 0));
     if (instant || this.reduced.matches) {

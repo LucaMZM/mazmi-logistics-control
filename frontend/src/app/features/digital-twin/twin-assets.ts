@@ -4,6 +4,10 @@ import { plateLabel } from './vehicle-twin';
 
 /** Scene-owned catalog. No remote models, external textures or commercial likenesses. */
 export class TwinAssets {
+  highlightBody(color: string, highlighted: boolean) {
+    const material = this.materials.get(color);
+    if (material) material.emissive.set(highlighted ? '#243b46' : '#000000');
+  }
   private readonly geometries = new Map<string, T.BufferGeometry>();
   private readonly materials = new Map<string, T.MeshStandardMaterial>();
   private readonly textures: T.Texture[] = [];

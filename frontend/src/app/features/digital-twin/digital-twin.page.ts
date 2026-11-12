@@ -14,7 +14,7 @@ import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { FleetTwinStore } from './fleet-twin.store';
 import { vehicleRepresentation } from './vehicle-twin';
-import type { FleetScene } from './fleet-scene';
+import { SCENE_LOADER, ScenePort } from './scene-loader';
 
 @Component({
   selector: 'app-digital-twin-page',
@@ -73,9 +73,7 @@ import type { FleetScene } from './fleet-scene';
         @if (store.error()) {
           <p role="alert">{{ store.error() }}</p>
         }
-        <button mat-button [disabled]="store.loading()" (click)="store.load()">
-          Refresh records
-        </button>
+        <button mat-button [disabled]="store.loading()" (click)="refresh()">Refresh records</button>
         <label for="twin-vehicle">Vehicle</label>
         <select id="twin-vehicle" [value]="store.selectedId()" (change)="choose($event)">
           @for (vehicle of store.vehicles(); track vehicle.id) {
@@ -322,7 +320,8 @@ export class DigitalTwinPage implements AfterViewInit, OnDestroy {
   readonly moving = signal(false);
   private readonly motion = matchMedia('(prefers-reduced-motion: reduce)');
   readonly reduced = signal(this.motion.matches);
-  scene?: FleetScene;
+  private readonly loadScene = inject(SCENE_LOADER);
+  scene?: ScenePort;
   private generation = 0;
   private destroyed = false;
   private readonly motionChanged = () => this.reduced.set(this.motion.matches);
@@ -343,6 +342,16 @@ export class DigitalTwinPage implements AfterViewInit, OnDestroy {
       this.store.select(target.value);
     }
   }
+  refresh() {
+    this.generation++;
+    this.scene?.dispose();
+    this.scene = undefined;
+    this.ready.set(false);
+    this.moving.set(false);
+    this.sceneLoading.set(false);
+    this.sceneError.set('');
+    this.store.load();
+  }
   async openScene() {
     const v = this.representation();
     if (!v?.asset) return;
@@ -353,7 +362,7 @@ export class DigitalTwinPage implements AfterViewInit, OnDestroy {
     this.sceneLoading.set(true);
     this.sceneError.set('');
     try {
-      const { FleetScene } = await import('./fleet-scene');
+      const FleetScene = await this.loadScene();
       if (this.destroyed || generation !== this.generation) return;
       this.zone.runOutsideAngular(() => {
         this.scene = new FleetScene(

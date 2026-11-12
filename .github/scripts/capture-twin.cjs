@@ -25,6 +25,7 @@ module.exports = async function captureTwin(page, output) {
   assert(!before.equals(await canvas.screenshot()), 'The vehicle manoeuvre must change the rendered scene');
   await page.setViewportSize({width:390,height:844});
   await page.emulateMedia({reducedMotion:'reduce'});
+  await page.waitForFunction(() => [...document.querySelectorAll('button')].some(button => button.textContent.trim() === 'Play manoeuvre' && button.disabled));
   assert(await page.getByRole('button',{name:'Play manoeuvre',exact:true}).isDisabled());
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await page.screenshot({path:path.join(output,'fleet-twin-mobile.png'),fullPage:true});

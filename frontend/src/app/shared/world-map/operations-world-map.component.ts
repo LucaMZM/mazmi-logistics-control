@@ -91,6 +91,20 @@ import { MapView, WorldPoint, representation, validPosition } from './world-map.
                 <dd>
                   {{ point.latitude | number: '1.4-4' }}, {{ point.longitude | number: '1.4-4' }}
                 </dd>
+                @if (coordinatesAvailable(s.originLatitude, s.originLongitude)) {
+                  <dt>Origin</dt>
+                  <dd>
+                    {{ s.originLatitude | number: '1.3-3' }},
+                    {{ s.originLongitude | number: '1.3-3' }}
+                  </dd>
+                }
+                @if (coordinatesAvailable(s.destinationLatitude, s.destinationLongitude)) {
+                  <dt>Destination</dt>
+                  <dd>
+                    {{ s.destinationLatitude | number: '1.3-3' }},
+                    {{ s.destinationLongitude | number: '1.3-3' }}
+                  </dd>
+                }
               </dl>
               <p class="world-note">{{ representation(point) }}</p>
               <a [routerLink]="['/shipments', point.id]">Open shipment</a>
@@ -134,6 +148,13 @@ export class OperationsWorldMapComponent implements OnChanges, OnDestroy {
   readonly vehicles = computed(() => this.validPoints().filter((p) => p.kind === 'vehicle'));
   readonly selected = computed(() => this.vehicles().find((p) => p.id === this.selectedId()));
   readonly representation = representation;
+  coordinatesAvailable(latitude: number | undefined, longitude: number | undefined) {
+    return (
+      typeof latitude === 'number' &&
+      typeof longitude === 'number' &&
+      validPosition({ latitude, longitude })
+    );
+  }
   view?: MapView;
   ngOnChanges() {
     const routeKey = JSON.stringify(this.route);
@@ -255,6 +276,7 @@ export class OperationsWorldMapComponent implements OnChanges, OnDestroy {
     this.following.set(false);
     this.selectedId.set(null);
     this.engine?.select(null);
+    this.engine?.update(this.displayPoints(), this.displayRoute());
     this.engine?.overview();
   }
   ngOnDestroy() {

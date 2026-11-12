@@ -177,7 +177,8 @@ Los guards de Angular adaptan la interfaz al rol, mientras que Spring Security c
 | Frontend         | Angular 22.2.3 · TypeScript 6.0.3                                      | SPA, navegación y componentes de la consola logística.     |
 | Interfaz         | Angular Material 22.2.3 · SCSS                                         | Formularios, tablas y sistema visual responsive.           |
 | Reactividad      | Angular Signals · NgRx SignalStore 22.0.1 · RxJS 7.8.2                 | Estado de la interfaz y flujos asíncronos.                 |
-| Mapas y gráficos | Leaflet 1.9.4 · OpenStreetMap · Chart.js 4.5.1                         | Mapa de envíos e indicadores del dashboard.                |
+| Mapas y gráficos | Leaflet 1.9.4 · MapLibre GL JS 6.18.0 · OpenStreetMap/OpenFreeMap · Chart.js 4.5.1 | Cartografía 2D/3D e indicadores del dashboard. |
+| Digital Twin | Three.js 0.187.0 | Fleet Twin y vehículos georreferenciados en una capa WebGL compartida. |
 | Tiempo real      | STOMP.js 7.3.0 · WebSocket                                             | Actualizaciones de seguimiento y dashboard.                |
 | Backend          | Java 21 · Spring Boot 4.1.1                                            | API y reglas de negocio en un monolito modular.            |
 | Seguridad        | Spring Security 7.1.1 · JJWT 0.12.6                                    | Roles, JWT en cookie HttpOnly y protección CSRF.           |

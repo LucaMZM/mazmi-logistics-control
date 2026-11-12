@@ -124,6 +124,7 @@ class WorldMapEngine implements WorldMapPort {
     host: HTMLElement,
     private readonly options: WorldMapOptions,
   ) {
+    host.dataset['mapReady'] = 'false';
     if (!document.querySelector('link[data-world-map-css]')) {
       const css = document.createElement('link');
       css.rel = 'stylesheet';

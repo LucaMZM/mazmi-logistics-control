@@ -45,7 +45,7 @@ async function main() {
     }
     await ready();
     await page.screenshot({path:path.join(output,'world-map-overview.png')});
-    await map.locator('summary').click();
+    await map.locator('.world-panel > summary').click();
     await map.getByLabel('Map shipment',{exact:true}).selectOption(shipment.id);
     await ready();
     await page.waitForTimeout(1000);
@@ -59,7 +59,7 @@ async function main() {
     await page.locator('.connection.connected').waitFor();
     await map.getByRole('button',{name:'3D',exact:true}).click();
     await ready();
-    await map.locator('summary').click();
+    await map.locator('.world-panel > summary').click();
     await map.getByLabel('Map shipment',{exact:true}).selectOption(shipment.id);
     await map.getByRole('button',{name:'Follow vehicle',exact:true}).click();
     const before=await map.locator('canvas').screenshot();
@@ -85,7 +85,7 @@ async function main() {
     await page.setViewportSize({width:390,height:844});
     await page.emulateMedia({reducedMotion:'reduce'});
     await map.getByRole('button',{name:'Focus vehicle',exact:true}).click();
-    await map.locator('summary').click();
+    await map.locator('.world-panel > summary').click();
     await page.waitForTimeout(800);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
     await page.screenshot({path:path.join(output,'world-map-mobile.png'),fullPage:true});

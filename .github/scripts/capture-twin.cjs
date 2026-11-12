@@ -17,6 +17,8 @@ module.exports = async function captureTwin(page, output) {
   const plate=await page.locator('app-digital-twin-page h3').innerText();
   const records=await (await page.request.get('http://localhost:4200/api/v1/vehicles')).json();
   assert(records.some(v=>v.registrationPlate===plate));
+  const selectedId = await page.locator('#twin-vehicle').inputValue();
+  assert.equal(records.find(v=>v.id===selectedId)?.registrationPlate, plate);
   await page.screenshot({path:path.join(output,'fleet-twin.png')});
   const before = await canvas.screenshot();
   await page.getByRole('button',{name:'Play manoeuvre',exact:true}).click();

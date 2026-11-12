@@ -60,7 +60,12 @@ import { SCENE_LOADER, ScenePort } from './scene-loader';
           <button mat-stroked-button [disabled]="!ready()" (click)="scene?.reset()">
             Overview
           </button>
-          <button mat-flat-button [disabled]="!ready() || reduced()" (click)="toggleMotion()">
+          <button
+            mat-flat-button
+            color="primary"
+            [disabled]="!ready() || reduced()"
+            (click)="toggleMotion()"
+          >
             {{ moving() ? 'Pause manoeuvre' : 'Play manoeuvre' }}
           </button>
         </div>
@@ -75,9 +80,9 @@ import { SCENE_LOADER, ScenePort } from './scene-loader';
         }
         <button mat-button [disabled]="store.loading()" (click)="refresh()">Refresh records</button>
         <label for="twin-vehicle">Vehicle</label>
-        <select id="twin-vehicle" [value]="store.selectedId()" (change)="choose($event)">
+        <select id="twin-vehicle" (change)="choose($event)">
           @for (vehicle of store.vehicles(); track vehicle.id) {
-            <option [value]="vehicle.id">
+            <option [value]="vehicle.id" [selected]="vehicle.id === store.selectedId()">
               {{ vehicle.registrationPlate }} · {{ vehicle.model }}
             </option>
           }
@@ -100,7 +105,12 @@ import { SCENE_LOADER, ScenePort } from './scene-loader';
             body colour: not recorded by the ERP.
           </p>
           @if (representation()?.asset) {
-            <button mat-flat-button [disabled]="sceneLoading()" (click)="openScene()">
+            <button
+              mat-flat-button
+              color="primary"
+              [disabled]="sceneLoading()"
+              (click)="openScene()"
+            >
               Open vehicle in 3D
             </button>
           } @else {

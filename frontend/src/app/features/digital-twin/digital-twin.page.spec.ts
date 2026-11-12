@@ -58,11 +58,22 @@ describe('DigitalTwinPage lifecycle', () => {
           status: 'AVAILABLE',
           active: true,
         },
+        {
+          id: 'v2',
+          registrationPlate: 'TRUCK-2',
+          model: 'Truck',
+          vehicleType: 'TRUCK',
+          capacityKg: 5000,
+          status: 'AVAILABLE',
+          active: true,
+        },
       ]);
     return fixture;
   }
   it('passes real plate to the renderer and disposes on navigation', async () => {
     const fixture = setup();
+    fixture.detectChanges();
+    expect(fixture.debugElement.nativeElement.querySelector('select').value).toBe('v1');
     await fixture.componentInstance.openScene();
     expect(engine.init).toHaveBeenCalledWith('REAL-1', '#dce1e4');
     expect(fixture.componentInstance.ready()).toBe(true);

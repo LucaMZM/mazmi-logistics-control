@@ -4,7 +4,7 @@ Ruta autenticada: `/digital-twin`. Lectura de `/api/v1/vehicles` con los permiso
 
 ## Uso
 
-Seleccionar un vehículo y pulsar **Open vehicle in 3D**. Las furgonetas tienen una representación genérica original, con su matrícula real dibujada en una textura Canvas. Otros tipos conservan una ficha HTML sin asignarles una silueta incorrecta. Inspect, Rotate y Overview permiten explorar sin arrastrar el ratón. La maniobra es una demostración visual pausables, no telemetría ni una acción de expedición.
+Seleccionar un vehículo y pulsar **Open vehicle in 3D**. Las furgonetas tienen una representación genérica original, con su matrícula real dibujada en una textura Canvas. Otros tipos conservan una ficha HTML sin asignarles una silueta incorrecta. Inspect, Rotate y Overview permiten explorar sin arrastrar el ratón. La maniobra es una demostración visual que puede pausarse, no telemetría ni una acción de expedición.
 
 ## Arquitectura
 

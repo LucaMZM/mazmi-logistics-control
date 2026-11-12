@@ -19,7 +19,8 @@ module.exports = async function captureTwin(page, output) {
   assert(records.some(v=>v.registrationPlate===plate));
   const selectedId = await page.locator('#twin-vehicle').inputValue();
   assert.equal(records.find(v=>v.id===selectedId)?.registrationPlate, plate);
-  await page.screenshot({path:path.join(output,'fleet-twin.png')});
+  await page.mouse.move(0, 0);
+  await page.screenshot({path:path.join(output,'fleet-twin.png'), animations:'disabled'});
   const before = await canvas.screenshot();
   await page.getByRole('button',{name:'Play manoeuvre',exact:true}).click();
   await page.waitForTimeout(1800);
@@ -30,7 +31,7 @@ module.exports = async function captureTwin(page, output) {
   await page.waitForFunction(() => [...document.querySelectorAll('button')].some(button => button.textContent.trim() === 'Play manoeuvre' && button.disabled));
   assert(await page.getByRole('button',{name:'Play manoeuvre',exact:true}).isDisabled());
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
-  await page.screenshot({path:path.join(output,'fleet-twin-mobile.png'),fullPage:true});
+  await page.screenshot({path:path.join(output,'fleet-twin-mobile.png'),fullPage:true, animations:'disabled'});
   await canvas.evaluate(c=>{const gl=c.getContext('webgl2');gl.getExtension('WEBGL_lose_context').loseContext();});
   await page.getByText('3D context lost.',{exact:false}).waitFor();
   await page.getByRole('button',{name:'Retry 3D',exact:true}).click();

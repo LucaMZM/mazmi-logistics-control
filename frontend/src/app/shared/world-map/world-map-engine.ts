@@ -115,6 +115,7 @@ class WorldMapEngine implements WorldMapPort {
   private followed: string | null = null;
   private disposed = false;
   private loaded = false;
+  private failed = false;
   private fitted: boolean;
   private observer: ResizeObserver;
   private readonly reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -165,17 +166,28 @@ class WorldMapEngine implements WorldMapPort {
       clearTimeout(this.timeout);
       options.ready();
     });
-    this.map.on('error', () => {
-      if (!this.disposed) options.error();
-    });
+    this.map.on('error', this.fail);
     this.map.on('idle', () => {
       host.dataset['mapReady'] = String(this.loaded && this.map.areTilesLoaded());
     });
     this.map.on('movestart', () => {
       host.dataset['mapReady'] = 'false';
     });
-    this.map.on('webglcontextlost', () => {
-      if (!this.disposed) options.error();
+    this.map.on('webglcontextlost', this.fail);
+    this.map.on('click', (event) => {
+      if (this.map.getZoom() < 16) return;
+      const target = [...this.tracks.values()]
+        .filter((t) => hasVan(t.point))
+        .map((t) => {
+          const sample = t.sample(performance.now());
+          const screen = this.map.project([sample.longitude, sample.latitude]);
+          return {
+            id: t.point.id,
+            distance: Math.hypot(screen.x - event.point.x, screen.y - event.point.y),
+          };
+        })
+        .sort((a, b) => a.distance - b.distance)[0];
+      if (target && target.distance < 32) this.options.select(target.id);
     });
     this.map.on('dragstart', this.interacted);
     this.map.on('zoomstart', this.interacted);
@@ -190,6 +202,14 @@ class WorldMapEngine implements WorldMapPort {
       if (!this.loaded && !this.disposed) options.error();
     }, 20000);
   }
+  private readonly fail = () => {
+    if (this.disposed) return;
+    this.failed = true;
+    this.tracks.forEach((t) => t.stop());
+    this.follow(null);
+    this.map.stop();
+    this.options.error();
+  };
   private readonly interacted = (event: { originalEvent?: unknown }) => {
     if (event.originalEvent) {
       this.follow(null);
@@ -210,6 +230,7 @@ class WorldMapEngine implements WorldMapPort {
       this.map.jumpTo({ center: [sample.longitude, sample.latitude] });
   };
   private readonly tick = (now: number) => {
+    if (this.failed) return false;
     let moving = false;
     for (const [id, track] of this.tracks) {
       const sample = track.sample(now);
@@ -302,6 +323,10 @@ class WorldMapEngine implements WorldMapPort {
         center: [point.longitude, point.latitude],
         zoom: 19,
         pitch: 58,
+        padding:
+          this.map.getContainer().clientWidth < 520
+            ? { top: 15, right: 15, bottom: 125, left: 15 }
+            : { top: 20, right: 30, bottom: 20, left: 230 },
         duration: instant || this.reduced.matches ? 0 : 250,
       });
   }

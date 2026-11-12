@@ -112,7 +112,6 @@ import { ShipmentDetailStore } from './shipment-detail.store';
             </div>
           </div>
           <div class="route-map">
-            <div class="map-label"><span></span>Simulated tracking</div>
             <app-operations-world-map [points]="mapPoints()" [route]="routePoints()" />
           </div>
         </article>
@@ -332,10 +331,9 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         min-height: 420px;
         flex: 1;
       }
-      .map-panel app-operations-map {
+      .map-panel app-operations-world-map {
         position: absolute;
         inset: 0;
-        display: block;
         height: 100%;
       }
       .map-label {
@@ -607,7 +605,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
           height: auto;
         }
         .route-map {
-          min-height: 330px;
+          min-height: 380px;
         }
         .route-heading {
           gap: 8px;

@@ -13,6 +13,8 @@ async function main() {
   page.setDefaultTimeout(45000);
   const errors = [], frames = [], requests = [];
   page.on('pageerror',error=>errors.push(error.message));
+  page.on('console',message=>{if(message.type()==='error') console.error('Browser:',message.text());});
+  page.on('requestfailed',request=>console.error('Request failed:',request.url(),request.failure()?.errorText));
   page.on('request',request=>requests.push(request.url()));
   page.on('websocket',socket=>socket.on('framereceived',({payload})=>{
     const text=payload.toString();
@@ -24,8 +26,11 @@ async function main() {
     await page.getByLabel('Password',{exact:true}).fill('Demo2026!');
     await page.getByRole('button',{name:'Sign in',exact:true}).click();
     await page.waitForURL('**/dashboard');
+    const worker=await page.request.get('http://localhost:4200/assets/maplibre/maplibre-gl-worker.mjs');
+    assert.equal(worker.status(),200);
+    assert.match(worker.headers()['content-type'],/javascript/);
     const dashboard=await (await page.request.get('http://localhost:4200/api/v1/dashboard')).json();
-    const shipment=dashboard.activeShipmentMapItems.find(s=>s.vehicleId && s.vehicleType==='VAN' && s.progress<85);
+    const shipment=dashboard.activeShipmentMapItems.find(s=>s.vehicleId && s.vehicleType==='VAN' && !s.simulationActive && s.progress<85);
     assert(shipment,'Demo must contain an assigned in-transit van');
     const vehicles=await(await page.request.get('http://localhost:4200/api/v1/vehicles')).json();
     assert.equal(vehicles.find(v=>v.id===shipment.vehicleId)?.registrationPlate,shipment.registrationPlate);
@@ -60,9 +65,13 @@ async function main() {
     const before=await map.locator('canvas').screenshot();
     await page.getByRole('button',{name:'Start simulation',exact:true}).click();
     await page.getByRole('button',{name:'Pause simulation',exact:true}).waitFor();
+    const hasAdvanced = () => frames.some(f => {
+      const body = f.slice(f.indexOf('{')).replace(/\0/g,'');
+      try { const update=JSON.parse(body); return update.id===shipment.id && update.progress>shipment.progress; } catch { return false; }
+    });
     const deadline=Date.now()+20000;
-    while (!frames.some(f=>f.includes(shipment.id) && f.includes('"simulationActive":true') && /"progress":/.test(f)) && Date.now()<deadline) await page.waitForTimeout(250);
-    assert(frames.some(f=>f.includes(shipment.id)),'Real STOMP shipment message required');
+    while (!hasAdvanced() && Date.now()<deadline) await page.waitForTimeout(250);
+    assert(hasAdvanced(),'Real STOMP position advance required');
     await page.waitForTimeout(1700);
     assert(!before.equals(await map.locator('canvas').screenshot()),'The rendered map must change with real simulation data');
     await page.screenshot({path:path.join(output,'world-map-tracking.png')});
@@ -89,6 +98,7 @@ async function main() {
     assert.deepEqual(errors,[]);
     await fs.writeFile(path.join(output,'world-map-validation.json'),JSON.stringify({browser:await browser.version(),renderer:'Chromium / SwiftShader / Ubuntu runner',shipmentId:shipment.id,vehicleId:shipment.vehicleId,stompMessages:frames.length,cartographyRequests:requests.filter(u=>u.startsWith('https://tiles.openfreemap.org')).length,javascriptErrors:errors,desktop:[1440,1100],mobile:[390,844],checks:['real HTTP identity','2D/3D switch','real STOMP simulation','follow cancelled by drag','pause','mobile overflow','reduced motion','context loss and retry']},null,2));
   } catch(error) {
+    console.error('JavaScript errors:',errors);
     await page.screenshot({path:path.join(output,'failure.png'),fullPage:true}).catch(()=>{});
     console.error(await page.locator('body').innerText());
     throw error;

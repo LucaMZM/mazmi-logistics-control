@@ -395,8 +395,7 @@ import { DashboardStore } from './dashboard.store';
         flex: 1;
         min-height: 420px;
       }
-      .map-wrap app-operations-map {
-        display: block;
+      .map-wrap app-operations-world-map {
         height: 100%;
       }
       .map-empty {

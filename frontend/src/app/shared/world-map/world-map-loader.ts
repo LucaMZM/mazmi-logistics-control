@@ -12,7 +12,7 @@ export interface WorldMapPort {
 export interface WorldMapOptions {
   view?: MapView;
   style: string;
-  select: (id: string) => void;
+  select: (id: string, instant?: boolean) => void;
   unfollow: () => void;
   ready: () => void;
   error: () => void;

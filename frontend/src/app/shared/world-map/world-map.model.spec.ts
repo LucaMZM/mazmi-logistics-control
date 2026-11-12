@@ -92,4 +92,22 @@ describe('World map identity and motion', () => {
     expect(track.sample(100).moving).toBe(false);
     expect(track.point.shipment?.simulationActive).toBe(true);
   });
+  it('smooths verified intercity demo steps but not an incompatible teleport', () => {
+    const initial = point(10);
+    initial.shipment = {
+      ...initial.shipment!,
+      originLatitude: 40,
+      originLongitude: -3,
+      destinationLatitude: 40,
+      destinationLongitude: 3,
+    };
+    const step = { ...point(18, -2.5), shipment: { ...initial.shipment, progress: 18 } };
+    const track = new MotionTrack(initial);
+    track.update(step, 0, false);
+    expect(track.sample(450).longitude).toBeCloseTo(-2.75);
+    expect(track.sample(450).moving).toBe(true);
+    const teleport = new MotionTrack(initial);
+    teleport.update({ ...step, longitude: 0 }, 0, false);
+    expect(teleport.sample(0).moving).toBe(false);
+  });
 });

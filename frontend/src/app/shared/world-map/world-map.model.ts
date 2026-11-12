@@ -31,6 +31,7 @@ export function representation(point: WorldPoint): string {
   const s = point.shipment;
   if (!s?.vehicleId) return 'Vehicle not assigned';
   if (s.vehicleType !== 'VAN') return `${s.vehicleType ?? 'Unknown type'} · map marker`;
+  if (!s.registrationPlate) return 'VAN · plate unavailable · map marker';
   return 'Generic original van · neutral display colour';
 }
 
@@ -98,6 +99,27 @@ export class MotionTrack {
     const east = (next.longitude - current.longitude) * Math.cos((next.latitude * Math.PI) / 180);
     const north = next.latitude - current.latitude;
     const distance = Math.hypot(east, north) * 111320;
+    // Intercity demo ticks compress several kilometres into one update. Only widen
+    // the jump guard when verified endpoints and a small progress delta support it.
+    let jumpLimit = 25000;
+    const delta = (fresh?.progress ?? 0) - (old?.progress ?? 0);
+    if (
+      fresh &&
+      delta > 0 &&
+      delta <= 10 &&
+      typeof fresh.originLatitude === 'number' &&
+      typeof fresh.originLongitude === 'number' &&
+      typeof fresh.destinationLatitude === 'number' &&
+      typeof fresh.destinationLongitude === 'number'
+    ) {
+      const length =
+        Math.hypot(
+          (fresh.destinationLongitude - fresh.originLongitude) *
+            Math.cos((next.latitude * Math.PI) / 180),
+          fresh.destinationLatitude - fresh.originLatitude,
+        ) * 111320;
+      jumpLimit = Math.min(100000, Math.max(jumpLimit, ((length * delta) / 100) * 1.5));
+    }
     this.angleFrom = current.angle;
     this.angleTo = distance > 0.05 ? Math.atan2(east, north) : current.angle;
     this.duration =
@@ -105,7 +127,7 @@ export class MotionTrack {
       fresh?.simulationActive &&
       fresh.status === 'IN_TRANSIT' &&
       distance > 0.05 &&
-      distance < 25000
+      distance < jumpLimit
         ? 900
         : 0;
     this.started = now;

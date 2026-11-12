@@ -238,7 +238,13 @@ class WorldMapEngine implements WorldMapPort {
       moving ||= sample.moving;
       const marker = this.markers.get(id);
       marker?.setLngLat([sample.longitude, sample.latitude]);
-      marker?.setOffset(hasVan(track.point) && this.map.getZoom() >= 16 ? [0, -34] : [0, 0]);
+      marker?.setOffset(
+        track.point.kind !== 'vehicle'
+          ? [-24, 18]
+          : hasVan(track.point) && this.map.getZoom() >= 16
+            ? [0, -34]
+            : [0, 0],
+      );
     }
     return moving;
   };
@@ -284,8 +290,8 @@ class WorldMapEngine implements WorldMapPort {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'world-marker';
-        button.addEventListener('click', () => {
-          if (point.kind === 'vehicle') this.options.select(point.id);
+        button.addEventListener('click', (event) => {
+          if (point.kind === 'vehicle') this.options.select(point.id, event.detail === 0);
         });
         marker = new Marker({ element: button })
           .setLngLat([point.longitude, point.latitude])
@@ -298,6 +304,7 @@ class WorldMapEngine implements WorldMapPort {
       element.setAttribute('aria-label', `${point.label} · ${point.health ?? point.kind}`);
       element.title = `${point.label} · ${point.health ?? point.kind}`;
       element.dataset['health'] = point.health ?? '';
+      element.dataset['kind'] = point.kind ?? '';
       element.setAttribute('aria-pressed', String(point.id === this.selected));
     }
     this.route = route.filter(([latitude, longitude]) => validPosition({ latitude, longitude }));

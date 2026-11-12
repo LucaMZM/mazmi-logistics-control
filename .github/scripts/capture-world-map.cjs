@@ -67,7 +67,7 @@ async function main() {
     await page.getByRole('button',{name:'Pause simulation',exact:true}).waitFor();
     const hasAdvanced = () => frames.some(f => {
       const body = f.slice(f.indexOf('{')).replace(/\0/g,'');
-      try { const update=JSON.parse(body); return update.id===shipment.id && update.progress>shipment.progress; } catch { return false; }
+      try { const update=JSON.parse(body); return update.id===shipment.id && update.progress>shipment.progress+8; } catch { return false; }
     });
     const deadline=Date.now()+20000;
     while (!hasAdvanced() && Date.now()<deadline) await page.waitForTimeout(250);
@@ -87,6 +87,7 @@ async function main() {
     await map.getByRole('button',{name:'Focus vehicle',exact:true}).click();
     await map.locator('.world-panel > summary').click();
     await page.waitForTimeout(800);
+    await page.locator('.mat-mdc-snack-bar-container').waitFor({state:'hidden'});
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
     await page.screenshot({path:path.join(output,'world-map-mobile.png'),fullPage:true});
     await canvas.evaluate(c=>c.getContext('webgl2').getExtension('WEBGL_lose_context').loseContext());

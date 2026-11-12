@@ -686,6 +686,10 @@ export class ShipmentDetailPage implements OnInit {
           vehicleType: this.store.vehicles().find((v) => v.id === item.vehicleId)?.vehicleType,
           driver: item.driver,
           eta: item.eta,
+          originLatitude: item.warehouseLatitude,
+          originLongitude: item.warehouseLongitude,
+          destinationLatitude: item.destinationLatitude,
+          destinationLongitude: item.destinationLongitude,
         },
       },
     ];

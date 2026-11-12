@@ -55,6 +55,14 @@ import { MapView, WorldPoint, representation, validPosition } from './world-map.
       @if (vehicles().length) {
         <details class="world-panel" [open]="!!selected()">
           <summary>{{ selected()?.shipment?.trackingNumber ?? 'Select a shipment' }}</summary>
+          @if (selected() && mode() === '3d' && !error()) {
+            <div class="world-actions">
+              <button type="button" (click)="focus()">Focus vehicle</button>
+              <button type="button" [attr.aria-pressed]="following()" (click)="toggleFollow()">
+                {{ following() ? 'Stop following' : 'Follow vehicle' }}
+              </button>
+            </div>
+          }
           <label
             >Shipment
             <select
@@ -108,14 +116,6 @@ import { MapView, WorldPoint, representation, validPosition } from './world-map.
               </dl>
               <p class="world-note">{{ representation(point) }}</p>
               <a [routerLink]="['/shipments', point.id]">Open shipment</a>
-            }
-            @if (mode() === '3d' && !error()) {
-              <div class="world-actions">
-                <button type="button" (click)="focus()">Focus vehicle</button>
-                <button type="button" [attr.aria-pressed]="following()" (click)="toggleFollow()">
-                  {{ following() ? 'Stop following' : 'Follow vehicle' }}
-                </button>
-              </div>
             }
           }
         </details>
@@ -222,7 +222,7 @@ export class OperationsWorldMapComponent implements OnChanges, OnDestroy {
       this.engine = create(this.host.nativeElement, {
         view: this.view,
         style: this.style,
-        select: (id) => this.choose(id, false),
+        select: (id, instant = false) => this.choose(id, instant),
         unfollow: () => this.following.set(false),
         ready: () => {
           if (revision === this.revision) this.loading.set(false);

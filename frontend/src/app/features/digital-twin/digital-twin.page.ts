@@ -287,6 +287,10 @@ import { SCENE_LOADER, ScenePort } from './scene-loader';
         header {
           align-items: flex-start;
         }
+        header a[mat-stroked-button] {
+          flex-shrink: 0;
+          white-space: nowrap;
+        }
         .scene {
           height: 460px;
         }

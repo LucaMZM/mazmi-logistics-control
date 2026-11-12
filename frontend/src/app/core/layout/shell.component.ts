@@ -117,8 +117,12 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         position: fixed;
         inset: 0 auto 0 0;
         width: 248px;
-        background: #102831;
-        color: #d0e0e1;
+        background: #292e37;
+        color: #dce0e7;
+        border-right: 1px solid rgb(255 255 255 / 16%);
+        box-shadow:
+          1px 0 0 rgb(255 255 255 / 25%),
+          8px 0 28px rgb(25 31 42 / 5%);
         display: flex;
         flex-direction: column;
         z-index: 30;
@@ -139,7 +143,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
       }
       .brand span {
         font-size: 11px;
-        color: #a6c0c3;
+        color: #bec5d0;
         letter-spacing: 0.04em;
         margin-top: 2px;
       }
@@ -156,7 +160,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         display: flex;
         align-items: center;
         gap: 13px;
-        color: #aec5c8;
+        color: #c6ccd6;
         text-decoration: none;
         padding: 10px 12px;
         font-size: 13px;
@@ -165,23 +169,27 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         border-radius: 6px;
         min-height: 44px;
         transition:
-          background-color 140ms,
-          color 140ms;
+          background-color 180ms ease,
+          color 180ms ease,
+          transform 160ms var(--ease-out);
       }
       nav a:hover {
         color: #f8fafc;
-        background: #1a3a43;
+        background: rgb(255 255 255 / 8%);
       }
       nav a.active {
         color: #fff;
-        background: #21414a;
-        border-left-color: #2ac5ba;
+        background: rgb(255 255 255 / 13%);
+        border-left-color: #dce5ee;
+        box-shadow:
+          0 1px 0 rgb(255 255 255 / 14%) inset,
+          0 2px 6px rgb(0 0 0 / 8%);
       }
       nav p {
         font-size: 10px;
         text-transform: uppercase;
         letter-spacing: 0.14em;
-        color: #91adb2;
+        color: #aab3c0;
         margin: 25px 12px 7px;
       }
       .demo-flag {
@@ -190,14 +198,14 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         align-items: center;
         margin: 16px;
         padding: 15px;
-        border: 1px solid #3b5c63;
-        background: #19343e;
+        border: 1px solid rgb(255 255 255 / 16%);
+        background: rgb(255 255 255 / 4%);
         border-radius: 6px;
       }
       .demo-flag > span {
         width: 8px;
         height: 8px;
-        background: #2ac5ba;
+        background: #c5d0df;
       }
       .demo-flag strong,
       .demo-flag small {
@@ -205,11 +213,11 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
       }
       .demo-flag strong {
         font-size: 11px;
-        color: #e2f1f0;
+        color: #edf0f5;
       }
       .demo-flag small {
         font-size: 10px;
-        color: #a4c2c3;
+        color: #bcc5d1;
         margin-top: 3px;
       }
       .main {
@@ -218,8 +226,10 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
       }
       .topbar {
         height: 64px;
-        background: rgb(255 255 255 / 96%);
-        backdrop-filter: blur(8px);
+        background: #fafbfd;
+        box-shadow:
+          0 1px 0 rgb(255 255 255 / 90%) inset,
+          0 4px 20px rgb(25 31 42 / 4%);
         border-bottom: 1px solid var(--line);
         display: flex;
         align-items: center;
@@ -235,7 +245,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
       }
       .route span {
         font-size: 10px;
-        color: #658088;
+        color: var(--muted);
         text-transform: uppercase;
         letter-spacing: 0.1em;
       }
@@ -317,6 +327,35 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
       .route {
         margin-right: auto;
       }
+      @supports (backdrop-filter: blur(1px)) {
+        .topbar {
+          background: var(--glass);
+          backdrop-filter: blur(16px) saturate(110%);
+        }
+        .sidebar {
+          background: rgb(36 41 50 / 94%);
+          backdrop-filter: blur(16px);
+        }
+      }
+      @media (prefers-reduced-transparency: reduce) {
+        .topbar,
+        .sidebar {
+          backdrop-filter: none;
+        }
+        .sidebar {
+          background: #292e37;
+        }
+      }
+      @media (hover: hover) and (pointer: fine) {
+        nav a:active:not(:focus-visible) {
+          transform: scale(0.985);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        nav a:active:not(:focus-visible) {
+          transform: none;
+        }
+      }
       .topbar .route {
         margin-left: 0;
       }
@@ -339,7 +378,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         }
         .sidebar {
           transform: translateX(-100%);
-          transition: transform 220ms var(--ease-drawer);
+          transition: transform 260ms var(--ease-drawer);
         }
         .keyboard-navigation .sidebar {
           transition: none;

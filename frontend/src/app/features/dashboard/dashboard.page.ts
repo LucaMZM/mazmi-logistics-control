@@ -242,7 +242,7 @@ import { DashboardStore } from './dashboard.store';
       }
       .pulse a:hover,
       .pulse a:focus-visible {
-        background: #eef6f5;
+        background: #eef1f5;
       }
       .pulse a.attention-metric {
         background: #fffbf6;
@@ -306,7 +306,7 @@ import { DashboardStore } from './dashboard.store';
       }
       .attention-row:hover,
       .attention-row:focus-visible {
-        background: #f3f8f7;
+        background: #f3f4f6;
       }
       .attention-row > span:last-child {
         color: var(--accent);
@@ -380,12 +380,12 @@ import { DashboardStore } from './dashboard.store';
       }
       .section header p {
         font-size: 11px;
-        color: #64748b;
+        color: #5c6470;
         margin: 4px 0 0;
       }
       .section header a {
         font-size: 11px;
-        color: #1d4ed8;
+        color: #405567;
         text-decoration: none;
         font-weight: 700;
       }
@@ -412,9 +412,9 @@ import { DashboardStore } from './dashboard.store';
       }
       .live-dot {
         font-size: 9px;
-        color: #0e7490;
-        border: 1px solid #a5f3fc;
-        background: #ecfeff;
+        color: #405567;
+        border: 1px solid #d7dbe1;
+        background: #f1f3f6;
         padding: 4px 7px;
         letter-spacing: 0.1em;
       }
@@ -431,7 +431,7 @@ import { DashboardStore } from './dashboard.store';
       }
       .empty {
         padding: 24px;
-        color: #64748b;
+        color: #5c6470;
         font-size: 12px;
       }
       @media (max-width: 1150px) {

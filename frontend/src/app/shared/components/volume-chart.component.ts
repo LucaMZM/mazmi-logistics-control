@@ -41,7 +41,7 @@ Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip);
       </tbody>
     </table>`,
   styles: [
-    ':host{display:block;height:275px;padding:20px;position:relative}canvas{max-height:235px}.no-volume{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;pointer-events:none;background:rgb(255 255 255 / 85%);gap:6px;font-size:12px;color:#5c6f7e}.no-volume strong{font-size:14px;color:#172b3a}',
+    ':host{display:block;height:275px;padding:20px;position:relative}canvas{max-height:235px}.no-volume{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;pointer-events:none;background:rgb(255 255 255 / 85%);gap:6px;font-size:12px;color:#5c6470}.no-volume strong{font-size:14px;color:#252a32}',
   ],
 })
 export class VolumeChartComponent implements AfterViewInit, OnChanges, OnDestroy {
@@ -82,8 +82,8 @@ export class VolumeChartComponent implements AfterViewInit, OnChanges, OnDestroy
         datasets: [
           {
             data: this.data.map((item) => item.orders),
-            backgroundColor: '#247b91',
-            hoverBackgroundColor: '#155d74',
+            backgroundColor: '#52677c',
+            hoverBackgroundColor: '#364858',
             borderRadius: 4,
             barPercentage: 0.55,
             maxBarThickness: 38,
@@ -95,13 +95,13 @@ export class VolumeChartComponent implements AfterViewInit, OnChanges, OnDestroy
         animation: false,
         plugins: {
           legend: { display: false },
-          tooltip: { backgroundColor: '#172b3a', padding: 12, displayColors: false },
+          tooltip: { backgroundColor: '#252a32', padding: 12, displayColors: false },
         },
         scales: {
-          x: { grid: { display: false }, ticks: { color: '#64748b' } },
+          x: { grid: { display: false }, ticks: { color: '#5c6470' } },
           y: {
             beginAtZero: true,
-            ticks: { precision: 0, color: '#64748b' },
+            ticks: { precision: 0, color: '#5c6470' },
             grid: { color: '#eef2f7' },
           },
         },

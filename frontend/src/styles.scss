@@ -1,7 +1,7 @@
 @use '@angular/material' as mat;
 
-$primary: mat.m2-define-palette(mat.$m2-cyan-palette, 800);
-$accent: mat.m2-define-palette(mat.$m2-teal-palette, 700);
+$primary: mat.m2-define-palette(mat.$m2-blue-grey-palette, 800);
+$accent: mat.m2-define-palette(mat.$m2-blue-grey-palette, 700);
 $warn: mat.m2-define-palette(mat.$m2-red-palette, 700);
 $theme: mat.m2-define-light-theme(
   (
@@ -22,13 +22,14 @@ $theme: mat.m2-define-light-theme(
 
 :root {
   --surface: #fff;
-  --canvas: #f1f4f3;
-  --ink: #142a33;
-  --muted: #536872;
-  --line: #d8e2e0;
-  --accent: #087c83;
-  --radius: 7px;
-  --shadow: 0 1px 2px rgb(17 47 55 / 4%);
+  --canvas: #eceef1;
+  --ink: #252a32;
+  --muted: #5c6470;
+  --line: #d7dbe1;
+  --accent: #405567;
+  --glass: rgb(250 251 253 / 82%);
+  --radius: 9px;
+  --shadow: 0 2px 6px rgb(25 31 42 / 4%), 0 1px 0 rgb(255 255 255 / 85%) inset;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   color-scheme: light;
@@ -100,6 +101,15 @@ h3 {
 }
 .mat-mdc-dialog-surface {
   --mdc-dialog-container-shape: 10px;
+  background: #fafbfd;
+  border: 1px solid rgb(255 255 255 / 90%);
+  box-shadow: 0 20px 64px rgb(25 31 42 / 18%);
+}
+@supports (backdrop-filter: blur(1px)) {
+  .mat-mdc-dialog-surface {
+    background: var(--glass);
+    backdrop-filter: blur(16px) saturate(110%);
+  }
 }
 .mat-mdc-snack-bar-container {
   --mdc-snackbar-container-shape: 8px;
@@ -113,7 +123,7 @@ h3 {
 }
 
 :focus-visible {
-  outline: 3px solid #087c83;
+  outline: 3px solid var(--accent);
   outline-offset: 3px;
 }
 .sr-only {
@@ -191,8 +201,8 @@ h3 {
   font-size: 12px;
   font-weight: 650;
   letter-spacing: 0.035em;
-  color: #536872;
-  background: #f7f9f8;
+  color: var(--muted);
+  background: #f5f6f8;
   white-space: nowrap;
 }
 .content .table-wrap td {
@@ -205,11 +215,11 @@ h3 {
   transition: background-color 140ms ease;
 }
 .content .table-wrap tbody tr:focus-within {
-  background: #eef6f5;
+  background: #eef1f5;
 }
 @media (hover: hover) and (pointer: fine) {
   .content .table-wrap tbody tr:hover {
-    background: #eef6f5;
+    background: #eef1f5;
   }
 }
 .content .table-wrap td a {
@@ -287,6 +297,14 @@ h3 {
 }
 .leaflet-tile-pane {
   filter: saturate(0.55);
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass: #fafbfd;
+  }
+  .mat-mdc-dialog-surface {
+    backdrop-filter: none;
+  }
 }
 @media (max-width: 760px) {
   .content .responsive-table {

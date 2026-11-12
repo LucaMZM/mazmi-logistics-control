@@ -357,7 +357,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       }
       .map-label span {
         width: 14px;
-        border-top: 2px dashed #0891b2;
+        border-top: 2px dashed #52677c;
       }
       .summary header,
       .timeline header,
@@ -422,7 +422,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       .progress span {
         display: block;
         height: 100%;
-        background: #0891b2;
+        background: #52677c;
         transform-origin: left;
         transition: transform 180ms var(--ease-out);
       }
@@ -478,7 +478,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       .timeline header span,
       .incidents header > span {
         font-size: 12px;
-        color: #64748b;
+        color: #5c6470;
       }
       .timeline ol {
         list-style: none;
@@ -495,7 +495,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       .timeline .timeline-empty {
         display: block;
         padding: 16px 0;
-        color: #64748b;
+        color: #5c6470;
         font-size: 11px;
       }
       .timeline li:not(:last-child):before {
@@ -510,8 +510,8 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         width: 13px;
         height: 13px;
         border: 3px solid #fff;
-        background: #0891b2;
-        box-shadow: 0 0 0 1px #0891b2;
+        background: #52677c;
+        box-shadow: 0 0 0 1px #52677c;
         border-radius: 50%;
         z-index: 1;
       }
@@ -530,7 +530,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       }
       .timeline div > span {
         font-size: 11px;
-        color: #64748b;
+        color: #5c6470;
       }
       .incidents > a {
         display: grid;
@@ -556,7 +556,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       }
       .empty {
         padding: 35px;
-        color: #64748b;
+        color: #5c6470;
         font-size: 13px;
       }
       .tracking-strip {
@@ -565,11 +565,11 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         gap: 20px;
         flex-wrap: wrap;
         padding: 12px 16px;
-        background: #edf4f7;
-        border: 1px solid #d5e5ed;
+        background: #f1f3f6;
+        border: 1px solid #d7dbe1;
         margin-bottom: 18px;
         font-size: 12px;
-        color: #375a6d;
+        color: #405567;
       }
       .tracking-strip span:first-child {
         display: flex;
@@ -592,7 +592,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       }
       .tracking-strip a {
         margin-left: auto;
-        color: #176b87;
+        color: #405567;
         font-weight: 600;
       }
       @media (max-width: 1050px) {

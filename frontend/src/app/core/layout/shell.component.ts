@@ -453,6 +453,7 @@ export class ShellComponent implements OnInit, OnDestroy {
     { path: '/incidents', label: 'Incidents', icon: 'incidents' },
     { path: '/customers', label: 'Customers', icon: 'customers' },
     { path: '/fleet', label: 'Fleet', icon: 'fleet' },
+    { path: '/digital-twin', label: 'Fleet Twin', icon: 'fleet' },
   ];
   ngOnInit(): void {
     this.breakpointSubscription = this.breakpoints

@@ -50,6 +50,7 @@ jobs:
           CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
         run: node .github/scripts/capture-demo.cjs
       - uses: actions/upload-artifact@v7
+        if: always()
         with:
           name: portfolio-screenshots
           path: ${{ runner.temp }}/portfolio-screenshots/

@@ -15,6 +15,8 @@
 
 Plataforma full-stack de operaciones logísticas para coordinar pedidos, inventario, envíos, flota, incidencias y seguimiento simulado en tiempo real desde un único panel.
 
+Fleet Twin incorpora una primera maqueta 3D interactiva en `/digital-twin`, vinculada a registros reales de flota. [Arquitectura, controles, assets y límites](docs/digital-twin.md).
+
 ## Índice
 
 - [Descripción](#descripción)

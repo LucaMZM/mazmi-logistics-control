@@ -9,6 +9,8 @@
 <br>
 ![Angular Material 22.2.3](https://img.shields.io/badge/Angular_Material-22.2.3-757DE8?style=for-the-badge&logo=angular&logoColor=white)
 ![Leaflet 1.9.4](https://img.shields.io/badge/Leaflet-1.9.4-199900?style=for-the-badge&logo=leaflet&logoColor=white)
+![MapLibre 6.18.0](https://img.shields.io/badge/MapLibre-6.18.0-396CB2?style=for-the-badge&logo=maplibre&logoColor=white)
+![Three.js 0.187.0](https://img.shields.io/badge/Three.js-0.187.0-454B53?style=for-the-badge&logo=threedotjs&logoColor=white)
 ![STOMP.js 7.3.0](https://img.shields.io/badge/STOMP.js-7.3.0-455A64?style=for-the-badge)
 ![Docker Compose](https://img.shields.io/badge/Docker_Compose-v2-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 [![All Rights Reserved](https://img.shields.io/badge/License-All_Rights_Reserved-344966?style=for-the-badge)](LICENSE)
@@ -16,6 +18,8 @@
 Plataforma full-stack de operaciones logísticas para coordinar pedidos, inventario, envíos, flota, incidencias y seguimiento simulado en tiempo real desde un único panel.
 
 Fleet Twin incorpora una primera maqueta 3D interactiva en `/digital-twin`, vinculada a registros reales de flota. [Arquitectura, controles, assets y límites](docs/digital-twin.md).
+
+**MAZMI World Map** incorpora el selector 2D/3D en el dashboard y el detalle de envío: cartografía geográfica, vehículos vinculados a la flota, selección y seguimiento de posiciones simuladas. Leaflet sigue disponible sin cargar el motor 3D. No representa telemetría GPS ni rutas calculadas por carretera.
 
 ## Índice
 

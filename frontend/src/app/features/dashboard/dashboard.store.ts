@@ -25,6 +25,7 @@ export const DashboardStore = signalStore(
         label: `${item.trackingNumber} · ${item.progress}%`,
         kind: 'vehicle',
         health: item.deliveryHealth,
+        shipment: item,
       })),
     ),
     riskShipments: computed(() =>

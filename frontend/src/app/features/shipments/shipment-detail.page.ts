@@ -22,10 +22,8 @@ import { ApiService } from '../../core/services/api.service';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.component';
 import { FeedbackStateComponent } from '../../shared/components/feedback-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state.component';
-import {
-  OperationMapPoint,
-  OperationsMapComponent,
-} from '../../shared/components/operations-map.component';
+import { OperationMapPoint } from '../../shared/components/operations-map.component';
+import { OperationsWorldMapComponent } from '../../shared/world-map/operations-world-map.component';
 import { PageHeaderComponent } from '../../shared/components/page-header.component';
 import { StatusChipComponent } from '../../shared/components/status-chip.component';
 import { IncidentType, ShipmentDetail } from '../../shared/models/models';
@@ -45,7 +43,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
     MatSelectModule,
     FeedbackStateComponent,
     LoadingStateComponent,
-    OperationsMapComponent,
+    OperationsWorldMapComponent,
     PageHeaderComponent,
     StatusChipComponent,
   ],
@@ -115,7 +113,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
           </div>
           <div class="route-map">
             <div class="map-label"><span></span>Simulated tracking</div>
-            <app-operations-map [points]="mapPoints()" [route]="routePoints()" />
+            <app-operations-world-map [points]="mapPoints()" [route]="routePoints()" />
           </div>
         </article>
         <aside class="summary">
@@ -676,6 +674,21 @@ export class ShipmentDetailPage implements OnInit {
         label: `${item.trackingNumber} · ${item.progress}%`,
         kind: 'vehicle',
         health: item.deliveryHealth,
+        shipment: {
+          id: item.id,
+          trackingNumber: item.trackingNumber,
+          latitude: item.currentLatitude,
+          longitude: item.currentLongitude,
+          deliveryHealth: item.deliveryHealth,
+          progress: item.progress,
+          status: item.status,
+          simulationActive: item.simulationActive,
+          vehicleId: item.vehicleId,
+          registrationPlate: item.vehicle,
+          vehicleType: this.store.vehicles().find((v) => v.id === item.vehicleId)?.vehicleType,
+          driver: item.driver,
+          eta: item.eta,
+        },
       },
     ];
   });

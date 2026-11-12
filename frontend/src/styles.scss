@@ -379,3 +379,30 @@ h3 {
     scroll-behavior: auto !important;
   }
 }
+
+/* MapLibre owns marker DOM; keep these selectors scoped to the World Map host. */
+app-operations-world-map .world-marker {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: #fff;
+  background: #496a63;
+  border: 2px solid #fff;
+  border-radius: 7px;
+  box-shadow: 0 2px 8px #252a3233;
+  font: 700 20px sans-serif;
+  cursor: pointer;
+}
+app-operations-world-map .world-marker[data-health='AT_RISK'] {
+  background: #926222;
+}
+app-operations-world-map .world-marker[data-health='DELAYED'] {
+  background: #9b443c;
+}
+app-operations-world-map .world-marker[aria-pressed='true'],
+app-operations-world-map .world-marker:focus-visible {
+  outline: 3px solid #344d61;
+  outline-offset: 2px;
+}

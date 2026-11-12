@@ -86,7 +86,19 @@ public class DashboardService {
       BigDecimal latitude,
       BigDecimal longitude,
       DeliveryHealth deliveryHealth,
-      int progress) {
+      int progress,
+      UUID vehicleId,
+      String registrationPlate,
+      String vehicleType,
+      String driver,
+      ShipmentStatus status,
+      boolean simulationActive,
+      Instant eta,
+      Instant updatedAt,
+      BigDecimal originLatitude,
+      BigDecimal originLongitude,
+      BigDecimal destinationLatitude,
+      BigDecimal destinationLongitude) {
     static MapItem from(Shipment s) {
       return new MapItem(
           s.getId(),
@@ -94,7 +106,19 @@ public class DashboardService {
           s.getCurrentLatitude(),
           s.getCurrentLongitude(),
           s.getDeliveryHealth(),
-          s.getSimulationProgress());
+          s.getSimulationProgress(),
+          s.getVehicle() == null ? null : s.getVehicle().getId(),
+          s.getVehicle() == null ? null : s.getVehicle().getRegistrationPlate(),
+          s.getVehicle() == null ? null : s.getVehicle().getVehicleType().name(),
+          s.getDriver() == null ? null : s.getDriver().getFullName(),
+          s.getStatus(),
+          s.isSimulationActive(),
+          s.getEstimatedDeliveryAt(),
+          s.getUpdatedAt(),
+          s.getOrder().getWarehouse().getLatitude(),
+          s.getOrder().getWarehouse().getLongitude(),
+          s.getOrder().getShippingLatitude(),
+          s.getOrder().getShippingLongitude());
     }
   }
 

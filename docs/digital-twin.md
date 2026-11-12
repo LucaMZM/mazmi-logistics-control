@@ -6,6 +6,12 @@ Ruta autenticada: `/digital-twin`. Lectura de `/api/v1/vehicles` con los permiso
 
 Seleccionar un vehículo y pulsar **Open vehicle in 3D**. Las furgonetas tienen una representación genérica original, con su matrícula real dibujada en una textura Canvas. Otros tipos conservan una ficha HTML sin asignarles una silueta incorrecta. Inspect, Rotate y Overview permiten explorar sin arrastrar el ratón. La maniobra es una demostración visual que puede pausarse, no telemetría ni una acción de expedición.
 
+## Capturas
+
+![Patio Fleet Twin con un vehículo vinculado al registro real](screenshots/fleet-twin.png)
+
+[Vista móvil completa](screenshots/fleet-twin-mobile.png)
+
 ## Arquitectura
 
 - `FleetTwinStore`: consulta HTTP cancelable, selección y recuperación de errores; alcance local.

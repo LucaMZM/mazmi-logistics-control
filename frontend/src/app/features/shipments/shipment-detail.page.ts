@@ -601,7 +601,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
           grid-template-columns: 1fr;
         }
         .map-panel {
-          height: 480px;
+          height: 540px;
         }
       }
       @media (max-width: 600px) {

@@ -200,6 +200,12 @@ public class DemoDataSeeder implements ApplicationRunner {
       "Murcia",
       "Valladolid"
     };
+    // Approximate city locations, not customer premises or real delivery addresses.
+    double[][] cityLocations = {
+      {39.47, -0.38}, {40.42, -3.70}, {41.39, 2.17},
+      {38.35, -0.49}, {41.65, -0.88}, {43.26, -2.94},
+      {37.39, -5.98}, {37.99, -1.13}, {41.65, -4.72}
+    };
     List<Customer> result = new ArrayList<>();
     for (int i = 0; i < 27; i++) {
       Customer c = new Customer();
@@ -214,10 +220,8 @@ public class DemoDataSeeder implements ApplicationRunner {
       c.setCity(city);
       c.setPostalCode(String.format("%05d", 28000 + i));
       c.setCountry("Spain");
-      c.setLatitude(
-          BigDecimal.valueOf(36.8 + RANDOM.nextDouble() * 6.2).setScale(7, RoundingMode.HALF_UP));
-      c.setLongitude(
-          BigDecimal.valueOf(-5.5 + RANDOM.nextDouble() * 8.2).setScale(7, RoundingMode.HALF_UP));
+      c.setLatitude(BigDecimal.valueOf(cityLocations[i % cities.length][0]));
+      c.setLongitude(BigDecimal.valueOf(cityLocations[i % cities.length][1]));
       c.setActive(i != 26);
       result.add(customers.save(c));
     }
@@ -355,7 +359,7 @@ public class DemoDataSeeder implements ApplicationRunner {
       order.setShippingLatitude(customer.getLatitude());
       order.setShippingLongitude(customer.getLongitude());
       order.setCreatedBy(admin);
-      Instant created = now.minus(i % 9, ChronoUnit.DAYS).minus(i % 18, ChronoUnit.HOURS);
+      Instant created = now.minus(i % 9, ChronoUnit.DAYS).minus(12 + i % 18, ChronoUnit.HOURS);
       order.setCreatedAt(created);
       order.setUpdatedAt(created.plus(2, ChronoUnit.HOURS));
       int itemCount = 1 + i % 3;
@@ -424,7 +428,10 @@ public class DemoDataSeeder implements ApplicationRunner {
             status == OrderStatus.DELIVERED
                 ? order.getShippingLongitude()
                 : warehouse.getLongitude());
-        shipment.setEstimatedDeliveryAt(now.plus(i % 5, ChronoUnit.HOURS));
+        shipment.setEstimatedDeliveryAt(
+            status == OrderStatus.DELIVERED
+                ? created.plus(12, ChronoUnit.HOURS)
+                : now.plus(1 + i % 5, ChronoUnit.HOURS));
         shipment.setStatus(
             status == OrderStatus.READY
                 ? ShipmentStatus.CREATED
@@ -474,27 +481,17 @@ public class DemoDataSeeder implements ApplicationRunner {
         start.plus(4, ChronoUnit.HOURS));
     event(
         shipment, TrackingEventType.DEPARTED, "Shipment departed", start.plus(5, ChronoUnit.HOURS));
-    event(
-        shipment,
-        TrackingEventType.CHECKPOINT,
-        "Simulated route checkpoint 25%",
-        start.plus(6, ChronoUnit.HOURS));
-    event(
-        shipment,
-        TrackingEventType.CHECKPOINT,
-        "Simulated route checkpoint 50%",
-        start.plus(7, ChronoUnit.HOURS));
-    event(
-        shipment,
-        TrackingEventType.CHECKPOINT,
-        "Simulated route checkpoint 75%",
-        start.plus(8, ChronoUnit.HOURS));
+    for (int checkpoint : new int[] {25, 50, 75}) {
+      if (shipment.getSimulationProgress() >= checkpoint) {
+        event(
+            shipment,
+            TrackingEventType.CHECKPOINT,
+            "Simulated route checkpoint " + checkpoint + "%",
+            start.plus(5 + checkpoint / 25, ChronoUnit.HOURS));
+      }
+    }
     if (status == OrderStatus.DELIVERED)
-      event(
-          shipment,
-          TrackingEventType.DELIVERED,
-          "Shipment delivered",
-          start.plus(9, ChronoUnit.HOURS));
+      event(shipment, TrackingEventType.DELIVERED, "Shipment delivered", shipment.getDeliveredAt());
   }
 
   private void incident(Shipment shipment, User admin, int index, boolean open) {
@@ -505,10 +502,10 @@ public class DemoDataSeeder implements ApplicationRunner {
     incident.setStatus(open ? IncidentStatus.OPEN : IncidentStatus.RESOLVED);
     incident.setTitle(open ? "Active demo operational issue" : "Resolved demo operational issue");
     incident.setDescription("Fictional incident included to demonstrate the operational workflow.");
-    incident.setOpenedAt(Instant.now().minus(index + 1, ChronoUnit.HOURS));
+    incident.setOpenedAt(shipment.getDepartedAt().plus(1, ChronoUnit.HOURS));
     incident.setCreatedBy(admin);
     if (!open) {
-      incident.setResolvedAt(Instant.now().minus(index, ChronoUnit.HOURS));
+      incident.setResolvedAt(incident.getOpenedAt().plus(1, ChronoUnit.HOURS));
       incident.setResolutionNote("Operational check completed.");
     }
     incidents.save(incident);
@@ -516,7 +513,7 @@ public class DemoDataSeeder implements ApplicationRunner {
         shipment,
         open ? TrackingEventType.INCIDENT : TrackingEventType.RESUMED,
         incident.getTitle(),
-        incident.getOpenedAt());
+        open ? incident.getOpenedAt() : incident.getResolvedAt());
   }
 
   private void event(Shipment shipment, TrackingEventType type, String description, Instant time) {

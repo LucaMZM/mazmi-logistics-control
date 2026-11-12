@@ -72,6 +72,16 @@ async function main() {
             )
           );
         });
+        assert(
+          await page.locator(".leaflet-control-zoom").evaluate((control) => {
+            const panel = control.closest(".map-panel, .map-wrap");
+            if (!panel) return false;
+            const bounds = panel.getBoundingClientRect();
+            const zoom = control.getBoundingClientRect();
+            return zoom.bottom <= bounds.bottom && zoom.top >= bounds.top;
+          }),
+          "Map zoom controls must not be clipped",
+        );
       }
       await page
         .locator(".mat-mdc-snack-bar-container")
@@ -108,6 +118,31 @@ async function main() {
         (item) => item.progress < 80 && item.deliveryHealth === "DELAYED",
       ) ?? content.find((item) => item.progress < 80);
     assert(shipment, "The demo must contain an in-transit shipment");
+    const initialTracking = await context.request.get(
+      `${baseURL}/api/v1/shipments/${shipment.id}`,
+    );
+    assert.equal(initialTracking.status(), 200);
+    const initialDetail = await initialTracking.json();
+    assert(
+      Date.parse(initialDetail.departedAt) <= Date.now(),
+      "Demo departure cannot be in the future",
+    );
+    assert(
+      Date.parse(initialDetail.eta) >= Date.parse(initialDetail.departedAt),
+      "ETA must follow departure",
+    );
+    for (const event of initialDetail.events) {
+      assert(
+        Date.parse(event.eventTime) <= Date.now(),
+        "Demo events cannot be in the future",
+      );
+      const checkpoint = /checkpoint (\d+)%/.exec(event.description);
+      if (checkpoint)
+        assert(
+          Number(checkpoint[1]) <= initialDetail.progress,
+          "Checkpoint must not exceed current progress",
+        );
+    }
     await page.goto(`${baseURL}/shipments/${shipment.id}`);
     await ready(shipment.trackingNumber, ".controls", true);
     await page.locator(".connection.connected").waitFor();

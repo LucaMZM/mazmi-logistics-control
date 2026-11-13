@@ -85,7 +85,8 @@ export class ControlRoomPage implements AfterViewInit, OnDestroy {
       this.ready.set(true);
     } catch {
       if (generation === this.generation) {
-        this.scene?.dispose();
+        const failedScene = this.scene as ControlRoomScenePort | undefined;
+        failedScene?.dispose();
         this.scene = undefined;
         this.sceneError.set(
           'The 3D control room is unavailable. Use the live operational panels and links below.',

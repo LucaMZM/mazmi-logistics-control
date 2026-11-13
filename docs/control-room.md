@@ -34,7 +34,13 @@ La oficina y sus muebles son **ilustrativos**: no representan un edificio real, 
 
 Las pruebas de `control-room.model.spec.ts` comprueban el uso de datos reales y el tratamiento de métricas desconocidas. `control-room.page.spec.ts` verifica integración del store, selección, enlaces, destrucción y recuperación funcional sin WebGL.
 
-La ejecución automática de CI incluye formato, lint, tipos, tests y build. Antes de considerar terminada una revisión gráfica, comprobar la escena en un navegador con WebGL real y documentar el rendimiento en el MacBook Air M2.
+La ejecución de CI integra formato, lint, tipos, tests y build. En el commit `ba31b363` se validaron **101 tests frontend** y el backend sin errores. La prueba de navegador con datos reales de demostración también terminó correctamente en [GitHub Actions](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43445804951).
+
+La prueba `.github/scripts/capture-control-room.cjs` levanta el ERP con PostgreSQL y Spring Boot, usa Chromium con WebGL por **SwiftShader**, contrasta las cuatro métricas con `/api/v1/dashboard`, selecciona las estaciones, verifica cámara y teclado, prueba la recuperación WebGL, movimiento reducido y móvil de 390 px, y confirma **cero errores JavaScript y cero mutaciones API**. Además existe una prueba unitaria que impide que los monitores 3D queden desactualizados cuando los datos llegan después de iniciar la escena.
+
+Las capturas `control-room-overview.png`, `control-room-fleet.png`, `control-room-warehouse.png` y `control-room-mobile.png` se generan en el artifact `portfolio-screenshots` (retención limitada). El workflow `Capture demo screenshots` se puede ejecutar manualmente con `control_room_only: true` o se activa automáticamente al modificar los archivos de Control Room.
+
+**Pendiente:** medir rendimiento e inspeccionar personalmente la escena en la GPU física del MacBook Air M2; las pruebas con SwiftShader no equivalen a esa medición.
 
 ## Límites y siguientes pasos
 

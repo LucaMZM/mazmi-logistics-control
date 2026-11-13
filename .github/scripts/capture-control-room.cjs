@@ -50,12 +50,22 @@ async function main() {
     await page.waitForFunction(() => document.querySelector('.scene canvas')?.width > 0);
     await page.evaluate(() => document.fonts.ready);
 
-    const metricValues = await page.locator('.summary strong').allInnerTexts();
-    const fmt = (value) => Number(value).toLocaleString('en-GB');
-    assert.deepEqual(metricValues, [
-      fmt(data.activeShipments), fmt(data.delayedShipments),
-      fmt(data.openIncidents), fmt(data.criticalInventory.length),
-    ], 'HTML operational metrics must match the real dashboard API');
+    const expectedMetrics = [
+      data.activeShipments, data.delayedShipments,
+      data.openIncidents, data.criticalInventory.length,
+    ].map((value) => Number(value).toLocaleString('en-GB'));
+    await page.waitForFunction(
+      (expected) => {
+        const actual = [...document.querySelectorAll('.summary strong')].map(
+          (element) => element.textContent?.trim(),
+        );
+        return actual.length === expected.length &&
+          actual.every((value, index) => value === expected[index]);
+      },
+      expectedMetrics,
+    );
+    assert.deepEqual(await page.locator('.summary strong').allInnerTexts(), expectedMetrics,
+      'HTML operational metrics must match the real dashboard API');
     assert.equal(await page.locator('.scene canvas').count(), 1);
     assert(await page.getByRole('link', { name: 'Explore Fleet Twin' }).count() === 0,
       'The selected station must initially be Operations');

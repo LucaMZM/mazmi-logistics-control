@@ -9,6 +9,8 @@
 <br>
 ![Angular Material 22.2.3](https://img.shields.io/badge/Angular_Material-22.2.3-757DE8?style=for-the-badge&logo=angular&logoColor=white)
 ![Leaflet 1.9.4](https://img.shields.io/badge/Leaflet-1.9.4-199900?style=for-the-badge&logo=leaflet&logoColor=white)
+![MapLibre 6.18.0](https://img.shields.io/badge/MapLibre-6.18.0-396CB2?style=for-the-badge&logo=maplibre&logoColor=white)
+![Three.js 0.187.0](https://img.shields.io/badge/Three.js-0.187.0-454B53?style=for-the-badge&logo=threedotjs&logoColor=white)
 ![STOMP.js 7.3.0](https://img.shields.io/badge/STOMP.js-7.3.0-455A64?style=for-the-badge)
 ![Docker Compose](https://img.shields.io/badge/Docker_Compose-v2-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 [![All Rights Reserved](https://img.shields.io/badge/License-All_Rights_Reserved-344966?style=for-the-badge)](LICENSE)
@@ -16,6 +18,8 @@
 Plataforma full-stack de operaciones logísticas para coordinar pedidos, inventario, envíos, flota, incidencias y seguimiento simulado en tiempo real desde un único panel.
 
 Fleet Twin incorpora una primera maqueta 3D interactiva en `/digital-twin`, vinculada a registros reales de flota. [Arquitectura, controles, assets y límites](docs/digital-twin.md).
+
+**MAZMI World Map** incorpora el selector 2D/3D en el dashboard y el detalle de envío: cartografía geográfica, vehículos vinculados a la flota, selección y seguimiento de posiciones simuladas. Leaflet sigue disponible sin cargar el motor 3D. No representa telemetría GPS ni rutas calculadas por carretera.
 
 ## Índice
 
@@ -46,6 +50,12 @@ La aplicación no plantea estos módulos como CRUD independientes. El backend co
 Los datos del perfil demo son ficticios. Las posiciones de los envíos se calculan mediante una simulación interna y no proceden de dispositivos GPS reales.
 
 ## Capturas
+
+### World Map 3D
+
+![Envío seleccionado con vehículo 3D y datos reales de asignación](docs/screenshots/world-map-selected.png)
+
+[Vista general](docs/screenshots/world-map-overview.png) · [Seguimiento simulado](docs/screenshots/world-map-tracking.png) · [Vista móvil](docs/screenshots/world-map-mobile.png)
 
 ### Centro de operaciones
 
@@ -173,7 +183,8 @@ Los guards de Angular adaptan la interfaz al rol, mientras que Spring Security c
 | Frontend         | Angular 22.2.3 · TypeScript 6.0.3                                      | SPA, navegación y componentes de la consola logística.     |
 | Interfaz         | Angular Material 22.2.3 · SCSS                                         | Formularios, tablas y sistema visual responsive.           |
 | Reactividad      | Angular Signals · NgRx SignalStore 22.0.1 · RxJS 7.8.2                 | Estado de la interfaz y flujos asíncronos.                 |
-| Mapas y gráficos | Leaflet 1.9.4 · OpenStreetMap · Chart.js 4.5.1                         | Mapa de envíos e indicadores del dashboard.                |
+| Mapas y gráficos | Leaflet 1.9.4 · MapLibre GL JS 6.18.0 · OpenStreetMap/OpenFreeMap · Chart.js 4.5.1 | Cartografía 2D/3D e indicadores del dashboard. |
+| Digital Twin | Three.js 0.187.0 | Fleet Twin y vehículos georreferenciados en una capa WebGL compartida. |
 | Tiempo real      | STOMP.js 7.3.0 · WebSocket                                             | Actualizaciones de seguimiento y dashboard.                |
 | Backend          | Java 21 · Spring Boot 4.1.1                                            | API y reglas de negocio en un monolito modular.            |
 | Seguridad        | Spring Security 7.1.1 · JJWT 0.12.6                                    | Roles, JWT en cookie HttpOnly y protección CSRF.           |

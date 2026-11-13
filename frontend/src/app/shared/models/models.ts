@@ -30,6 +30,18 @@ export interface MapItem {
   longitude: number;
   deliveryHealth: DeliveryHealth;
   progress: number;
+  vehicleId?: string | null;
+  registrationPlate?: string | null;
+  vehicleType?: string | null;
+  driver?: string | null;
+  status?: ShipmentStatus;
+  simulationActive?: boolean;
+  eta?: string | null;
+  updatedAt?: string;
+  originLatitude?: number;
+  originLongitude?: number;
+  destinationLatitude?: number;
+  destinationLongitude?: number;
 }
 export interface CriticalStock {
   inventoryId: string;

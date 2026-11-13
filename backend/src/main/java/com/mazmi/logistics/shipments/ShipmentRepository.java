@@ -31,6 +31,7 @@ public interface ShipmentRepository
 
   List<Shipment> findBySimulationActiveTrueAndStatus(ShipmentStatus status);
 
+  @EntityGraph(attributePaths = {"vehicle", "driver", "order", "order.warehouse"})
   List<Shipment> findByStatusOrderByUpdatedAtDesc(ShipmentStatus status);
 
   boolean existsByDriverIdAndStatusIn(UUID driverId, List<ShipmentStatus> statuses);

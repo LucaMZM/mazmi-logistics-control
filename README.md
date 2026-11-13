@@ -51,6 +51,16 @@ Los datos del perfil demo son ficticios. Las posiciones de los envíos se calcul
 
 ## Capturas
 
+### Warehouse Twin
+
+Almacén isométrico con inventario real, selección de zonas y una secuencia de carretilla y carga. El layout interior y los movimientos son ilustrativos: no modifican registros del ERP.
+
+![Warehouse Twin con nave abierta, estanterías, carretilla, expedición e inventario verificado](docs/screenshots/warehouse-overview.png)
+
+[Estanterías](docs/screenshots/warehouse-storage.png) · [Maniobra de carretilla](docs/screenshots/warehouse-manoeuvre.png) · [Muelles y expedición](docs/screenshots/warehouse-dispatch.png) · [Vista móvil](docs/screenshots/warehouse-mobile.png)
+
+Disponible en `/warehouse-twin`. [Controles, arquitectura y límites de representación](docs/warehouse-twin.md).
+
 ### World Map 3D
 
 ![Envío seleccionado con vehículo 3D y datos reales de asignación](docs/screenshots/world-map-selected.png)
@@ -347,6 +357,7 @@ mazmi-logistics-control/
 
 - [Arquitectura del sistema](docs/architecture.md)
 - [Modelo de datos e invariantes](docs/data-model.md)
+- [Warehouse Twin: almacén 3D, inventario verificado y secuencia ilustrativa](docs/warehouse-twin.md)
 - [Especificación OpenAPI](http://localhost:8080/v3/api-docs), disponible con el entorno demo en ejecución
 
 ## Próximas mejoras

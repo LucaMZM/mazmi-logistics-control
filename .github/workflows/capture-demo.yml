@@ -3,6 +3,10 @@ name: Capture demo screenshots
 on:
   workflow_dispatch:
     inputs:
+      warehouse_only:
+        description: Capture and validate Warehouse Twin with real demo records
+        type: boolean
+        default: false
       world_map_only:
         description: Validar y capturar únicamente World Map 3D
         type: boolean
@@ -50,11 +54,17 @@ jobs:
       - name: Build and start the full application
         run: docker compose --env-file "$RUNNER_TEMP/capture.env" -p mazmi-capture up --build --detach --wait --wait-timeout 240
       - name: Capture desktop and verify mobile
-        if: ${{ !inputs.world_map_only }}
+        if: ${{ !inputs.warehouse_only && !inputs.world_map_only }}
         env:
           NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
           CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
         run: node .github/scripts/capture-demo.cjs
+      - name: Validate and capture Warehouse Twin
+        if: ${{ inputs.warehouse_only }}
+        env:
+          NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
+          CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
+        run: node .github/scripts/capture-warehouse.cjs
       - name: Validate and capture World Map
         if: ${{ inputs.world_map_only }}
         env:

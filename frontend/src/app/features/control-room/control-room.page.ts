@@ -50,7 +50,8 @@ export class ControlRoomPage implements AfterViewInit, OnDestroy {
   private destroyed = false;
 
   private readonly syncMetrics = effect(() => {
-    this.scene?.update(this.metrics());
+    const snapshot = this.metrics();
+    this.scene?.update(snapshot);
   });
 
   ngAfterViewInit(): void {

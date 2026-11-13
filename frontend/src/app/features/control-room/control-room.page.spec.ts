@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { NEVER, of } from 'rxjs';
+import { NEVER, Subject, of } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
 import { RealtimeService } from '../../core/websocket/realtime.service';
 import { Dashboard } from '../../shared/models/models';
@@ -70,6 +70,32 @@ describe('Control Room page', () => {
     expect(FakeRoom.latest?.focus).toHaveBeenCalledWith('warehouse', false);
     fixture.destroy();
     expect(FakeRoom.latest?.dispose).toHaveBeenCalledOnce();
+  });
+
+  it('updates the 3D monitors when dashboard data arrives after the scene', async () => {
+    const laterDashboard = new Subject<Dashboard>();
+    TestBed.overrideProvider(ApiService, {
+      useValue: { dashboard: () => laterDashboard.asObservable() },
+    });
+    const fixture = TestBed.createComponent(ControlRoomPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(FakeRoom.latest?.init).toHaveBeenCalledWith({
+      activeShipments: null,
+      delayedShipments: null,
+      openIncidents: null,
+      criticalPositions: null,
+    });
+    laterDashboard.next(dashboard);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(FakeRoom.latest?.update).toHaveBeenCalledWith({
+      activeShipments: 8,
+      delayedShipments: 2,
+      openIncidents: 3,
+      criticalPositions: 1,
+    });
+    fixture.destroy();
   });
 
   it('keeps real metrics and navigation accessible if WebGL fails', async () => {

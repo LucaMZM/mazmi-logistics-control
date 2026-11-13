@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminGuard, authGuard, operatorGuard } from './core/auth/auth.guard';
+import type { WarehouseEditorPage } from './features/warehouse-editor/warehouse-editor.page';
 
 export const routes: Routes = [
   { path: 'login', loadComponent: () => import('./core/auth/login.page').then((m) => m.LoginPage) },
@@ -8,6 +9,15 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./core/layout/shell.component').then((m) => m.ShellComponent),
     children: [
+      {
+        path: 'warehouse-editor',
+        canActivate: [operatorGuard],
+        canDeactivate: [(page: WarehouseEditorPage) => page.canLeave()],
+        loadComponent: () =>
+          import('./features/warehouse-editor/warehouse-editor.page').then(
+            (m) => m.WarehouseEditorPage,
+          ),
+      },
       {
         path: 'control-room',
         loadComponent: () =>

@@ -57,6 +57,12 @@ La sala de control isométrica une los indicadores reales de operaciones y el ac
 
 [Arquitectura, controles, privacidad y límites de Control Room](docs/control-room.md).
 
+### Warehouse Editor 3D
+
+El **Warehouse Editor** permite a los operadores diseñar una distribución visual de estanterías, muelles y zonas de trabajo, vinculada a cada almacén real y guardada en PostgreSQL mediante `/api/v1/warehouses/{id}/visual-layout`. La edición se realiza en una maqueta 3D con selección, colocación en cuadrícula, giro, eliminación, guardado, restauración y protección contra cambios simultáneos. No almacena posiciones de productos ni modifica existencias, pedidos o flota.
+
+Ruta: `/warehouse-editor`. [Arquitectura del editor, validaciones y límites](docs/warehouse-editor.md).
+
 ### Warehouse Twin
 
 Almacén isométrico con inventario real, selección de zonas y una secuencia de carretilla y carga. El layout interior y los movimientos son ilustrativos: no modifican registros del ERP.

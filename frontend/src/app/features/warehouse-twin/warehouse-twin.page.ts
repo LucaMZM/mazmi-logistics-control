@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../core/auth/auth.service';
 import { DecimalPipe } from '@angular/common';
 import { WarehouseTwinStore } from './warehouse-twin.store';
 import { WAREHOUSE_ZONES, WarehouseZone, SequenceSnapshot } from './warehouse-model';
@@ -52,6 +53,12 @@ import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-lo
         Refresh records
       </button>
       <a routerLink="/inventory">Open inventory</a>
+      @if (auth.canOperate()) {
+        <a
+          routerLink="/warehouse-editor"
+          [queryParams]="{ warehouse: store.warehouseId() }"
+        >Edit 3D layout</a>
+      }
     </div>
     @if (store.recordsLoading()) {
       <p role="status">Loading warehouses…</p>
@@ -261,6 +268,7 @@ import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-lo
 })
 export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
   readonly store = inject(WarehouseTwinStore);
+  readonly auth = inject(AuthService);
   private readonly loadScene = inject(WAREHOUSE_SCENE_LOADER);
   private readonly zone = inject(NgZone);
   @ViewChild('host', { static: true }) host!: ElementRef<HTMLElement>;

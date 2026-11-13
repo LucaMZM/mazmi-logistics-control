@@ -1,0 +1,135 @@
+<header class="editor-header">
+  <div>
+    <p class="eyebrow">MAZMI DIGITAL TWIN / LAYOUT STUDIO</p>
+    <h1>Warehouse Editor</h1>
+    <p>Design a saved, illustrative warehouse blueprint without moving actual inventory.</p>
+  </div>
+  <a routerLink="/warehouse-twin" class="back">Back to Warehouse Twin</a>
+</header>
+
+<section class="editor-toolbar">
+  <label>
+    Warehouse
+    <select
+      aria-label="Edit warehouse"
+      [value]="warehouseId()"
+      (change)="chooseWarehouse($event)"
+      [disabled]="saving() || loading()"
+    >
+      @for (warehouse of warehouses(); track warehouse.id) {
+        <option [value]="warehouse.id">{{ warehouse.code }} · {{ warehouse.name }}</option>
+      }
+    </select>
+  </label>
+  <div class="revision">
+    <span>{{ saved() ? 'Saved blueprint' : 'Starter blueprint' }}</span>
+    <strong>Revision {{ revision() }}</strong>
+  </div>
+  <button class="subtle" type="button" (click)="reload()" [disabled]="saving()">Reload</button>
+  <button class="subtle" type="button" (click)="undo()" [disabled]="loading() || saving()">Undo</button>
+  <button class="subtle" type="button" (click)="discard()" [disabled]="loading() || saving() || !dirty()">Discard</button>
+  <button class="primary" type="button" (click)="save()" [disabled]="!canSave()">
+    {{ saving() ? 'Saving…' : 'Save layout' }}
+  </button>
+</section>
+
+@if (loading()) {
+  <p role="status" class="notice">Loading warehouse layout…</p>
+}
+@if (error()) {
+  <p role="alert" class="notice error">{{ error() }}</p>
+}
+@if (message()) {
+  <p role="status" class="notice">{{ message() }}</p>
+}
+
+<div class="editor-layout">
+  <section class="scene-panel" aria-label="Three-dimensional warehouse layout editor">
+    <div class="scene-host" #host></div>
+    <div class="scene-label">
+      <strong>{{ warehouse()?.name ?? 'Warehouse layout studio' }}</strong>
+      <span>Grid-based illustration · No stock or shelf positions implied</span>
+    </div>
+    @if (sceneLoading()) {
+      <div class="overlay" role="status">Preparing 3D layout…</div>
+    }
+    @if (sceneError()) {
+      <div class="overlay" role="alert">
+        <p>{{ sceneError() }}</p>
+        <button type="button" (click)="openScene()">Retry 3D</button>
+      </div>
+    }
+    <div class="camera-controls">
+      <button type="button" (click)="overview()" [disabled]="!ready()">Overview</button>
+      <button type="button" (click)="rotateCamera()" [disabled]="!ready()">Rotate view</button>
+      <span>Click an object, then click an empty grid cell to place it · Drag to orbit</span>
+    </div>
+  </section>
+
+  <aside class="edit-panel">
+    <div>
+      <p class="eyebrow">LAYOUT COMPONENTS</p>
+      <h2>Add to warehouse</h2>
+      <p>Objects use a fixed grid and cannot overlap.</p>
+    </div>
+    <div class="palette">
+      @for (kind of kinds; track kind) {
+        <button type="button" (click)="add(kind)" [disabled]="loading() || saving()">
+          <strong>+ {{ labels[kind] }}</strong>
+        </button>
+      }
+    </div>
+
+    <div class="item-controls">
+      <h2>Object inspector</h2>
+      <label>
+        Select object
+        <select
+          aria-label="Select layout object"
+          (change)="chooseObject($event)"
+          [value]="selectedId() ?? ''"
+          [disabled]="loading() || saving()"
+        >
+          <option value="">Choose an object</option>
+          @for (item of items(); track item.id) {
+            <option [value]="item.id">{{ labels[item.kind] }} · {{ item.id }}</option>
+          }
+        </select>
+      </label>
+      @if (selectedItem(); as item) {
+        <dl>
+          <div><dt>Type</dt><dd>{{ labels[item.kind] }}</dd></div>
+          <div><dt>X / Z</dt><dd>{{ item.x }} / {{ item.z }}</dd></div>
+          <div><dt>Orientation</dt><dd>{{ item.orientation }}°</dd></div>
+        </dl>
+        <p class="instruction">Move one grid cell or select a free cell in the 3D scene.</p>
+        <div class="step-buttons" aria-label="Move selected layout object">
+          <button type="button" (click)="step(-1, 0)" [disabled]="saving()">←</button>
+          <button type="button" (click)="step(0, -1)" [disabled]="saving()">↑</button>
+          <button type="button" (click)="step(0, 1)" [disabled]="saving()">↓</button>
+          <button type="button" (click)="step(1, 0)" [disabled]="saving()">→</button>
+        </div>
+        <div class="object-actions">
+          <button type="button" (click)="turn()" [disabled]="saving()">Rotate object 90°</button>
+          <button type="button" class="danger" (click)="remove()" [disabled]="saving()">Remove</button>
+        </div>
+      } @else {
+        <p class="instruction">Select a rack, dock or zone from the list or directly in the scene.</p>
+      }
+    </div>
+
+    <p class="disclosure">
+      <strong>Visual blueprint only.</strong>
+      Saved positions are tied to this warehouse, but they do not identify product storage bins.
+      All ERP inventory, order and fleet records remain unchanged.
+    </p>
+  </aside>
+</div>
+
+<section class="inventory-note">
+  <div>
+    <strong>{{ items().length }} illustrated objects</strong>
+    <span>Grid X: −10 to 10 · Z: −6 to 6 · Docks must remain near the dispatch edge.</span>
+  </div>
+  <a routerLink="/warehouse-twin">Explore warehouse simulation</a>
+</section>

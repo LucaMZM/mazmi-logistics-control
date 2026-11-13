@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import type { LayoutItem, WarehouseVisualLayout } from '../../features/warehouse-editor/warehouse-layout.model';
 import {
   Customer,
   Dashboard,
@@ -126,6 +127,12 @@ export class ApiService {
   }
   warehouses() {
     return this.http.get<Warehouse[]>('/api/v1/warehouses');
+  }
+  warehouseVisualLayout(id: string) {
+    return this.http.get<WarehouseVisualLayout>(`/api/v1/warehouses/${id}/visual-layout`);
+  }
+  saveWarehouseVisualLayout(id: string, payload: { revision: number; items: LayoutItem[] }) {
+    return this.http.put<WarehouseVisualLayout>(`/api/v1/warehouses/${id}/visual-layout`, payload);
   }
   drivers() {
     return this.http.get<Driver[]>('/api/v1/drivers');

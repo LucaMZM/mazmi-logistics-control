@@ -455,6 +455,7 @@ export class ShellComponent implements OnInit, OnDestroy {
     { path: '/fleet', label: 'Fleet', icon: 'fleet' },
     { path: '/digital-twin', label: 'Fleet Twin', icon: 'fleet' },
     { path: '/warehouse-twin', label: 'Warehouse Twin', icon: 'inventory' },
+    { path: '/warehouse-editor', label: 'Warehouse Editor', icon: 'inventory' },
     { path: '/control-room', label: 'Control Room', icon: 'overview' },
   ];
   ngOnInit(): void {

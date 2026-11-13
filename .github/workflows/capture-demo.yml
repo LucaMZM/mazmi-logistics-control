@@ -13,7 +13,6 @@ on:
         description: Validate and capture Control Room 3D with live demo records
         type: boolean
         default: false
-    inputs:
       warehouse_only:
         description: Capture and validate Warehouse Twin with real demo records
         type: boolean

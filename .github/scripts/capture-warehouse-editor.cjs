@@ -92,6 +92,11 @@ async function main() {
 
     // Two authenticated browser tabs must not overwrite each other.
     const secondPage = await context.newPage();
+    secondPage.on('request', (request) => {
+      if (request.url().includes('/api/') &&
+          !['GET', 'OPTIONS', 'HEAD'].includes(request.method()))
+        writes.push(`${request.method()} ${new URL(request.url()).pathname}`);
+    });
     secondPage.setDefaultTimeout(45000);
     secondPage.on('pageerror', (e) => errors.push(e.message));
     await secondPage.goto(url);

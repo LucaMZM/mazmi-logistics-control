@@ -66,7 +66,7 @@ async function main() {
 
     const fleetButton = page.locator('.station-choice').filter({ hasText: 'Fleet console' });
     await fleetButton.click();
-    assert.equal(await fleetButton.getAttribute('aria-pressed'), 'true');
+    await page.waitForFunction(() => [...document.querySelectorAll('.station-choice')].some(el => el.textContent.includes('Fleet console') && el.getAttribute('aria-pressed') === 'true'));
     await page.getByRole('link', { name: 'Explore Fleet Twin' }).waitFor();
     await page.waitForTimeout(550);
     await page.screenshot({ path: path.join(output, 'control-room-fleet.png'), animations: 'disabled' });
@@ -74,7 +74,7 @@ async function main() {
     const warehouseButton = page.locator('.station-choice').filter({ hasText: 'Warehouse console' });
     await warehouseButton.focus();
     await page.keyboard.press('Enter');
-    assert.equal(await warehouseButton.getAttribute('aria-pressed'), 'true');
+    await page.waitForFunction(() => [...document.querySelectorAll('.station-choice')].some(el => el.textContent.includes('Warehouse console') && el.getAttribute('aria-pressed') === 'true'));
     await page.getByRole('link', { name: 'Explore Warehouse Twin' }).waitFor();
     await page.waitForTimeout(550);
     await page.screenshot({ path: path.join(output, 'control-room-warehouse.png'), animations: 'disabled' });

@@ -336,6 +336,7 @@ mazmi-logistics-control/
 
 - [Arquitectura del sistema](docs/architecture.md)
 - [Modelo de datos e invariantes](docs/data-model.md)
+- [Warehouse Twin: almacén 3D, inventario verificado y secuencia ilustrativa](docs/warehouse-twin.md)
 - [Especificación OpenAPI](http://localhost:8080/v3/api-docs), disponible con el entorno demo en ejecución
 
 ## Próximas mejoras

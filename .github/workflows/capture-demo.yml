@@ -2,6 +2,11 @@ name: Capture demo screenshots
 
 on:
   workflow_dispatch:
+    inputs:
+      warehouse_only:
+        description: Capture and validate Warehouse Twin with real demo records
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -45,10 +50,17 @@ jobs:
       - name: Build and start the full application
         run: docker compose --env-file "$RUNNER_TEMP/capture.env" -p mazmi-capture up --build --detach --wait --wait-timeout 240
       - name: Capture desktop and verify mobile
+        if: ${{ !inputs.warehouse_only }}
         env:
           NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
           CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
         run: node .github/scripts/capture-demo.cjs
+      - name: Validate and capture Warehouse Twin
+        if: ${{ inputs.warehouse_only }}
+        env:
+          NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
+          CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
+        run: node .github/scripts/capture-warehouse.cjs
       - uses: actions/upload-artifact@v7
         if: always()
         with:

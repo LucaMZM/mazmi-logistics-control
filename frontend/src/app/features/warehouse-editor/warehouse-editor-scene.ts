@@ -63,7 +63,10 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
       const canvas = this.renderer.domElement;
       canvas.tabIndex = 0;
       canvas.setAttribute('role', 'img');
-      canvas.setAttribute('aria-label', 'Interactive illustrative warehouse blueprint. Select an object, then click the floor to move it. Use controls for keyboard access.');
+      canvas.setAttribute(
+        'aria-label',
+        'Interactive illustrative warehouse blueprint. Select an object, then click the floor to move it. Use controls for keyboard access.',
+      );
       this.host.appendChild(canvas);
       this.camera.position.set(24, 23, 28);
       this.controls = new OrbitControls(this.camera, canvas);
@@ -222,8 +225,8 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
     const width = this.host.clientWidth;
     const height = this.host.clientHeight;
     const half = Math.max(15, (17 * height) / width);
-    this.camera.left = -half * width / height;
-    this.camera.right = half * width / height;
+    this.camera.left = (-half * width) / height;
+    this.camera.right = (half * width) / height;
     this.camera.top = half;
     this.camera.bottom = -half;
     this.camera.updateProjectionMatrix();
@@ -249,7 +252,9 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
 
   rotate(): void {
     if (!this.controls) return;
-    const offset = this.camera.position.clone().sub(this.controls.target)
+    const offset = this.camera.position
+      .clone()
+      .sub(this.controls.target)
       .applyAxisAngle(new T.Vector3(0, 1, 0), Math.PI / 6);
     this.camera.position.copy(this.controls.target).add(offset);
     this.controls.update();
@@ -271,7 +276,9 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
     this.controls?.dispose();
     if (this.grid) {
       this.grid.geometry.dispose();
-      const materials = Array.isArray(this.grid.material) ? this.grid.material : [this.grid.material];
+      const materials = Array.isArray(this.grid.material)
+        ? this.grid.material
+        : [this.grid.material];
       materials.forEach((material) => material.dispose());
     }
     this.assets.dispose();

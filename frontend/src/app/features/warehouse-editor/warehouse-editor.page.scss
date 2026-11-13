@@ -86,14 +86,22 @@ button {
   color: var(--ink);
   cursor: pointer;
 }
-button:hover:not(:disabled), .back:hover { background: #edf2f3; }
-button:disabled { cursor: not-allowed; opacity: 0.55; }
+button:hover:not(:disabled),
+.back:hover {
+  background: #edf2f3;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
 .primary {
   background: #344b57;
   color: #fff;
   border-color: #344b57;
 }
-.primary:hover:not(:disabled) { background: #243943; }
+.primary:hover:not(:disabled) {
+  background: #243943;
+}
 .editor-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 310px;
@@ -108,16 +116,29 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   border-radius: 12px;
   background: #e9edf0;
 }
-.scene-host { width: 100%; height: 620px; touch-action: none; }
+.scene-host {
+  width: 100%;
+  height: 620px;
+  touch-action: none;
+}
 .scene-label {
   position: absolute;
   top: 17px;
   left: 19px;
   pointer-events: none;
 }
-.scene-label strong, .scene-label span { display: block; }
-.scene-label strong { font-size: 14px; }
-.scene-label span { margin-top: 4px; color: #586975; font-size: 12px; }
+.scene-label strong,
+.scene-label span {
+  display: block;
+}
+.scene-label strong {
+  font-size: 14px;
+}
+.scene-label span {
+  margin-top: 4px;
+  color: #586975;
+  font-size: 12px;
+}
 .overlay {
   position: absolute;
   top: 35%;
@@ -159,30 +180,71 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   align-content: start;
   gap: 20px;
 }
-h2 { font-size: 18px; margin: 0 0 7px; }
-.edit-panel p { color: var(--muted); font-size: 12px; line-height: 1.55; }
-.palette { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+h2 {
+  font-size: 18px;
+  margin: 0 0 7px;
+}
+.edit-panel p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.palette {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
 .palette button {
   text-align: left;
   line-height: 1.5;
   min-height: 54px;
 }
-.item-controls { border-top: 1px solid var(--line); padding-top: 17px; }
-.item-controls label { margin-top: 14px; }
+.item-controls {
+  border-top: 1px solid var(--line);
+  padding-top: 17px;
+}
+.item-controls label {
+  margin-top: 14px;
+}
 dl {
   display: grid;
   gap: 7px;
   margin: 16px 0 8px;
   font-size: 12px;
 }
-dl div { display: flex; justify-content: space-between; gap: 8px; }
-dt { color: var(--muted); }
-dd { margin: 0; font-weight: 600; }
-.step-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.step-buttons button { font-size: 19px; }
-.object-actions { display: flex; gap: 8px; margin-top: 9px; flex-wrap: wrap; }
-.danger { color: #9b3831; }
-.disclosure { border-top: 1px solid var(--line); padding-top: 14px; }
+dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+dt {
+  color: var(--muted);
+}
+dd {
+  margin: 0;
+  font-weight: 600;
+}
+.step-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.step-buttons button {
+  font-size: 19px;
+}
+.object-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 9px;
+  flex-wrap: wrap;
+}
+.danger {
+  color: #9b3831;
+}
+.disclosure {
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
 .notice {
   padding: 11px 14px;
   border: 1px solid var(--line);
@@ -206,19 +268,44 @@ dd { margin: 0; font-weight: 600; }
   background: var(--surface);
   font-size: 12px;
 }
-.inventory-note div { display: grid; gap: 5px; }
-.inventory-note span { color: var(--muted); }
-.inventory-note a { color: #34556a; }
+.inventory-note div {
+  display: grid;
+  gap: 5px;
+}
+.inventory-note span {
+  color: var(--muted);
+}
+.inventory-note a {
+  color: #34556a;
+}
 @media (max-width: 1120px) {
-  .editor-layout { grid-template-columns: 1fr; }
+  .editor-layout {
+    grid-template-columns: 1fr;
+  }
 }
 @media (max-width: 700px) {
-  .editor-header { flex-direction: column; }
-  .scene-host { height: 465px; }
-  .camera-controls span { width: 100%; margin-left: 0; }
-  .inventory-note { flex-direction: column; }
-  .scene-label { left: 12px; top: 12px; right: 12px; }
+  .editor-header {
+    flex-direction: column;
+  }
+  .scene-host {
+    height: 465px;
+  }
+  .camera-controls span {
+    width: 100%;
+    margin-left: 0;
+  }
+  .inventory-note {
+    flex-direction: column;
+  }
+  .scene-label {
+    left: 12px;
+    top: 12px;
+    right: 12px;
+  }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .camera-controls { backdrop-filter: none; background: #fafcfc; }
+  .camera-controls {
+    backdrop-filter: none;
+    background: #fafcfc;
+  }
 }

@@ -54,7 +54,8 @@ export function validLayout(items: LayoutItem[]): boolean {
       item.z > 6 ||
       ![0, 90, 180, 270].includes(item.orientation) ||
       (item.kind === 'DOCK' && item.z < 4)
-    ) return false;
+    )
+      return false;
     ids.add(item.id);
   }
   for (let i = 0; i < items.length; i++) {
@@ -63,8 +64,8 @@ export function validLayout(items: LayoutItem[]): boolean {
       const b = items[j];
       const [aw, ad] = itemSize(a);
       const [bw, bd] = itemSize(b);
-      if (Math.abs(a.x - b.x) < (aw + bw) / 2 + 0.25 &&
-          Math.abs(a.z - b.z) < (ad + bd) / 2 + 0.25) return false;
+      if (Math.abs(a.x - b.x) < (aw + bw) / 2 + 0.25 && Math.abs(a.z - b.z) < (ad + bd) / 2 + 0.25)
+        return false;
     }
   }
   return true;
@@ -82,8 +83,13 @@ export function starterLayout(): LayoutItem[] {
   ];
 }
 
-export function relocate(items: LayoutItem[], id: string, x: number, z: number): LayoutItem[] | null {
-  const moved = items.map((item) => item.id === id ? { ...item, x, z } : item);
+export function relocate(
+  items: LayoutItem[],
+  id: string,
+  x: number,
+  z: number,
+): LayoutItem[] | null {
+  const moved = items.map((item) => (item.id === id ? { ...item, x, z } : item));
   return validLayout(moved) ? moved : null;
 }
 

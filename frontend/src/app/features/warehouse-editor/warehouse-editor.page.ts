@@ -55,7 +55,9 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
   readonly saved = signal(false);
   readonly revision = signal(0);
   readonly selectedId = signal<string | null>(null);
-  readonly selectedItem = computed(() => this.items().find((x) => x.id === this.selectedId()) ?? null);
+  readonly selectedItem = computed(
+    () => this.items().find((x) => x.id === this.selectedId()) ?? null,
+  );
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly sceneLoading = signal(false);
@@ -133,7 +135,9 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
     this.items.set([]);
     this.base.set([]);
     try {
-      const layout: WarehouseVisualLayout = await firstValueFrom(this.api.warehouseVisualLayout(id));
+      const layout: WarehouseVisualLayout = await firstValueFrom(
+        this.api.warehouseVisualLayout(id),
+      );
       if (this.destroyed || sequence !== this.requestId || id !== this.warehouseId()) return;
       const items = layout.saved ? layout.items : starterLayout();
       if (!validLayout(items)) throw new Error('Invalid saved visual layout');
@@ -181,13 +185,14 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
       return;
     }
     this.edit(next);
-    this.selectedId.set(next.find((item) => !before.some((prev) => prev.id === item.id))?.id ?? null);
+    this.selectedId.set(
+      next.find((item) => !before.some((prev) => prev.id === item.id))?.id ?? null,
+    );
   }
 
   chooseObject(event: Event): void {
     const element = event.target;
-    if (element instanceof HTMLSelectElement)
-      this.selectedId.set(element.value || null);
+    if (element instanceof HTMLSelectElement) this.selectedId.set(element.value || null);
   }
 
   select(id: string): void {
@@ -198,7 +203,9 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
     if (this.loading() || this.saving()) return;
     const next = relocate(this.items(), id, x, z);
     if (!next) {
-      this.error.set('That position is outside the grid, overlaps another object, or blocks a dock.');
+      this.error.set(
+        'That position is outside the grid, overlaps another object, or blocks a dock.',
+      );
       return;
     }
     if (JSON.stringify(next) !== JSON.stringify(this.items())) this.edit(next);
@@ -256,10 +263,12 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
     this.error.set('');
     this.message.set('');
     try {
-      const result = await firstValueFrom(this.api.saveWarehouseVisualLayout(id, {
-        revision: this.revision(),
-        items: this.items(),
-      }));
+      const result = await firstValueFrom(
+        this.api.saveWarehouseVisualLayout(id, {
+          revision: this.revision(),
+          items: this.items(),
+        }),
+      );
       if (this.destroyed || sequence !== this.requestId) return;
       this.revision.set(result.revision);
       this.saved.set(true);
@@ -294,10 +303,13 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
         this.scene = new Scene(this.host.nativeElement, {
           select: (id) => this.zone.run(() => this.select(id)),
           move: (id, x, z) => this.zone.run(() => this.move(id, x, z)),
-          lost: () => this.zone.run(() => {
-            this.ready.set(false);
-            this.sceneError.set('3D context lost. Your blueprint is retained. Retry the visual editor.');
-          }),
+          lost: () =>
+            this.zone.run(() => {
+              this.ready.set(false);
+              this.sceneError.set(
+                '3D context lost. Your blueprint is retained. Retry the visual editor.',
+              );
+            }),
         });
         this.scene.init(this.items());
         this.scene.select(this.selectedId());
@@ -308,7 +320,9 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
         const failed = this.scene as WarehouseEditorScenePort | undefined;
         failed?.dispose();
         this.scene = undefined;
-        this.sceneError.set('3D is unavailable. Blueprint editing and saving still work via the controls.');
+        this.sceneError.set(
+          '3D is unavailable. Blueprint editing and saving still work via the controls.',
+        );
       }
     } finally {
       if (!this.destroyed && version === this.sceneVersion) this.sceneLoading.set(false);

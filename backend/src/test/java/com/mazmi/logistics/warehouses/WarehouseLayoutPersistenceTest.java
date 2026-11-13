@@ -64,9 +64,7 @@ class WarehouseLayoutPersistenceTest {
     SecurityContextHolder.getContext()
         .setAuthentication(
             new UsernamePasswordAuthenticationToken(
-                "editor",
-                null,
-                List.of(new SimpleGrantedAuthority("ROLE_OPERATOR"))));
+                "editor", null, List.of(new SimpleGrantedAuthority("ROLE_OPERATOR"))));
   }
 
   @AfterEach

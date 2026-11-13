@@ -26,8 +26,17 @@
     <strong>Revision {{ revision() }}</strong>
   </div>
   <button class="subtle" type="button" (click)="reload()" [disabled]="saving()">Reload</button>
-  <button class="subtle" type="button" (click)="undo()" [disabled]="loading() || saving()">Undo</button>
-  <button class="subtle" type="button" (click)="discard()" [disabled]="loading() || saving() || !dirty()">Discard</button>
+  <button class="subtle" type="button" (click)="undo()" [disabled]="loading() || saving()">
+    Undo
+  </button>
+  <button
+    class="subtle"
+    type="button"
+    (click)="discard()"
+    [disabled]="loading() || saving() || !dirty()"
+  >
+    Discard
+  </button>
   <button class="primary" type="button" (click)="save()" [disabled]="!canSave()">
     {{ saving() ? 'Saving…' : 'Save layout' }}
   </button>
@@ -98,9 +107,18 @@
       </label>
       @if (selectedItem(); as item) {
         <dl>
-          <div><dt>Type</dt><dd>{{ labels[item.kind] }}</dd></div>
-          <div><dt>X / Z</dt><dd>{{ item.x }} / {{ item.z }}</dd></div>
-          <div><dt>Orientation</dt><dd>{{ item.orientation }}°</dd></div>
+          <div>
+            <dt>Type</dt>
+            <dd>{{ labels[item.kind] }}</dd>
+          </div>
+          <div>
+            <dt>X / Z</dt>
+            <dd>{{ item.x }} / {{ item.z }}</dd>
+          </div>
+          <div>
+            <dt>Orientation</dt>
+            <dd>{{ item.orientation }}°</dd>
+          </div>
         </dl>
         <p class="instruction">Move one grid cell or select a free cell in the 3D scene.</p>
         <div class="step-buttons" aria-label="Move selected layout object">
@@ -111,17 +129,21 @@
         </div>
         <div class="object-actions">
           <button type="button" (click)="turn()" [disabled]="saving()">Rotate object 90°</button>
-          <button type="button" class="danger" (click)="remove()" [disabled]="saving()">Remove</button>
+          <button type="button" class="danger" (click)="remove()" [disabled]="saving()">
+            Remove
+          </button>
         </div>
       } @else {
-        <p class="instruction">Select a rack, dock or zone from the list or directly in the scene.</p>
+        <p class="instruction">
+          Select a rack, dock or zone from the list or directly in the scene.
+        </p>
       }
     </div>
 
     <p class="disclosure">
       <strong>Visual blueprint only.</strong>
-      Saved positions are tied to this warehouse, but they do not identify product storage bins.
-      All ERP inventory, order and fleet records remain unchanged.
+      Saved positions are tied to this warehouse, but they do not identify product storage bins. All
+      ERP inventory, order and fleet records remain unchanged.
     </p>
   </aside>
 </div>

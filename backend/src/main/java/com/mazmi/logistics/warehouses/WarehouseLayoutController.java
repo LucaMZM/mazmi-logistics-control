@@ -40,8 +40,7 @@ public class WarehouseLayoutController {
     PICKING
   }
 
-  public record Item(
-      String id, Kind kind, Integer x, Integer z, Integer orientation) {}
+  public record Item(String id, Kind kind, Integer x, Integer z, Integer orientation) {}
 
   public record Save(@NotNull Long revision, @NotNull List<@Valid Item> items) {}
 
@@ -63,8 +62,7 @@ public class WarehouseLayoutController {
   @PutMapping
   @PreAuthorize("hasAnyRole('ADMIN','OPERATOR')")
   @Transactional
-  public Layout save(
-      @PathVariable UUID warehouseId, @Valid @RequestBody Save request) {
+  public Layout save(@PathVariable UUID warehouseId, @Valid @RequestBody Save request) {
     requireWarehouse(warehouseId);
     validate(request);
     List<Item> items = List.copyOf(request.items());
@@ -124,8 +122,7 @@ public class WarehouseLayoutController {
         || request.revision() == null
         || request.revision() < 0
         || request.items() == null
-        || request.items().size() > 60)
-      throw invalid();
+        || request.items().size() > 60) throw invalid();
     var ids = new HashSet<String>();
     var accepted = new ArrayList<Item>();
     for (Item item : request.items()) {
@@ -143,15 +140,13 @@ public class WarehouseLayoutController {
           || item.z() > 6
           || item.orientation() % 90 != 0
           || item.orientation() < 0
-          || item.orientation() > 270)
-        throw invalid();
+          || item.orientation() > 270) throw invalid();
       if (item.kind() == Kind.DOCK && item.z() < 4) throw invalid();
       for (Item other : accepted) {
         double[] a = footprint(item);
         double[] b = footprint(other);
         if (Math.abs(item.x() - other.x()) < (a[0] + b[0]) / 2 + 0.25
-            && Math.abs(item.z() - other.z()) < (a[1] + b[1]) / 2 + 0.25)
-          throw invalid();
+            && Math.abs(item.z() - other.z()) < (a[1] + b[1]) / 2 + 0.25) throw invalid();
       }
       accepted.add(item);
     }
@@ -179,8 +174,7 @@ public class WarehouseLayoutController {
       }
       default -> throw invalid();
     }
-    if (item.orientation() == 90 || item.orientation() == 270)
-      return new double[] {depth, width};
+    if (item.orientation() == 90 || item.orientation() == 270) return new double[] {depth, width};
     return new double[] {width, depth};
   }
 

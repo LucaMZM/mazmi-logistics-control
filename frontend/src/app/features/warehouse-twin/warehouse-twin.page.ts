@@ -54,10 +54,9 @@ import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-lo
       </button>
       <a routerLink="/inventory">Open inventory</a>
       @if (auth.canOperate()) {
-        <a
-          routerLink="/warehouse-editor"
-          [queryParams]="{ warehouse: store.warehouseId() }"
-        >Edit 3D layout</a>
+        <a routerLink="/warehouse-editor" [queryParams]="{ warehouse: store.warehouseId() }"
+          >Edit 3D layout</a
+        >
       }
     </div>
     @if (store.recordsLoading()) {

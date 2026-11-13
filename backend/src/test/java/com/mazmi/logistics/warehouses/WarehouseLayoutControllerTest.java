@@ -30,11 +30,9 @@ class WarehouseLayoutControllerTest {
   @Test
   void rejectsOverlappingObjectsAndDuplicateIdentifiers() {
     var rack =
-        new WarehouseLayoutController.Item(
-            "rack-1", WarehouseLayoutController.Kind.RACK, 0, 0, 0);
+        new WarehouseLayoutController.Item("rack-1", WarehouseLayoutController.Kind.RACK, 0, 0, 0);
     var overlap =
-        new WarehouseLayoutController.Item(
-            "rack-2", WarehouseLayoutController.Kind.RACK, 2, 0, 90);
+        new WarehouseLayoutController.Item("rack-2", WarehouseLayoutController.Kind.RACK, 2, 0, 90);
     assertThatThrownBy(
             () ->
                 WarehouseLayoutController.validate(
@@ -76,18 +74,19 @@ class WarehouseLayoutControllerTest {
     WarehouseRepository warehouses = mock(WarehouseRepository.class);
     UUID id = UUID.randomUUID();
     when(warehouses.existsById(id)).thenReturn(true);
-    when(jdbc.update(anyString(), org.mockito.ArgumentMatchers.eq(id),
-            org.mockito.ArgumentMatchers.eq(3L)))
+    when(jdbc.update(
+            anyString(), org.mockito.ArgumentMatchers.eq(id), org.mockito.ArgumentMatchers.eq(3L)))
         .thenReturn(0);
     var controller = new WarehouseLayoutController(jdbc, warehouses);
     assertThatThrownBy(() -> controller.save(id, new WarehouseLayoutController.Save(3L, List.of())))
         .isInstanceOfSatisfying(
             BusinessException.class,
             error -> assertThat(error.getStatus()).isEqualTo(HttpStatus.CONFLICT));
-    verify(jdbc).update(
-        "UPDATE warehouse_visual_layouts SET revision = revision + 1, updated_at = NOW()"
-            + " WHERE warehouse_id = ? AND revision = ?",
-        id,
-        3L);
+    verify(jdbc)
+        .update(
+            "UPDATE warehouse_visual_layouts SET revision = revision + 1, updated_at = NOW()"
+                + " WHERE warehouse_id = ? AND revision = ?",
+            id,
+            3L);
   }
 }

@@ -1,7 +1,10 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import type { LayoutItem, WarehouseVisualLayout } from '../../features/warehouse-editor/warehouse-layout.model';
+import type {
+  LayoutItem,
+  WarehouseVisualLayout,
+} from '../../features/warehouse-editor/warehouse-layout.model';
 import {
   Customer,
   Dashboard,

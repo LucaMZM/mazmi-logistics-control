@@ -47,8 +47,14 @@ describe('Warehouse Editor page', () => {
     api = {
       warehouses: vi.fn(() => of([warehouse])),
       warehouseVisualLayout: vi.fn(() => of(savedLayout)),
-      saveWarehouseVisualLayout: vi.fn((id: string, request: { revision: number; items: unknown[] }) =>
-        of({ warehouseId: id, revision: request.revision + 1, saved: true, items: request.items }),
+      saveWarehouseVisualLayout: vi.fn(
+        (id: string, request: { revision: number; items: unknown[] }) =>
+          of({
+            warehouseId: id,
+            revision: request.revision + 1,
+            saved: true,
+            items: request.items,
+          }),
       ),
     };
     TestBed.configureTestingModule({

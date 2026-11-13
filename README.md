@@ -47,6 +47,16 @@ Los datos del perfil demo son ficticios. Las posiciones de los envíos se calcul
 
 ## Capturas
 
+### Warehouse Twin
+
+Almacén isométrico con inventario real, selección de zonas y una secuencia de carretilla y carga. El layout interior y los movimientos son ilustrativos: no modifican registros del ERP.
+
+![Warehouse Twin con nave abierta, estanterías, carretilla, expedición e inventario verificado](docs/screenshots/warehouse-overview.png)
+
+[Estanterías](docs/screenshots/warehouse-storage.png) · [Maniobra de carretilla](docs/screenshots/warehouse-manoeuvre.png) · [Muelles y expedición](docs/screenshots/warehouse-dispatch.png) · [Vista móvil](docs/screenshots/warehouse-mobile.png)
+
+Disponible en `/warehouse-twin`. [Controles, arquitectura y límites de representación](docs/warehouse-twin.md).
+
 ### Centro de operaciones
 
 ![Centro de operaciones con pulso logístico, cola de atención, mapa de envíos e inventario crítico](docs/screenshots/dashboard.png)

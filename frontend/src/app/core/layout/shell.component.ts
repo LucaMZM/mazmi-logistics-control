@@ -42,9 +42,11 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
             @if (item.path === '/customers') {
               <p>Resources</p>
             }
-            <a [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page"
-              ><app-icon [name]="item.icon" /><span>{{ item.label }}</span></a
-            >
+            @if (item.path !== '/warehouse-editor' || auth.canOperate()) {
+              <a [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page"
+                ><app-icon [name]="item.icon" /><span>{{ item.label }}</span></a
+              >
+            }
           }
           @if (auth.user()?.role === 'ADMIN') {
             <p>Administration</p>

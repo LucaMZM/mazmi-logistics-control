@@ -51,10 +51,12 @@ La ruta usa `operatorGuard`; el endpoint de escritura vuelve a imponer autorizac
 
 Los componentes conservan botones y selectores HTML, mensajes de error y de estado, y no dependen del color del canvas como única señal de interacción.
 
-## Validación prevista
+## Validación real
 
-Los tests del modelo cubren las ubicaciones permitidas, colisiones, rotaciones y unicidad. Los tests de Angular verifican carga, edición, guardado con revisión, conflicto y fallback WebGL. Los tests Java cubren las reglas geométricas, versiones caducadas y errores.
+Los tests del modelo cubren las ubicaciones permitidas, colisiones, rotaciones y unicidad. Los tests de Angular verifican carga, edición, guardado con revisión, conflicto y fallback WebGL. Los tests Java incluyen validación y persistencia en PostgreSQL real mediante Testcontainers.
 
-El CI ejecuta formato, lint, tipos, tests de frontend/backend y compilación. Es recomendable comprobar el editor en Chromium real con base de datos temporal y hacer una evaluación adicional de ergonomía y rendimiento sobre el MacBook Air M2 antes de un uso empresarial.
+CI superado: **111 tests frontend y 65 backend**, formato, lint, tipos, compilación y escaneo de secretos. La [validación gráfica en GitHub Actions](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43460833945) levantó PostgreSQL, Spring Boot y Angular con Chromium (SwiftShader). Comprobó el guardado persistente y su lectura posterior, la protección frente a dos editores simultáneos, recuperación de WebGL, diseño móvil y ausencia de alteraciones del inventario. Las capturas `warehouse-editor-overview.png`, `warehouse-editor-saved.png` y `warehouse-editor-mobile.png` están en el artifact `portfolio-screenshots` de ese run (retención temporal).
+
+Pendiente una medición de rendimiento y revisión ergonómica sobre la GPU física del MacBook Air M2; las pruebas con SwiftShader no equivalen a una medición de FPS en ese equipo.
 
 **Limitaciones:** sin almacenamiento físico por producto, sin plano topográfico real, sin mover racks de la simulación Warehouse Twin en esta fase, sin medición de FPS sobre la GPU del Mac. El editor es una configuración espacial ilustrativa persistente.

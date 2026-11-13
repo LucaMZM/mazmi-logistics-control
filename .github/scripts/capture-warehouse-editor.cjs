@@ -128,6 +128,13 @@ async function main() {
     await page.getByRole('button', { name: 'Retry 3D', exact: true }).click();
     await canvas.waitFor();
 
+    // The concurrency conflict was intentionally tested above. Reload the
+    // authoritative revision before taking the portfolio mobile screenshot.
+    page.once('dialog', (dialog) => dialog.accept());
+    await page.getByRole('button', { name: 'Reload', exact: true }).click();
+    await page.getByText('Saved blueprint', { exact: false }).waitFor();
+    await page.waitForFunction(() => !document.querySelector('.notice.error'));
+
     await page.setViewportSize({ width: 390, height: 844 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.evaluate(() => window.scrollTo(0, 0));

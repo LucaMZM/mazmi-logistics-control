@@ -134,6 +134,9 @@ async function main() {
     await page.getByRole('button', { name: 'Reload', exact: true }).click();
     await page.getByText('Saved blueprint', { exact: false }).waitFor();
     await page.waitForFunction(() => !document.querySelector('.notice.error'));
+    const dismissToast = page.getByRole('button', { name: 'Dismiss', exact: true });
+    if (await dismissToast.count()) await dismissToast.click();
+    await page.locator('.mat-mdc-snack-bar-container').waitFor({ state: 'hidden' });
 
     await page.setViewportSize({ width: 390, height: 844 });
     await page.emulateMedia({ reducedMotion: 'reduce' });

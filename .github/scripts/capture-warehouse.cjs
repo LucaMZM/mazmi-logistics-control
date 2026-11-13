@@ -63,6 +63,10 @@ async function main() {
     await page.getByRole('link', { name: 'Open order record' }).waitFor();
     assert((await page.locator('.warehouse-metrics').innerText()).includes(warehouse.code));
     assert.equal(await page.locator('.warehouse-inventory tbody tr').count(), before.totalElements);
+    for (const [label, field] of [['Available units', 'available'], ['Reserved units', 'reserved']]) {
+      const displayed = await page.locator('.warehouse-metrics div').filter({ hasText: label }).locator('strong').innerText();
+      assert.equal(Number(displayed.replaceAll(',', '')), before.content.reduce((sum, row) => sum + row[field], 0));
+    }
     await page.getByRole('button', { name: 'Open 3D warehouse', exact: true }).click();
     await page.getByRole('button', { name: 'Overview', exact: true }).waitFor();
     await page.waitForFunction(() => !document.querySelector('.warehouse-controls button').disabled);
@@ -74,9 +78,18 @@ async function main() {
       await page.screenshot({ path: path.join(output, name), fullPage });
     };
     await shot('warehouse-overview.png');
+    const canvasBounds = await page.locator('.warehouse-scene canvas').boundingBox();
+    let picked = false;
+    for (const [x, y] of [[0.5, 0.4], [0.6, 0.5], [0.4, 0.4]]) {
+      await page.locator('.warehouse-scene canvas').click({ position: { x: canvasBounds.width * x, y: canvasBounds.height * y } });
+      await page.waitForTimeout(350);
+      if (await page.locator('.warehouse-zones button[aria-pressed="true"]').count()) { picked = true; break; }
+    }
+    assert(picked, 'Raycasting must select a real scene zone');
     const storage = page.getByRole('button', { name: 'Storage racks', exact: true });
     await storage.focus();
     await page.keyboard.press('Enter');
+    await page.waitForFunction(() => [...document.querySelectorAll('.warehouse-zones button')].some(button => button.textContent.trim() === 'Storage racks' && button.getAttribute('aria-pressed') === 'true'));
     assert.equal(await storage.getAttribute('aria-pressed'), 'true');
     await shot('warehouse-storage.png');
     await page.getByRole('button', { name: 'Show roof', exact: true }).click();
@@ -86,6 +99,7 @@ async function main() {
     await page.getByRole('button', { name: 'Play sequence', exact: true }).click();
     await page.waitForFunction(() => document.querySelector('progress').value >= 40, { }, { timeout: 120000 });
     await page.getByRole('button', { name: 'Pause sequence', exact: true }).click();
+    await page.getByRole('button', { name: 'Play sequence', exact: true }).waitFor();
     const paused = await page.locator('progress').evaluate(el => el.value);
     await shot('warehouse-manoeuvre.png');
     await page.waitForTimeout(600);
@@ -96,6 +110,7 @@ async function main() {
     await page.getByRole('button', { name: 'Dispatch docks', exact: true }).click();
     await shot('warehouse-dispatch.png');
     await page.getByRole('button', { name: 'Reset sequence', exact: true }).click();
+    await page.waitForFunction(() => document.querySelector('progress').value === 0);
     assert.equal(await page.locator('progress').evaluate(el => el.value), 0);
     const after = await get(`inventory?warehouse=${warehouse.id}&size=100`);
     const stock = rows => rows.map(({ id, onHand, reserved, available }) => ({ id, onHand, reserved, available })).sort((a,b) => a.id.localeCompare(b.id));
@@ -129,8 +144,8 @@ async function main() {
       source: 'Real demo PostgreSQL, Spring Boot and Angular application',
       browser: browser.version(), desktop: '1440x1100', mobile: '390x844',
       warehouseCode: warehouse.code, orderNumber: order.orderNumber,
-      checks: ['authenticated access', 'warehouse and inventory identity', 'compatible order',
-        'WebGL scene', 'keyboard zone selection', 'roof toggle', 'pause/resume/reset',
+      checks: ['authenticated access', 'warehouse and inventory identity', 'verified metrics', 'compatible order',
+        'WebGL scene', 'raycasting selection', 'keyboard zone selection', 'roof toggle', 'pause/resume/reset',
         'complete preparation and loading sequence', 'unchanged inventory and order',
         'zero API mutations', 'WebGL context recovery', 'reduced motion',
         'mobile overflow', 'navigation back to ERP'],

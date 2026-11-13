@@ -1,7 +1,16 @@
-import { Injectable, signal } from '@angular/core';
-import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
+import { Injectable, InjectionToken, inject, signal } from '@angular/core';
+import { Client, IMessage, StompConfig, StompSubscription } from '@stomp/stompjs';
 import { Observable, Subject } from 'rxjs';
 import { RealtimeUpdate } from '../../shared/models/models';
+
+export type RealtimeClient = Pick<
+  Client,
+  'active' | 'connected' | 'activate' | 'deactivate' | 'subscribe'
+>;
+export const STOMP_CLIENT_FACTORY = new InjectionToken<(config: StompConfig) => RealtimeClient>(
+  'STOMP client factory',
+  { providedIn: 'root', factory: () => (config) => new Client(config) },
+);
 
 @Injectable({ providedIn: 'root' })
 export class RealtimeService {
@@ -11,7 +20,8 @@ export class RealtimeService {
   private readonly dashboardSubject = new Subject<RealtimeUpdate>();
   private readonly connectedSubject = new Subject<void>();
   private dashboardSubscription?: StompSubscription;
-  private client?: Client;
+  private client?: RealtimeClient;
+  private readonly createClient = inject(STOMP_CLIENT_FACTORY);
   private connectionRevision = 0;
   readonly status = signal<'offline' | 'connecting' | 'connected'>('offline');
 
@@ -19,7 +29,7 @@ export class RealtimeService {
     if (this.client?.active) return;
     const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
     this.status.set('connecting');
-    const client = new Client({
+    const client = this.createClient({
       brokerURL: `${protocol}://${location.host}/ws`,
       reconnectDelay: 2500,
       connectionTimeout: 6000,

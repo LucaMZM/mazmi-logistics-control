@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { RealtimeUpdate } from '../../shared/models/models';
-import { RealtimeService } from './realtime.service';
+import { IFrame, IMessage, StompConfig } from '@stomp/stompjs';
+import { RealtimeClient, RealtimeService, STOMP_CLIENT_FACTORY } from './realtime.service';
 
 interface MockClientConfig {
   reconnectDelay: number;
@@ -22,38 +23,62 @@ interface MockClient {
   subscriptions: MockSubscription[];
 }
 
-const stomp = vi.hoisted(() => ({ instances: [] as object[] }));
+const stomp = { instances: [] as MockClient[] };
+const connectedFrame: IFrame = {
+  command: 'CONNECTED',
+  headers: {},
+  body: '',
+  binaryBody: new Uint8Array(),
+  isBinaryBody: false,
+};
 
-vi.mock('@stomp/stompjs', () => ({
-  Client: class {
-    active = false;
-    connected = false;
-    readonly subscriptions: MockSubscription[] = [];
-    constructor(readonly config: MockClientConfig) {
-      stomp.instances.push(this);
-    }
-    activate(): void {
-      this.active = true;
-    }
-    deactivate(): Promise<void> {
-      this.active = false;
-      this.connected = false;
-      return Promise.resolve();
-    }
-    subscribe(destination: string, callback: (message: { body: string }) => void) {
-      const subscription = { destination, callback, unsubscribe: vi.fn() };
-      this.subscriptions.push(subscription);
-      return subscription;
-    }
-  },
-}));
+class TestClient implements RealtimeClient {
+  active = false;
+  connected = false;
+  readonly subscriptions: MockSubscription[] = [];
+  readonly config: MockClientConfig;
+  constructor(config: StompConfig) {
+    this.config = {
+      reconnectDelay: config.reconnectDelay ?? 0,
+      onConnect: () => config.onConnect?.(connectedFrame),
+      onWebSocketClose: () => config.onWebSocketClose?.(new CloseEvent('close')),
+    };
+    stomp.instances.push(this);
+  }
+  activate(): void {
+    this.active = true;
+  }
+  deactivate(): Promise<void> {
+    this.active = false;
+    this.connected = false;
+    return Promise.resolve();
+  }
+  subscribe(destination: string, callback: (message: IMessage) => void) {
+    const subscription = {
+      id: destination,
+      destination,
+      callback: ({ body }: { body: string }) =>
+        callback({ ...connectedFrame, body, ack: vi.fn(), nack: vi.fn() }),
+      unsubscribe: vi.fn(),
+    };
+    this.subscriptions.push(subscription);
+    return subscription;
+  }
+}
 
 describe('RealtimeService', () => {
   let service: RealtimeService;
 
   beforeEach(() => {
     stomp.instances.length = 0;
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: STOMP_CLIENT_FACTORY,
+          useValue: (config: StompConfig) => new TestClient(config),
+        },
+      ],
+    });
     service = TestBed.inject(RealtimeService);
   });
 

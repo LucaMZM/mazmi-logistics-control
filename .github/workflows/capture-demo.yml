@@ -1,7 +1,18 @@
 name: Capture demo screenshots
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/src/app/features/control-room/**'
+      - '.github/scripts/capture-control-room.cjs'
+      - '.github/workflows/capture-demo.yml'
   workflow_dispatch:
+    inputs:
+      control_room_only:
+        description: Validate and capture Control Room 3D with live demo records
+        type: boolean
+        default: false
     inputs:
       warehouse_only:
         description: Capture and validate Warehouse Twin with real demo records
@@ -54,23 +65,29 @@ jobs:
       - name: Build and start the full application
         run: docker compose --env-file "$RUNNER_TEMP/capture.env" -p mazmi-capture up --build --detach --wait --wait-timeout 240
       - name: Capture desktop and verify mobile
-        if: ${{ !inputs.warehouse_only && !inputs.world_map_only }}
+        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.warehouse_only && !inputs.world_map_only && !inputs.control_room_only }}
         env:
           NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
           CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
         run: node .github/scripts/capture-demo.cjs
       - name: Validate and capture Warehouse Twin
-        if: ${{ inputs.warehouse_only }}
+        if: ${{ inputs.warehouse_only && !inputs.control_room_only }}
         env:
           NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
           CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
         run: node .github/scripts/capture-warehouse.cjs
       - name: Validate and capture World Map
-        if: ${{ inputs.world_map_only }}
+        if: ${{ inputs.world_map_only && !inputs.control_room_only }}
         env:
           NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
           CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
         run: node .github/scripts/capture-world-map.cjs
+      - name: Validate and capture Control Room 3D
+        if: ${{ github.event_name == 'push' || inputs.control_room_only }}
+        env:
+          NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
+          CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
+        run: node .github/scripts/capture-control-room.cjs
       - uses: actions/upload-artifact@v7
         if: always()
         with:

@@ -37,6 +37,7 @@ import {
   selector: 'app-warehouse-editor-page',
   imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(window:beforeunload)': 'beforeUnload($event)' },
   templateUrl: './warehouse-editor.page.html',
   styleUrl: './warehouse-editor.page.scss',
 })

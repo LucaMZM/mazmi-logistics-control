@@ -67,9 +67,13 @@ async function main() {
     await page.getByLabel('Select layout object').selectOption('rack-1');
     await page.getByRole('button', { name: '→', exact: true }).click();
     await page.getByText('Unsaved layout changes.', { exact: false }).waitFor();
-    assert((await page.locator('dl').innerText()).includes('-6 / -3'));
+    await page.waitForFunction(
+      () => [...document.querySelectorAll('.item-controls dd')][1]?.textContent?.trim() === '-6 / -3',
+    );
     await page.getByRole('button', { name: 'Rotate object 90°' }).click();
-    assert((await page.locator('dl').innerText()).includes('90°'));
+    await page.waitForFunction(
+      () => [...document.querySelectorAll('.item-controls dd')][2]?.textContent?.trim() === '90°',
+    );
     await page.getByRole('button', { name: 'Save layout', exact: true }).click();
     await page.getByText('Visual layout saved', { exact: false }).waitFor();
     const firstSaved = await fetchJSON(`warehouses/${warehouse.id}/visual-layout`);
@@ -82,7 +86,9 @@ async function main() {
     await page.getByRole('heading', { name: 'Warehouse Editor', exact: true }).waitFor();
     await page.getByText('Saved blueprint', { exact: false }).waitFor();
     await page.getByLabel('Select layout object').selectOption('rack-1');
-    assert((await page.locator('dl').innerText()).includes('-6 / -3'));
+    await page.waitForFunction(
+      () => [...document.querySelectorAll('.item-controls dd')][1]?.textContent?.trim() === '-6 / -3',
+    );
 
     // Two authenticated browser tabs must not overwrite each other.
     const secondPage = await context.newPage();

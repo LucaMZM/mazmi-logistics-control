@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { FeedbackStateComponent } from '../../shared/components/feedback-state.component';
 import { LoadingStateComponent } from '../../shared/components/loading-state.component';
-import { OperationsMapComponent } from '../../shared/components/operations-map.component';
+import { OperationsWorldMapComponent } from '../../shared/world-map/operations-world-map.component';
 import { PageHeaderComponent } from '../../shared/components/page-header.component';
 import { VolumeChartComponent } from '../../shared/components/volume-chart.component';
 import { DashboardStore } from './dashboard.store';
@@ -18,7 +18,7 @@ import { DashboardStore } from './dashboard.store';
     MatButtonModule,
     FeedbackStateComponent,
     LoadingStateComponent,
-    OperationsMapComponent,
+    OperationsWorldMapComponent,
     PageHeaderComponent,
     VolumeChartComponent,
   ],
@@ -129,7 +129,7 @@ import { DashboardStore } from './dashboard.store';
             <span class="live-dot">SIMULATED</span>
           </header>
           <div class="map-wrap">
-            <app-operations-map [points]="mapPoints()" />
+            <app-operations-world-map [points]="mapPoints()" />
             @if (!mapPoints().length) {
               <div class="map-empty">No active shipments to display.</div>
             }
@@ -395,8 +395,7 @@ import { DashboardStore } from './dashboard.store';
         flex: 1;
         min-height: 420px;
       }
-      .map-wrap app-operations-map {
-        display: block;
+      .map-wrap app-operations-world-map {
         height: 100%;
       }
       .map-empty {

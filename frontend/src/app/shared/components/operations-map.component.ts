@@ -8,15 +8,9 @@ import {
   ViewChild,
 } from '@angular/core';
 import * as L from 'leaflet';
+import { MapView, WorldPoint } from '../world-map/world-map.model';
 
-export interface OperationMapPoint {
-  id: string;
-  latitude: number;
-  longitude: number;
-  label: string;
-  kind?: 'origin' | 'destination' | 'vehicle';
-  health?: string;
-}
+export type OperationMapPoint = WorldPoint;
 
 @Component({
   selector: 'app-operations-map',
@@ -104,6 +98,7 @@ export class OperationsMapComponent implements AfterViewInit, OnChanges, OnDestr
   @ViewChild('map', { static: true }) mapElement!: ElementRef<HTMLDivElement>;
   @Input() points: OperationMapPoint[] = [];
   @Input() route: Array<[number, number]> = [];
+  @Input() initialView?: MapView;
   private map?: L.Map;
   private layer = L.layerGroup();
   private readonly markers = new Map<string, L.Marker>();
@@ -126,6 +121,18 @@ export class OperationsMapComponent implements AfterViewInit, OnChanges, OnDestr
     this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize({ pan: false }));
     this.resizeObserver.observe(this.mapElement.nativeElement);
     this.render();
+    if (this.initialView)
+      this.map.setView(
+        [this.initialView.latitude, this.initialView.longitude],
+        this.initialView.zoom,
+        { animate: false },
+      );
+  }
+  view(): MapView | undefined {
+    const center = this.map?.getCenter();
+    return center && this.map
+      ? { latitude: center.lat, longitude: center.lng, zoom: this.map.getZoom() }
+      : undefined;
   }
   ngOnChanges(): void {
     this.render();

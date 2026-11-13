@@ -30,6 +30,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "maplibre-gl-worker.mjs",
+                "input": "node_modules/maplibre-gl/dist",
+                "output": "assets/maplibre"
+              },
+              {
+                "glob": "maplibre-gl.css",
+                "input": "node_modules/maplibre-gl/dist",
+                "output": "assets/maplibre"
               }
             ],
             "styles": ["node_modules/leaflet/dist/leaflet.css", "src/styles.scss"]

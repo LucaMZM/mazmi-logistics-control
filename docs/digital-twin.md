@@ -8,6 +8,12 @@ Seleccionar un envío desde su marcador o la lista HTML abre su ficha y permite 
 
 ### Arquitectura geográfica
 
+![World Map con vehículo enfocado y marcadores despejados](screenshots/world-map-selected.png)
+
+[General](screenshots/world-map-overview.png) · [Tracking simulado](screenshots/world-map-tracking.png) · [Móvil](screenshots/world-map-mobile.png)
+
+Capturas auténticas de [la ejecución 43385192310](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43385192310): Chromium 141 / SwiftShader, Ubuntu, PostgreSQL y backend reales; escritorio 1440×1100 y móvil 390×844. Se recibieron cuatro mensajes STOMP, se verificaron identidad HTTP, cambio 2D/3D, pausa, seguimiento cancelado por gesto y recuperación de contexto; cero errores JavaScript. No es una medición de rendimiento en GPU física.
+
 - `OperationsWorldMapComponent`: presentación, selección, carga cancelable del motor, errores, recuperación y alternativa 2D.
 - `world-map-engine.ts`: MapLibre controla proyección Mercator, cámara, teselas y render; una capa personalizada Three.js comparte su canvas y contexto WebGL2. No hay segundo canvas ni un RAF paralelo.
 - `MotionTrack`: interpola únicamente muestras simuladas aceptadas durante 900 ms. Descarta retrocesos de progreso, estados terminales y timestamps antiguos cuando están disponibles. Una respuesta repetida no reinicia el movimiento. Pausa, entrega, pestaña oculta y movimiento reducido ajustan directamente la posición final. El umbral normal de salto es 25 km; con origen/destino verificados y avance de hasta 10 puntos porcentuales se adapta al trayecto, con un máximo de 100 km. Así los ticks interurbanos acelerados del demo pueden interpolarse, pero una posición incompatible salta directamente. No equivale a velocidad física ni a navegación vial.

@@ -51,6 +51,12 @@ Los datos del perfil demo son ficticios. Las posiciones de los envíos se calcul
 
 ## Capturas
 
+### World Map 3D
+
+![Envío seleccionado con vehículo 3D y datos reales de asignación](docs/screenshots/world-map-selected.png)
+
+[Vista general](docs/screenshots/world-map-overview.png) · [Seguimiento simulado](docs/screenshots/world-map-tracking.png) · [Vista móvil](docs/screenshots/world-map-mobile.png)
+
 ### Centro de operaciones
 
 ![Centro de operaciones con pulso logístico, cola de atención, mapa de envíos e inventario crítico](docs/screenshots/dashboard.png)

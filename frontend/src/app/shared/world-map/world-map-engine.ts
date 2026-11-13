@@ -18,6 +18,7 @@ export function geographicPosition(longitude: number, latitude: number) {
 }
 
 class VehicleLayer implements CustomLayerInterface {
+  selected: string | null = null;
   readonly id = 'mazmi-vehicles';
   readonly type = 'custom';
   readonly renderingMode = '3d';
@@ -74,12 +75,12 @@ class VehicleLayer implements CustomLayerInterface {
     for (const [id, model] of this.models) {
       const sample = this.tracks.get(id)?.sample(now);
       if (!sample) continue;
-      model.visible = this.map.getZoom() >= 16;
+      model.visible = this.map.getZoom() >= 16 && (!this.selected || id === this.selected);
       const coordinate = geographicPosition(sample.longitude, sample.latitude);
       // A bounded visual aid (1–4×); at regional zoom use markers, never kilometre-sized vans.
       const scale =
         coordinate.meterInMercatorCoordinateUnits() *
-        Math.min(4, Math.max(1, 2 ** (19 - this.map.getZoom())));
+        Math.min(4, Math.max(1, 2 ** (20 - this.map.getZoom())));
       model.matrix
         .makeTranslation(
           coordinate.x - this.origin.x,
@@ -237,12 +238,29 @@ class WorldMapEngine implements WorldMapPort {
       const sample = track.sample(now);
       moving ||= sample.moving;
       const marker = this.markers.get(id);
+      const focused = this.selected ? this.tracks.get(this.selected)?.sample(now) : undefined;
+      const screen = this.map.project([sample.longitude, sample.latitude]);
+      const focusScreen = focused
+        ? this.map.project([focused.longitude, focused.latitude])
+        : undefined;
+      if (marker) {
+        const obscuresFocus =
+          id !== this.selected &&
+          track.point.kind === 'vehicle' &&
+          focusScreen &&
+          Math.hypot(screen.x - focusScreen.x, screen.y - focusScreen.y) < 70 &&
+          this.map.getZoom() >= 16;
+        marker.getElement().style.visibility = obscuresFocus ? 'hidden' : 'visible';
+        marker
+          .getElement()
+          .classList.toggle('world-marker-model', hasVan(track.point) && this.map.getZoom() >= 16);
+      }
       marker?.setLngLat([sample.longitude, sample.latitude]);
       marker?.setOffset(
         track.point.kind !== 'vehicle'
-          ? [-24, 18]
+          ? [-48, 32]
           : hasVan(track.point) && this.map.getZoom() >= 16
-            ? [0, -34]
+            ? [0, -48]
             : [0, 0],
       );
     }
@@ -272,6 +290,7 @@ class WorldMapEngine implements WorldMapPort {
     const ids = new Set(valid.map((p) => p.id));
     for (const id of this.tracks.keys())
       if (!ids.has(id)) {
+        if (this.selected === id) this.select(null);
         this.tracks.delete(id);
         this.markers.get(id)?.remove();
         this.markers.delete(id);
@@ -321,6 +340,7 @@ class WorldMapEngine implements WorldMapPort {
   }
   select(id: string | null, instant = true) {
     this.selected = id;
+    this.layer.selected = id;
     this.markers.forEach((m, key) =>
       m.getElement().setAttribute('aria-pressed', String(key === id)),
     );

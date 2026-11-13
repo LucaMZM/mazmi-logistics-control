@@ -406,6 +406,13 @@ app-operations-world-map .world-marker[data-kind='destination'] {
   border-radius: 50%;
   background: #526b7a;
 }
+app-operations-world-map .world-marker.world-marker-model {
+  width: 14px;
+  height: 14px;
+  min-height: 0;
+  font-size: 0;
+  border-radius: 50%;
+}
 app-operations-world-map .world-marker[data-health='DELAYED'] {
   background: #9b443c;
 }

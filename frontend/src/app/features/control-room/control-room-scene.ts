@@ -237,7 +237,10 @@ export class ControlRoomScene implements ControlRoomScenePort {
     this.pointerStart.set(event.clientX, event.clientY);
   };
   private readonly up = (event: PointerEvent) => {
-    if (!this.renderer || this.pointerStart.distanceTo(new T.Vector2(event.clientX, event.clientY)) > 5)
+    if (
+      !this.renderer ||
+      this.pointerStart.distanceTo(new T.Vector2(event.clientX, event.clientY)) > 5
+    )
       return;
     const station = this.hit(event);
     if (station) this.events.select(station);

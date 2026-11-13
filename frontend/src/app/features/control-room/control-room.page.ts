@@ -19,10 +19,7 @@ import {
   controlRoomSnapshot,
   metricLabel,
 } from './control-room.model';
-import {
-  CONTROL_ROOM_SCENE_LOADER,
-  ControlRoomScenePort,
-} from './control-room-scene-loader';
+import { CONTROL_ROOM_SCENE_LOADER, ControlRoomScenePort } from './control-room-scene-loader';
 
 @Component({
   selector: 'app-control-room-page',
@@ -42,8 +39,8 @@ export class ControlRoomPage implements AfterViewInit, OnDestroy {
   readonly metrics = computed(() => controlRoomSnapshot(this.store.dashboard()));
   readonly label = metricLabel;
   readonly selectedStation = signal<ControlRoomStation>('operations');
-  readonly selectedConfig = computed(
-    () => this.stations.find((item) => item.id === this.selectedStation())!,
+  readonly selectedConfig = computed(() =>
+    this.stations.find((item) => item.id === this.selectedStation())!,
   );
   readonly sceneLoading = signal(false);
   readonly ready = signal(false);

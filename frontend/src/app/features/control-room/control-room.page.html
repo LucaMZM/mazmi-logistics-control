@@ -91,7 +91,9 @@
         }
         @case ('fleet') {
           <p>{{ label(metrics().activeShipments) }} active shipments reported by the ERP.</p>
-          <p>Fleet Twin shows a separate illustrative yard; the world map tracks simulated positions.</p>
+          <p>
+            Fleet Twin shows a separate illustrative yard; the world map tracks simulated positions.
+          </p>
         }
         @case ('warehouse') {
           <p>{{ label(metrics().criticalPositions) }} critical inventory positions.</p>

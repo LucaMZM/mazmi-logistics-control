@@ -51,6 +51,12 @@ Los datos del perfil demo son ficticios. Las posiciones de los envíos se calcul
 
 ## Capturas
 
+### Control Room 3D
+
+La sala de control isométrica une los indicadores reales de operaciones y el acceso a Fleet Twin, World Map y Warehouse Twin. Se abre desde **Control Room** en el menú lateral o directamente en `/control-room`. Los monitores 3D leen las mismas métricas verificadas de `/api/v1/dashboard`; no representan cámaras, oficinas reales ni telemetría adicional.
+
+[Arquitectura, controles, privacidad y límites de Control Room](docs/control-room.md).
+
 ### Warehouse Twin
 
 Almacén isométrico con inventario real, selección de zonas y una secuencia de carretilla y carga. El layout interior y los movimientos son ilustrativos: no modifican registros del ERP.

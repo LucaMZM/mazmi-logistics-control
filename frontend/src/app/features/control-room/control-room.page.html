@@ -1,0 +1,118 @@
+<header class="intro">
+  <div>
+    <p class="eyebrow">MAZMI DIGITAL TWIN / 04</p>
+    <h1>Control Room</h1>
+    <p>One operational overview. Three connected logistics worlds.</p>
+  </div>
+  <a class="back-link" routerLink="/dashboard">Open command center</a>
+</header>
+
+<section class="summary" aria-label="Verified operational metrics">
+  <div>
+    <span>Active shipments</span>
+    <strong>{{ label(metrics().activeShipments) }}</strong>
+  </div>
+  <div>
+    <span>Delayed shipments</span>
+    <strong>{{ label(metrics().delayedShipments) }}</strong>
+  </div>
+  <div>
+    <span>Open incidents</span>
+    <strong>{{ label(metrics().openIncidents) }}</strong>
+  </div>
+  <div>
+    <span>Critical inventory positions</span>
+    <strong>{{ label(metrics().criticalPositions) }}</strong>
+  </div>
+</section>
+
+@if (store.loading() && !store.dashboard()) {
+  <p role="status" class="inline-notice">Loading operational data…</p>
+}
+@if (store.loadError()) {
+  <p role="alert" class="inline-notice">
+    Live operational data could not be refreshed. Any previously loaded numbers are retained.
+    <button type="button" (click)="refresh()">Retry data</button>
+  </p>
+}
+
+<div class="room-layout">
+  <section class="world" aria-label="Interactive control room illustration">
+    <div class="scene" #host></div>
+    <div class="world-label">
+      <strong>MAZMI Operations HQ</strong>
+      <span>Illustrative room · Screens display dashboard records</span>
+    </div>
+    @if (sceneLoading()) {
+      <div class="scene-message" role="status">Preparing the control room…</div>
+    }
+    @if (sceneError()) {
+      <div class="scene-message" role="alert">
+        <p>{{ sceneError() }}</p>
+        <button type="button" (click)="openScene()">Retry 3D control room</button>
+      </div>
+    }
+    <div class="scene-controls">
+      <button type="button" (click)="overview()" [disabled]="!ready()">Overview</button>
+      <button type="button" (click)="rotate()" [disabled]="!ready()">Rotate</button>
+      <span>Drag to orbit · Scroll or pinch to zoom</span>
+    </div>
+  </section>
+
+  <aside class="station-panel">
+    <div class="panel-heading">
+      <p class="eyebrow">INTERACTIVE STATIONS</p>
+      <h2>Explore the control room</h2>
+      <p>Choose a wall monitor or use the controls below.</p>
+    </div>
+    <div class="station-list" role="group" aria-label="Control room stations">
+      @for (station of stations; track station.id) {
+        <button
+          type="button"
+          class="station-choice"
+          [class.active]="selectedStation() === station.id"
+          [attr.aria-pressed]="selectedStation() === station.id"
+          (click)="focus(station.id, $event)"
+        >
+          <strong>{{ station.label }}</strong>
+          <span>{{ station.description }}</span>
+        </button>
+      }
+    </div>
+    <div class="station-detail" aria-live="polite">
+      <h3>{{ selectedConfig().label }}</h3>
+      @switch (selectedStation()) {
+        @case ('operations') {
+          <p>
+            {{ label(metrics().openIncidents) }} open incidents ·
+            {{ label(metrics().delayedShipments) }} delayed shipments.
+          </p>
+          <p>Inspect exceptions and network activity on the command center.</p>
+        }
+        @case ('fleet') {
+          <p>{{ label(metrics().activeShipments) }} active shipments reported by the ERP.</p>
+          <p>Fleet Twin shows a separate illustrative yard; the world map tracks simulated positions.</p>
+        }
+        @case ('warehouse') {
+          <p>{{ label(metrics().criticalPositions) }} critical inventory positions.</p>
+          <p>Warehouse Twin links verified inventory to an illustrative warehouse layout.</p>
+        }
+      }
+      <a class="primary-link" [routerLink]="selectedConfig().path">
+        {{ selectedConfig().action }}
+      </a>
+    </div>
+    <div class="quick-links">
+      <a routerLink="/dashboard">World Map (dashboard)</a>
+      <a routerLink="/digital-twin">Fleet Twin</a>
+      <a routerLink="/warehouse-twin">Warehouse Twin</a>
+    </div>
+  </aside>
+</div>
+
+<p class="disclosure">
+  This office is an illustrative 3D environment, not a physical digital replica. Screen metrics are
+  obtained from the existing dashboard API and updated through the same real-time store. Camera
+  movements never change business data. The accessible HTML metrics and navigation remain available
+  without WebGL.
+</p>

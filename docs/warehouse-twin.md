@@ -61,4 +61,4 @@ Escritorio de 1.440 × 1.100 px; vista móvil de 390 × 844 px capturada a pági
 
 No es un plano digital del edificio real ni telemetría de carretillas. La primera versión no incorpora ubicaciones físicas persistentes, reservas de muelles, picking por estante ni asignaciones nuevas. El rendimiento de un runner con SwiftShader no equivale a una medición en un MacBook Air M2.
 
-Una evolución posterior puede añadir zonas y ubicaciones persistidas con relaciones verificables, reutilizando este catálogo y el ciclo de vida de escena. Control Room y el editor de almacenes quedan fuera de esta entrega.
+Una evolución posterior puede añadir zonas y ubicaciones persistidas con relaciones verificables, reutilizando este catálogo y el ciclo de vida de escena. El plano visual del Editor no sustituye a ese futuro modelo operativo.

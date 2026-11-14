@@ -44,6 +44,9 @@ async function main() {
     const initial = await fetchJSON(`warehouses/${warehouse.id}/visual-layout`);
     assert.equal(initial.saved, false, 'Ephemeral demo database must begin without a saved layout');
     assert.equal(initial.revision, 0);
+    const moving=await fetchJSON('shipments?status=IN_TRANSIT&size=100');
+    const simulations=new Map();
+    for(const row of moving.content){const detail=await fetchJSON('shipments/'+row.id);if(detail.simulationActive)simulations.set(detail.orderId,detail.id);}
     const ordersBefore=await fetchJSON('orders?warehouse='+warehouse.id+'&size=100');
     const stockBefore = await fetchJSON('inventory?size=100');
     const stockView = (rows) => rows.content.map(({ id, onHand, available, reserved }) => ({
@@ -208,7 +211,19 @@ async function main() {
     assert(viewerToken);
     assert.equal((await viewContext.request.put(planUrl,{data:{...request,revision:3},headers:{'X-XSRF-TOKEN':decodeURIComponent(viewerToken.value)}})).status(),403);
     await viewContext.close();
-    assert.deepEqual(await fetchJSON('orders?warehouse='+warehouse.id+'&size=100'),ordersBefore);
+    const ordersAfter=await fetchJSON('orders?warehouse='+warehouse.id+'&size=100');
+    assert.equal(ordersAfter.totalElements,ordersBefore.totalElements);
+    const beforeById=new Map(ordersBefore.content.map(row=>[row.id,row]));
+    for(const row of ordersAfter.content){
+      const before=beforeById.get(row.id);assert(before);
+      if(before.status==='SHIPPED' && row.status==='DELIVERED' && simulations.has(row.id)){
+        const shipment=await fetchJSON('shipments/'+simulations.get(row.id));
+        assert.equal(shipment.status,'DELIVERED'); assert.equal(shipment.orderId,row.id);
+        assert.deepEqual(row,{...before,status:'DELIVERED'});
+      }else assert.deepEqual(row,before);
+      beforeById.delete(row.id);
+    }
+    assert.equal(beforeById.size,0);
     const stockAfter = await fetchJSON('inventory?size=100');
     assert.deepEqual(stockView(stockAfter), stockView(stockBefore),
       'Saving a visual layout must never change stock');
@@ -228,7 +243,10 @@ async function main() {
         'grid movement and object rotation',
         'persistent save and reload',
         'two-tab optimistic version conflict',
-        'unchanged warehouse inventory',
+        'saved blueprint and fallback across warehouses',
+        'blocked lane and completed certified loading sequence',
+        'CSRF and read-only viewer enforcement',
+        'unchanged warehouse inventory and independent order reconciliation',
         'WebGL loss and recovery',
         'responsive mobile viewport and reduced motion',
         'no unexpected API writes or JavaScript errors',

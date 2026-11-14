@@ -55,11 +55,19 @@ Los datos del perfil demo son ficticios. Las posiciones de los envíos se calcul
 
 La sala de control isométrica une los indicadores reales de operaciones y el acceso a Fleet Twin, World Map y Warehouse Twin. Se abre desde **Control Room** en el menú lateral o directamente en `/control-room`. Los monitores 3D leen las mismas métricas verificadas de `/api/v1/dashboard`; no representan cámaras, oficinas reales ni telemetría adicional.
 
+![Control Room con indicadores del ERP](docs/screenshots/control-room-overview.png)
+
 [Arquitectura, controles, privacidad y límites de Control Room](docs/control-room.md).
 
 ### Warehouse Editor 3D
 
 El **Warehouse Editor** permite a los operadores diseñar una distribución visual de estanterías, muelles y zonas de trabajo, vinculada a cada almacén real y guardada en PostgreSQL mediante `/api/v1/warehouses/{id}/visual-layout`. La edición se realiza en una maqueta 3D con selección, colocación en cuadrícula, giro, eliminación, guardado, restauración y protección contra cambios simultáneos. No almacena posiciones de productos ni modifica existencias, pedidos o flota.
+
+La acción **Back to Warehouse Twin** abre el mismo almacén. El Twin muestra el plano guardado y su revisión; sólo usa la distribución predeterminada cuando no hay plano. Una maniobra en una distribución personalizada requiere un pasillo libre hasta un muelle orientado hacia la salida.
+
+![Plano guardado en el gemelo del almacén](docs/screenshots/warehouse-twin-saved-layout.png)
+
+[Editar el plano](docs/screenshots/warehouse-editor-saved.png) · [Editor en móvil](docs/screenshots/warehouse-editor-mobile.png)
 
 Ruta: `/warehouse-editor`. [Arquitectura del editor, validaciones y límites](docs/warehouse-editor.md).
 

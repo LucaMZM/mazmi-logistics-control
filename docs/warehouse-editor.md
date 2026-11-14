@@ -55,7 +55,9 @@ Los componentes conservan botones y selectores HTML, mensajes de error y de esta
 
 Los tests del modelo cubren las ubicaciones permitidas, colisiones, rotaciones y unicidad. Los tests de Angular verifican carga, edición, guardado con revisión, conflicto y fallback WebGL. Los tests Java incluyen validación y persistencia en PostgreSQL real mediante Testcontainers.
 
-CI superado: **111 tests frontend y 65 backend**, formato, lint, tipos, compilación y escaneo de secretos. La [validación gráfica en GitHub Actions](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43460833945) levantó PostgreSQL, Spring Boot y Angular con Chromium (SwiftShader). Comprobó el guardado persistente y su lectura posterior, la protección frente a dos editores simultáneos, recuperación de WebGL, diseño móvil y ausencia de alteraciones del inventario. Las capturas `warehouse-editor-overview.png`, `warehouse-editor-saved.png` y `warehouse-editor-mobile.png` están en el artifact `portfolio-screenshots` de ese run (retención temporal).
+[CI de la integración](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43598217265): **119 tests frontend y 65 backend**. El recorrido de navegador utiliza la aplicación con PostgreSQL temporal, no imágenes de diseño.
+
+[Editor anterior](screenshots/warehouse-editor-before.png) · [Editor actual](screenshots/warehouse-editor-saved.png) · [Plano en Warehouse Twin](screenshots/warehouse-twin-saved-layout.png) · [Vista móvil](screenshots/warehouse-editor-mobile.png).
 
 Pendiente una medición de rendimiento y revisión ergonómica sobre la GPU física del MacBook Air M2; las pruebas con SwiftShader no equivalen a una medición de FPS en ese equipo.
 

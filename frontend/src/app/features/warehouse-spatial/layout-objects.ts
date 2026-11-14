@@ -33,9 +33,9 @@ export function buildLayoutObject(assets: TwinAssets, item: LayoutItem) {
         brace.rotation.x = sign * 0.78;
       }
     }
-    box(parent, [3.4, 0.16, 1.9], [0, 4.26, 0], '#657a87');
+    box(parent, [3.4, 0.16, 1.8], [0, 4.26, 0], '#657a87');
   } else if (item.kind === 'DOCK') {
-    box(parent, [3.7, 0.13, 2], [0, 0.09, 0], '#a3b1b7');
+    box(parent, [3.6, 0.13, 1.8], [0, 0.09, 0], '#a3b1b7');
     for (const x of [-1.58, 1.58]) {
       box(parent, [0.18, 3.5, 0.25], [x, 1.75, 0], '#667984');
     }
@@ -47,7 +47,7 @@ export function buildLayoutObject(assets: TwinAssets, item: LayoutItem) {
     for (const x of [-1.58, 1.58]) {
       for (const y of [0.38, 0.76]) box(parent, [0.195, 0.14, 0.265], [x, y, 0], '#bc9c5d');
     }
-    box(parent, [3, 0.15, 1], [0, 0.12, 1.25], '#768a94');
+    box(parent, [3, 0.15, 0.8], [0, 0.12, 0.5], '#768a94');
   } else if (item.kind === 'STAGING') {
     box(parent, [2.75, 0.05, 2.75], [0, 0.09, 0], '#a6bdb6');
     for (const x of [-0.65, 0.65]) {

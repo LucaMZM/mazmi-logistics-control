@@ -160,11 +160,11 @@ public class WarehouseLayoutController {
     switch (item.kind()) {
       case RACK -> {
         width = 3.4;
-        depth = 1.9;
+        depth = 1.8;
       }
       case DOCK -> {
-        width = 3.7;
-        depth = 3.5;
+        width = 3.6;
+        depth = 1.8;
       }
       case STAGING -> {
         width = 2.8;

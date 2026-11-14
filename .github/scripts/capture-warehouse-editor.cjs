@@ -65,7 +65,16 @@ async function main() {
     await page.mouse.move(0, 0);
     await page.screenshot({ path: path.join(output, 'warehouse-editor-overview.png'), animations: 'disabled' });
 
-    await page.getByLabel('Select layout object').selectOption('rack-1');
+    // Project a known point of the starter rack into the actual orthographic viewport.
+    const bounds=await canvas.boundingBox();
+    const half=Math.max(15,17*bounds.height/bounds.width);
+    const horizontal=Math.hypot(24,28), distance=Math.hypot(horizontal,21.9);
+    const u=(-7*28+3*24)/horizontal;
+    const v=(7*24*21.9/horizontal + (2-1.1)*horizontal + 3*28*21.9/horizontal)/distance;
+    await canvas.click({position:{x:bounds.width/2+u*bounds.height/(2*half),y:bounds.height/2-v*bounds.height/(2*half)}});
+    await page.waitForFunction(()=>document.querySelector('select[aria-label="Select layout object"]').value==='rack-1');
+    await page.getByRole('button',{name:'Focus object'}).click();
+    await page.getByRole('button',{name:'Overview',exact:true}).click();
     await page.getByRole('button', { name: 'Move right', exact: true }).click();
     await page.getByText('Unsaved layout changes.', { exact: false }).waitFor();
     await page.waitForFunction(
@@ -150,6 +159,7 @@ async function main() {
       animations: 'disabled',
     });
 
+    await page.emulateMedia({reducedMotion:'no-preference'});
     await page.setViewportSize({width:1440,height:1100});
     await page.getByRole('link',{name:'Back to Warehouse Twin'}).click();
     await page.getByRole('button',{name:'Open 3D warehouse'}).click();

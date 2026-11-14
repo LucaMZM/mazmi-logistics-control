@@ -28,9 +28,9 @@ export const LAYOUT_LABELS: Record<LayoutKind, string> = {
 export function itemSize(item: LayoutItem): [number, number] {
   const base: [number, number] =
     item.kind === 'RACK'
-      ? [3.4, 1.9]
+      ? [3.4, 1.8]
       : item.kind === 'DOCK'
-        ? [3.7, 3.5]
+        ? [3.6, 1.8]
         : item.kind === 'STAGING'
           ? [2.8, 2.8]
           : [3, 2.2];

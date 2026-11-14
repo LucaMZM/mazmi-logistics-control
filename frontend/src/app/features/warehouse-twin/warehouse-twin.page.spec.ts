@@ -1,3 +1,5 @@
+import { ApiService } from '../../core/services/api.service';
+import { of } from 'rxjs';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
@@ -27,6 +29,9 @@ class FakeScene {
 describe('Warehouse page fallback and lifecycle', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(ApiService.prototype, 'warehouseVisualLayout').mockReturnValue(
+      of({ warehouseId: 'w1', revision: 0, saved: false, items: [] }),
+    );
     vi.stubGlobal('matchMedia', () => ({
       matches: false,
       addEventListener: vi.fn(),
@@ -45,6 +50,7 @@ describe('Warehouse page fallback and lifecycle', () => {
     TestBed.inject(HttpTestingController).verify({ ignoreCancelled: true });
     TestBed.resetTestingModule();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
   function setup() {
     const fixture = TestBed.createComponent(WarehouseTwinPage);
@@ -69,6 +75,17 @@ describe('Warehouse page fallback and lifecycle', () => {
     expect(fixture.componentInstance.selectedZone()).toBe('racks');
     fixture.destroy();
     expect(engine.dispose).toHaveBeenCalledOnce();
+  });
+  it('preserves an explicitly saved empty blueprint without enabling the demo route', async () => {
+    const fixture = setup();
+    vi.mocked(ApiService.prototype.warehouseVisualLayout).mockReturnValue(
+      of({ warehouseId: 'w1', revision: 4, saved: true, items: [] }),
+    );
+    await fixture.componentInstance.openScene();
+    expect(fixture.componentInstance.blueprint()?.revision).toBe(4);
+    fixture.componentInstance.toggleSequence();
+    expect(engine.play).not.toHaveBeenCalled();
+    fixture.destroy();
   });
   it('ignores late scene loads after destruction', async () => {
     const fixture = setup();

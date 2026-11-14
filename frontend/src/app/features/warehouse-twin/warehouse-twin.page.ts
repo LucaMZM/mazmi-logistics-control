@@ -1,3 +1,12 @@
+import { computed } from '@angular/core';
+import { loadingLane } from '../warehouse-spatial/loading-lane';
+import { firstValueFrom } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { ApiService } from '../../core/services/api.service';
+import {
+  validLayout,
+  type WarehouseVisualLayout,
+} from '../warehouse-editor/warehouse-layout.model';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -104,7 +113,14 @@ import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-lo
         <div #host class="warehouse-scene"></div>
         <div class="warehouse-caption">
           <strong>{{ store.warehouse()?.name ?? 'Warehouse environment' }}</strong
-          ><span>Illustrative layout · No recorded shelf or pallet locations</span>
+          ><span
+            >{{
+              blueprint()
+                ? 'Saved blueprint · Revision ' + blueprint()!.revision
+                : 'Illustrative layout'
+            }}
+            · No recorded shelf or pallet locations</span
+          >
         </div>
         @if (sceneLoading()) {
           <p class="scene-notice" role="status">Preparing the warehouse…</p>
@@ -142,7 +158,7 @@ import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-lo
             <button
               [attr.aria-pressed]="selectedZone() === zone.id"
               (click)="focus(zone.id, $event)"
-              [disabled]="!ready()"
+              [disabled]="!ready() || !hasZone(zone.id)"
             >
               {{ zone.name }}
             </button>
@@ -201,12 +217,18 @@ import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-lo
             <button
               class="primary"
               (click)="toggleSequence()"
-              [disabled]="!ready() || !store.order() || reduced()"
+              [disabled]="!ready() || !store.order() || reduced() || blockedLane()"
             >
               {{ sequence().running ? 'Pause sequence' : 'Play sequence' }}
             </button>
             <button (click)="scene?.reset()" [disabled]="!ready()">Reset sequence</button>
           </div>
+          @if (blockedLane()) {
+            <p>
+              Static blueprint: no clear loading lane between staging and an outward-facing dock.
+              The default animation is not used here.
+            </p>
+          }
           @if (reduced()) {
             <p>Reduced motion enabled. Explore static zones with the camera controls.</p>
           }
@@ -267,6 +289,13 @@ import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-lo
 })
 export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
   readonly store = inject(WarehouseTwinStore);
+  private readonly route = inject(ActivatedRoute);
+  private readonly api = inject(ApiService);
+  readonly blueprint = signal<WarehouseVisualLayout | null>(null);
+  readonly blockedLane = computed(() => {
+    const plan = this.blueprint();
+    return !!plan && !loadingLane(plan.items);
+  });
   readonly auth = inject(AuthService);
   private readonly loadScene = inject(WAREHOUSE_SCENE_LOADER);
   private readonly zone = inject(NgZone);
@@ -290,11 +319,12 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
   private destroyed = false;
   private readonly motionChanged = () => this.reduced.set(this.media.matches);
   ngAfterViewInit() {
-    this.store.load();
+    this.store.load(this.route.snapshot.queryParamMap.get('warehouse') ?? undefined);
     this.media.addEventListener('change', this.motionChanged);
   }
   private closeScene() {
     ++this.revision;
+    this.blueprint.set(null);
     this.scene?.dispose();
     this.scene = undefined;
     this.ready.set(false);
@@ -326,25 +356,36 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
     const revision = this.revision;
     this.sceneLoading.set(true);
     try {
-      const Constructor = await this.loadScene();
+      const warehouseId = this.store.warehouseId();
+      const [Constructor, layout] = await Promise.all([
+        this.loadScene(),
+        firstValueFrom(this.api.warehouseVisualLayout(warehouseId)),
+      ]);
+      if (layout.warehouseId !== warehouseId || !validLayout(layout.items))
+        throw new Error('Invalid blueprint');
       if (this.destroyed || revision !== this.revision) return;
+      this.blueprint.set(layout.saved ? layout : null);
       this.zone.runOutsideAngular(() => {
-        this.scene = new Constructor(this.host.nativeElement, {
-          select: (id) =>
-            this.zone.run(() => {
-              this.selectedZone.set(id);
-              this.roofVisible.set(false);
-            }),
-          sequence: (state) => this.zone.run(() => this.sequence.set(state)),
-          lost: () =>
-            this.zone.run(() => {
-              this.ready.set(false);
-              this.sequence.update((s) => ({ ...s, running: false }));
-              this.sceneError.set(
-                '3D context lost. Warehouse records remain available. Retry to rebuild the illustration.',
-              );
-            }),
-        });
+        this.scene = new Constructor(
+          this.host.nativeElement,
+          {
+            select: (id) =>
+              this.zone.run(() => {
+                this.selectedZone.set(id);
+                this.roofVisible.set(false);
+              }),
+            sequence: (state) => this.zone.run(() => this.sequence.set(state)),
+            lost: () =>
+              this.zone.run(() => {
+                this.ready.set(false);
+                this.sequence.update((s) => ({ ...s, running: false }));
+                this.sceneError.set(
+                  '3D context lost. Warehouse records remain available. Retry to rebuild the illustration.',
+                );
+              }),
+          },
+          layout.saved ? layout.items : undefined,
+        );
         this.scene.init();
       });
       this.ready.set(true);
@@ -353,7 +394,7 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
         this.scene?.dispose();
         this.scene = undefined;
         this.sceneError.set(
-          '3D is unavailable. Use the inventory records below or retry with WebGL enabled.',
+          'Blueprint or 3D unavailable. Check your connection and WebGL, then retry. Inventory records remain available.',
         );
       }
     } finally {
@@ -365,6 +406,10 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
     this.roofVisible.set(false);
     this.scene?.focus(zone, event.detail === 0);
   }
+  hasZone(id: WarehouseZone) {
+    const kind = { racks: 'RACK', dispatch: 'DOCK', picking: 'PICKING', receiving: 'STAGING' }[id];
+    return this.blueprint()?.items.some((o) => o.kind === kind) ?? true;
+  }
   overview() {
     this.selectedZone.set(null);
     this.scene?.overview();
@@ -374,7 +419,7 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
     this.scene?.roof(this.roofVisible());
   }
   toggleSequence() {
-    if (!this.store.order()) return;
+    if (this.blockedLane() || !this.store.order()) return;
     if (this.sequence().running) this.scene?.pause();
     else this.scene?.play();
   }

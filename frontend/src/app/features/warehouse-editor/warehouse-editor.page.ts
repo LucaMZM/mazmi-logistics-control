@@ -59,6 +59,7 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
   readonly selectedItem = computed(
     () => this.items().find((x) => x.id === this.selectedId()) ?? null,
   );
+  readonly layoutLoaded = signal(false);
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly sceneLoading = signal(false);
@@ -71,6 +72,7 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
   readonly dirty = computed(() => JSON.stringify(this.items()) !== JSON.stringify(this.base()));
   readonly canSave = computed(
     () =>
+      this.layoutLoaded() &&
       !!this.warehouseId() &&
       !this.loading() &&
       !this.saving() &&
@@ -127,6 +129,10 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
   }
 
   async loadLayout(id: string): Promise<void> {
+    if (this.saving()) return;
+    this.layoutLoaded.set(false);
+    this.saved.set(false);
+    this.revision.set(0);
     const sequence = ++this.requestId;
     this.loading.set(true);
     this.error.set('');
@@ -141,7 +147,9 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
       );
       if (this.destroyed || sequence !== this.requestId || id !== this.warehouseId()) return;
       const items = layout.saved ? layout.items : starterLayout();
-      if (!validLayout(items)) throw new Error('Invalid saved visual layout');
+      if (layout.warehouseId !== id || !validLayout(items))
+        throw new Error('Invalid saved visual layout');
+      this.layoutLoaded.set(true);
       this.saved.set(layout.saved);
       this.revision.set(layout.revision);
       this.items.set(items.map((item) => ({ ...item })));
@@ -171,7 +179,7 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
   }
 
   private edit(next: LayoutItem[]): void {
-    if (this.loading() || this.saving() || !validLayout(next)) return;
+    if (!this.layoutLoaded() || this.loading() || this.saving() || !validLayout(next)) return;
     this.history = [...this.history.slice(-29), this.items().map((item) => ({ ...item }))];
     this.items.set(next);
     this.message.set('Unsaved layout changes.');
@@ -179,6 +187,7 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
   }
 
   add(kind: LayoutKind): void {
+    if (!this.layoutLoaded() || this.saving() || this.loading()) return;
     const before = this.items();
     const next = addItem(before, kind);
     if (!next) {
@@ -332,6 +341,12 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
 
   overview(): void {
     this.scene?.overview();
+  }
+  zoom(delta: number) {
+    this.scene?.zoom(delta);
+  }
+  focusSelected() {
+    this.scene?.focusSelected();
   }
   rotateCamera(): void {
     this.scene?.rotate();

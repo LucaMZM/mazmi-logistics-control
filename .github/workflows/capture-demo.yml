@@ -6,6 +6,8 @@ on:
     paths:
       - 'frontend/src/app/features/control-room/**'
       - 'frontend/src/app/features/warehouse-editor/**'
+      - 'frontend/src/app/features/warehouse-spatial/**'
+      - 'frontend/src/app/features/warehouse-twin/**'
       - 'backend/src/main/java/com/mazmi/logistics/warehouses/WarehouseLayoutController.java'
       - 'backend/src/main/resources/db/migration/V9__warehouse_visual_layouts.sql'
       - '.github/scripts/capture-warehouse-editor.cjs'

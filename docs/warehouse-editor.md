@@ -6,7 +6,7 @@
 
 **Lo que se guarda:** tipo, identificador, coordenadas X/Z de cuadrícula y giro de hasta 60 objetos ilustrativos (estanterías, muelles, recepción y picking), vinculados por clave foránea al UUID del almacén. La geometría no representa ubicaciones observadas.
 
-**Lo que no se guarda ni se altera:** asignación de SKUs a estantes, existencias, pedidos, vehículos, conductores, simulaciones ni históricos de movimientos. La distribución de la escena original de Warehouse Twin continúa siendo ilustrativa; en esta primera versión, el Editor posee su propio visor y aún no reemplaza la escena de simulación.
+**Lo que no se guarda ni se altera:** asignación de SKUs a estantes, existencias, pedidos, vehículos, conductores, simulaciones ni históricos de movimientos. Al abrir el Twin se carga la revisión del almacén seleccionado. Ambos visores comparten geometría, posición y orientación. Un plano vacío guardado no se sustituye por el predeterminado.
 
 ## API y migración
 
@@ -59,4 +59,4 @@ CI superado: **111 tests frontend y 65 backend**, formato, lint, tipos, compilac
 
 Pendiente una medición de rendimiento y revisión ergonómica sobre la GPU física del MacBook Air M2; las pruebas con SwiftShader no equivalen a una medición de FPS en ese equipo.
 
-**Limitaciones:** sin almacenamiento físico por producto, sin plano topográfico real, sin mover racks de la simulación Warehouse Twin en esta fase, sin medición de FPS sobre la GPU del Mac. El editor es una configuración espacial ilustrativa persistente.
+**Limitaciones:** sin almacenamiento físico por producto, sin plano topográfico real, sin medición de FPS sobre la GPU del Mac. El editor es una configuración espacial ilustrativa persistente.

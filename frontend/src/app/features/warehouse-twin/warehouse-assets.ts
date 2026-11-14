@@ -1,3 +1,6 @@
+import { loadingLane } from '../warehouse-spatial/loading-lane';
+import { buildLayoutObject } from '../warehouse-spatial/layout-objects';
+import type { LayoutItem } from '../warehouse-editor/warehouse-layout.model';
 import * as T from 'three';
 import { TwinAssets } from '../digital-twin/twin-assets';
 import { WarehouseZone } from './warehouse-model';
@@ -12,7 +15,7 @@ export class WarehouseAssets {
   readonly pallet = new T.Group();
   readonly zones = new Map<WarehouseZone, T.Group>();
   private readonly instanced: T.InstancedMesh[] = [];
-  constructor() {
+  constructor(layout?: LayoutItem[]) {
     const box = this.catalog.box.bind(this.catalog);
     box(this.root, [29, 0.55, 30], [0, -0.4, 3], '#b9c2c8', 0.3);
     box(this.root, [27, 0.08, 28], [0, -0.06, 3], '#cdd3d6');
@@ -34,6 +37,27 @@ export class WarehouseAssets {
       zone.userData['zone'] = id;
       this.zones.set(id, zone);
       this.root.add(zone);
+    }
+    if (layout) {
+      const mapping = {
+        RACK: 'racks',
+        DOCK: 'dispatch',
+        STAGING: 'receiving',
+        PICKING: 'picking',
+      } as const;
+      for (const item of layout)
+        this.zones.get(mapping[item.kind])!.add(buildLayoutObject(this.catalog, item));
+      const lane = loadingLane(layout);
+      if (lane) {
+        const van = this.catalog.van('VISUAL', '#dce1e4');
+        van.position.set(lane.x, 0.12, lane.van);
+        this.zones.get('dispatch')!.add(van);
+        this.buildForklift();
+        this.palletStack(this.pallet, [0, 0, 0]);
+        box(this.pallet, [1.05, 0.85, 1.05], [0, 0.62, 0], '#bda989');
+        this.root.add(this.forklift, this.pallet);
+      }
+      return;
     }
     const racks = this.zones.get('racks')!;
     const cartons: T.Vector3[] = [];

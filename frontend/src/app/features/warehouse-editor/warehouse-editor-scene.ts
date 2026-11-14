@@ -1,4 +1,5 @@
 import * as T from 'three';
+import { buildLayoutObject, positionLayoutObject } from '../warehouse-spatial/layout-objects';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TwinAssets } from '../digital-twin/twin-assets';
 import { LayoutItem } from './warehouse-layout.model';
@@ -10,7 +11,7 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
   private readonly camera = new T.OrthographicCamera(-18, 18, 15, -15, 0.1, 150);
   private readonly assets = new TwinAssets();
   private readonly layoutRoot = new T.Group();
-  private readonly reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
   private readonly center = new T.Vector3(0, 1.1, 0);
   private renderer?: T.WebGLRenderer;
   private controls?: OrbitControls;
@@ -19,7 +20,7 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
   private grid?: T.GridHelper;
   private frame = 0;
   private disposed = false;
-  private current = [] as LayoutItem[];
+
   private selected: string | null = null;
   private start = new T.Vector2();
 
@@ -74,8 +75,7 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
       this.controls.minZoom = 0.65;
       this.controls.maxZoom = 2.8;
       this.controls.maxPolarAngle = Math.PI / 2.12;
-      this.controls.enableDamping = !this.reduced.matches;
-      this.controls.dampingFactor = 0.12;
+      this.controls.enableDamping = false;
       this.controls.addEventListener('change', this.invalidate);
       canvas.addEventListener('pointerdown', this.onDown);
       canvas.addEventListener('pointerup', this.onUp);
@@ -93,66 +93,19 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
   }
 
   update(items: LayoutItem[]): void {
-    this.current = items.map((item) => ({ ...item }));
-    this.clearOutline();
-    this.layoutRoot.clear();
+    const previous = new Map(
+      this.layoutRoot.children.map((group) => [group.userData['layoutId'], group]),
+    );
     for (const item of items) {
-      const group = new T.Group();
-      group.userData['layoutId'] = item.id;
-      group.position.set(item.x, 0.08, item.z);
-      group.rotation.y = T.MathUtils.degToRad(item.orientation);
-      this.makeObject(group, item);
-      this.layoutRoot.add(group);
+      const group = previous.get(item.id);
+      if (group instanceof T.Group && group.userData['kind'] === item.kind) {
+        positionLayoutObject(group, item);
+        previous.delete(item.id);
+      } else this.layoutRoot.add(buildLayoutObject(this.assets, item));
     }
+    for (const obsolete of previous.values()) this.layoutRoot.remove(obsolete);
     this.select(this.selected);
     this.invalidate();
-  }
-
-  private makeObject(parent: T.Group, item: LayoutItem): void {
-    const box = this.assets.box.bind(this.assets);
-    if (item.kind === 'RACK') {
-      const color = '#677d8a';
-      for (const x of [-1.52, 1.52]) {
-        for (const z of [-0.72, 0.72]) {
-          box(parent, [0.13, 4.2, 0.13], [x, 2.1, z], color);
-        }
-      }
-      for (const y of [0.4, 1.65, 2.9]) {
-        box(parent, [3.3, 0.14, 1.62], [0, y, 0], '#b69c75');
-        for (const x of [-1.02, 0, 1.02]) {
-          box(parent, [0.75, 0.62, 1.05], [x, y + 0.39, 0], '#cfbb99', 0.04);
-        }
-      }
-      box(parent, [3.4, 0.16, 1.9], [0, 4.26, 0], '#657a87');
-    } else if (item.kind === 'DOCK') {
-      box(parent, [3.7, 0.13, 2], [0, 0.09, 0], '#a3b1b7');
-      for (const x of [-1.58, 1.58]) {
-        box(parent, [0.18, 3.5, 0.25], [x, 1.75, 0], '#667984');
-      }
-      box(parent, [3.5, 0.21, 0.35], [0, 3.57, 0], '#667984');
-      box(parent, [3.2, 2.7, 0.1], [0, 1.72, -0.7], '#9eafb9');
-      for (let y = 0.55; y < 3; y += 0.43) {
-        box(parent, [3.05, 0.05, 0.11], [0, y, -0.63], '#607785');
-      }
-      box(parent, [3, 0.15, 1], [0, 0.12, 1.25], '#768a94');
-    } else if (item.kind === 'STAGING') {
-      box(parent, [2.75, 0.05, 2.75], [0, 0.09, 0], '#a6bdb6');
-      for (const x of [-0.65, 0.65]) {
-        for (const z of [-0.6, 0.6]) {
-          box(parent, [0.95, 0.13, 0.85], [x, 0.18, z], '#927f5f');
-          box(parent, [0.84, 0.72, 0.74], [x, 0.64, z], '#c7b293');
-        }
-      }
-    } else {
-      box(parent, [3, 0.05, 2.2], [0, 0.09, 0], '#e1d6ba');
-      box(parent, [2.65, 0.17, 1.18], [0, 1.2, 0], '#6d8590');
-      for (const x of [-1.1, 1.1]) {
-        box(parent, [0.15, 1.15, 0.22], [x, 0.62, 0], '#566c78');
-      }
-      for (const x of [-0.73, 0.65]) {
-        box(parent, [0.92, 0.65, 0.7], [x, 1.63, 0], '#c6b093');
-      }
-    }
   }
 
   select(id: string | null): void {
@@ -242,10 +195,28 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
     if (!this.disposed) this.renderer?.render(this.world, this.camera);
   };
 
+  zoom(delta: number) {
+    this.camera.zoom = T.MathUtils.clamp(this.camera.zoom + delta * 0.2, 0.65, 2.8);
+    this.camera.updateProjectionMatrix();
+    this.invalidate();
+  }
+  focusSelected() {
+    if (!this.controls || !this.outline) return;
+    const target = this.outline.box.getCenter(new T.Vector3());
+    this.camera.position.add(target.clone().sub(this.controls.target));
+    this.controls.target.copy(target);
+    this.camera.zoom = 1.65;
+    this.camera.updateProjectionMatrix();
+    this.controls.update();
+    this.invalidate();
+  }
+
   overview(): void {
     if (!this.controls) return;
     this.camera.position.set(24, 23, 28);
     this.controls.target.copy(this.center);
+    this.camera.zoom = 1;
+    this.camera.updateProjectionMatrix();
     this.controls.update();
     this.invalidate();
   }
@@ -281,6 +252,9 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
         : [this.grid.material];
       materials.forEach((material) => material.dispose());
     }
+    this.world.traverse((object) => {
+      if (object instanceof T.DirectionalLight) object.shadow.dispose();
+    });
     this.assets.dispose();
     this.world.clear();
     this.renderer?.dispose();

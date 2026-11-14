@@ -309,3 +309,16 @@ dd {
     background: #fafcfc;
   }
 }
+button:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: 3px solid #49677a;
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .step-buttons button,
+  .camera-controls button {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+}

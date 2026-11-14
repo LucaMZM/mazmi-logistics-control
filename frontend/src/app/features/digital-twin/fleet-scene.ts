@@ -242,6 +242,9 @@ export class FleetScene {
     canvas?.removeEventListener('pointerup', this.up);
     canvas?.removeEventListener('pointermove', this.hover);
     canvas?.removeEventListener('webglcontextlost', this.contextLost);
+    this.scene.traverse((object) => {
+      if (object instanceof T.DirectionalLight) object.shadow.dispose();
+    });
     this.assets.dispose();
     this.scene.clear();
     this.renderer?.dispose();

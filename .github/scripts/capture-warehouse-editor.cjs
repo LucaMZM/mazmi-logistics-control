@@ -44,6 +44,7 @@ async function main() {
     const initial = await fetchJSON(`warehouses/${warehouse.id}/visual-layout`);
     assert.equal(initial.saved, false, 'Ephemeral demo database must begin without a saved layout');
     assert.equal(initial.revision, 0);
+    const ordersBefore=await fetchJSON('orders?warehouse='+warehouse.id+'&size=100');
     const stockBefore = await fetchJSON('inventory?size=100');
     const stockView = (rows) => rows.content.map(({ id, onHand, available, reserved }) => ({
       id, onHand, available, reserved,
@@ -65,7 +66,7 @@ async function main() {
     await page.screenshot({ path: path.join(output, 'warehouse-editor-overview.png'), animations: 'disabled' });
 
     await page.getByLabel('Select layout object').selectOption('rack-1');
-    await page.getByRole('button', { name: '→', exact: true }).click();
+    await page.getByRole('button', { name: 'Move right', exact: true }).click();
     await page.getByText('Unsaved layout changes.', { exact: false }).waitFor();
     await page.waitForFunction(
       () => [...document.querySelectorAll('.item-controls dd')][1]?.textContent?.trim() === '-6 / -3',
@@ -102,12 +103,12 @@ async function main() {
     await secondPage.goto(url);
     await secondPage.getByText('Saved blueprint', { exact: false }).waitFor();
     await secondPage.getByLabel('Select layout object').selectOption('rack-2');
-    await secondPage.getByRole('button', { name: '↓', exact: true }).click();
+    await secondPage.getByRole('button', { name: 'Move down', exact: true }).click();
     await secondPage.getByRole('button', { name: 'Save layout', exact: true }).click();
     await secondPage.getByText('Visual layout saved', { exact: false }).waitFor();
 
     await page.getByLabel('Select layout object').selectOption('rack-3');
-    await page.getByRole('button', { name: '←', exact: true }).click();
+    await page.getByRole('button', { name: 'Move left', exact: true }).click();
     await page.getByRole('button', { name: 'Save layout', exact: true }).click();
     await page.getByText('Someone saved a newer revision.', { exact: false }).waitFor();
     const latest = await fetchJSON(`warehouses/${warehouse.id}/visual-layout`);
@@ -149,6 +150,55 @@ async function main() {
       animations: 'disabled',
     });
 
+    await page.setViewportSize({width:1440,height:1100});
+    await page.getByRole('link',{name:'Back to Warehouse Twin'}).click();
+    await page.getByRole('button',{name:'Open 3D warehouse'}).click();
+    await page.getByText('Saved blueprint · Revision 2',{exact:false}).waitFor();
+    await page.locator('.warehouse-scene canvas').waitFor();
+    await page.getByText('Static blueprint:',{exact:false}).waitFor();
+    await page.getByRole('button',{name:'Storage racks'}).focus();
+    await page.keyboard.press('Enter');
+    await page.locator('.warehouse-zones button[aria-pressed="true"]').waitFor();
+    await page.getByRole('button',{name:'Overview',exact:true}).click();
+    await page.screenshot({path:path.join(output,'warehouse-twin-saved-layout.png'),animations:'disabled'});
+    const other=warehouses.find(w=>w.id!==warehouse.id);
+    assert(other);
+    await page.getByLabel('Warehouse',{exact:true}).selectOption(other.id);
+    await page.getByRole('button',{name:'Open 3D warehouse'}).click();
+    await page.locator('.warehouse-scene canvas').waitFor();
+    assert.equal(await page.getByText('Saved blueprint · Revision 2',{exact:false}).count(),0);
+    // Save a designed scenario in this disposable warehouse. No domain writes.
+    const planUrl=base+'/api/v1/warehouses/'+warehouse.id+'/visual-layout';
+    const request={revision:2,items:[
+      {id:'staging-east',kind:'STAGING',x:8,z:-3,orientation:0},
+      {id:'dock-east',kind:'DOCK',x:8,z:5,orientation:0},
+    ]};
+    assert.equal((await context.request.put(planUrl,{data:request})).status(),403);
+    const token=(await context.cookies()).find(c=>c.name==='XSRF-TOKEN');
+    assert(token);
+    const saved=await context.request.put(planUrl,{data:request,headers:{'X-XSRF-TOKEN':decodeURIComponent(token.value)}});
+    assert.equal(saved.status(),200);
+    await page.getByLabel('Warehouse',{exact:true}).selectOption(warehouse.id);
+    await page.getByRole('button',{name:'Open 3D warehouse'}).click();
+    await page.getByText('Saved blueprint · Revision 3',{exact:false}).waitFor();
+    const orderSelect=page.getByLabel('Compatible order',{exact:true});
+    await orderSelect.locator('option').nth(1).waitFor({state:'attached'});
+    await orderSelect.selectOption({index:1});
+    await page.getByRole('button',{name:'Play sequence',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('progress').value===100,null,{timeout:180000});
+    const viewContext=await browser.newContext();
+    const viewer=await viewContext.newPage();
+    await viewer.goto(base+'/login');
+    await viewer.getByLabel('Email',{exact:true}).fill('viewer@mazmilogistics.test');
+    await viewer.getByLabel('Password',{exact:true}).fill('Demo2026!');
+    await viewer.getByRole('button',{name:'Sign in',exact:true}).click();
+    await viewer.waitForURL('**/dashboard');
+    assert.equal((await viewContext.request.get(planUrl)).status(),200);
+    const viewerToken=(await viewContext.cookies()).find(c=>c.name==='XSRF-TOKEN');
+    assert(viewerToken);
+    assert.equal((await viewContext.request.put(planUrl,{data:{...request,revision:3},headers:{'X-XSRF-TOKEN':decodeURIComponent(viewerToken.value)}})).status(),403);
+    await viewContext.close();
+    assert.deepEqual(await fetchJSON('orders?warehouse='+warehouse.id+'&size=100'),ordersBefore);
     const stockAfter = await fetchJSON('inventory?size=100');
     assert.deepEqual(stockView(stockAfter), stockView(stockBefore),
       'Saving a visual layout must never change stock');

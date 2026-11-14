@@ -1,3 +1,4 @@
+import type { LayoutItem } from '../warehouse-editor/warehouse-layout.model';
 import { InjectionToken } from '@angular/core';
 import { SequenceSnapshot, WarehouseZone } from './warehouse-model';
 
@@ -21,6 +22,7 @@ export interface WarehouseSceneEvents {
 export type WarehouseSceneConstructor = new (
   host: HTMLElement,
   events: WarehouseSceneEvents,
+  layout?: LayoutItem[],
 ) => WarehouseScenePort;
 export const WAREHOUSE_SCENE_LOADER = new InjectionToken<() => Promise<WarehouseSceneConstructor>>(
   'Warehouse scene loader',

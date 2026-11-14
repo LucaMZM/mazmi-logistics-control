@@ -2,6 +2,10 @@
 
 La ruta autenticada `/warehouse-twin` permite explorar una nave industrial isométrica, consultar inventario real por almacén y reproducir una secuencia logística ilustrativa. No cambia stock, pedidos ni asignaciones de flota.
 
+## Plano del editor
+
+Al abrir la escena se consulta la revisión guardada. Si no hay plano se mantiene la maqueta original. Con plano se reemplazan los objetos, sin superponer las dos distribuciones. Un pasillo lateral recto requiere recepción, muelle orientado hacia la salida y espacio libre para palé, carretilla y furgoneta. Si no existe se conserva la exploración estática y se explica el motivo. No se calcula una ruta física real.
+
 ## Registros y geometría
 
 - El selector usa `GET /api/v1/warehouses`.

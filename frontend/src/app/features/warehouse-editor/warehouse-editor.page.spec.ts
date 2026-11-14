@@ -88,6 +88,17 @@ describe('Warehouse Editor page', () => {
     expect(FakeEditorScene.last?.dispose).toHaveBeenCalledOnce();
   });
 
+  it('never saves an empty replacement after a failed layout read', async () => {
+    api.warehouseVisualLayout.mockReturnValue(throwError(() => new Error('offline')));
+    const fixture = await setup();
+    const page = fixture.componentInstance;
+    page.add('RACK');
+    await page.save();
+    expect(page.canSave()).toBe(false);
+    expect(page.items()).toEqual([]);
+    expect(api.saveWarehouseVisualLayout).not.toHaveBeenCalled();
+    fixture.destroy();
+  });
   it('edits object positions, saves with the correct revision, and clears dirty state', async () => {
     const fixture = await setup();
     const page = fixture.componentInstance;

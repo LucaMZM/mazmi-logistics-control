@@ -142,15 +142,15 @@ export const WarehouseTwinStore = signalStore(
         ),
       ),
     );
-    const load = rxMethod<void>(
+    const load = rxMethod<string | undefined>(
       pipe(
         tap(() => patchState(s, { recordsLoading: true, error: '' })),
-        switchMap(() =>
+        switchMap((preferred) =>
           api.warehouses().pipe(
             tap((warehouses) => {
               patchState(s, { warehouses, recordsLoading: false });
               const selected =
-                warehouses.find((w) => w.id === s.warehouseId()) ??
+                warehouses.find((w) => w.id === (preferred ?? s.warehouseId())) ??
                 warehouses.find((w) => w.active) ??
                 warehouses[0];
               if (selected) loadWarehouse(selected.id);
@@ -177,7 +177,7 @@ export const WarehouseTwinStore = signalStore(
       ),
     );
     return {
-      load,
+      load: (preferred?: string) => load(preferred),
       selectWarehouse(id: string) {
         if (s.warehouses().some((w) => w.id === id)) loadWarehouse(id);
       },

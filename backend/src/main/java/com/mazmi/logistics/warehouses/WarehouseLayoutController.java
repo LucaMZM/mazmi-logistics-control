@@ -47,7 +47,9 @@ public class WarehouseLayoutController {
   public record Layout(UUID warehouseId, long revision, boolean saved, List<Item> items) {}
 
   @GetMapping
-  @Transactional(readOnly = true)
+  @Transactional(
+      readOnly = true,
+      isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
   public Layout get(@PathVariable UUID warehouseId) {
     requireWarehouse(warehouseId);
     List<Long> revisions =
@@ -158,11 +160,11 @@ public class WarehouseLayoutController {
     switch (item.kind()) {
       case RACK -> {
         width = 3.4;
-        depth = 1.8;
+        depth = 1.9;
       }
       case DOCK -> {
-        width = 3.6;
-        depth = 1.8;
+        width = 3.7;
+        depth = 3.5;
       }
       case STAGING -> {
         width = 2.8;

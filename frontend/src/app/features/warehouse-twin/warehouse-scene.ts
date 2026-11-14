@@ -1,3 +1,5 @@
+import { loadingLane, type LoadingLane } from '../warehouse-spatial/loading-lane';
+import type { LayoutItem } from '../warehouse-editor/warehouse-layout.model';
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { WarehouseAssets } from './warehouse-assets';
@@ -7,7 +9,8 @@ import { WarehouseSceneEvents, WarehouseScenePort } from './warehouse-scene-load
 export class WarehouseScene implements WarehouseScenePort {
   private readonly world = new T.Scene();
   private readonly camera = new T.OrthographicCamera(-22, 22, 18, -18, 0.1, 200);
-  private readonly assets = new WarehouseAssets();
+  private readonly lane: LoadingLane | null;
+  private readonly assets: WarehouseAssets;
   private readonly sequence = new WarehouseSequence();
   private renderer?: T.WebGLRenderer;
   private controls?: OrbitControls;
@@ -34,7 +37,11 @@ export class WarehouseScene implements WarehouseScenePort {
   constructor(
     private readonly host: HTMLElement,
     private readonly events: WarehouseSceneEvents,
-  ) {}
+    private readonly layout?: LayoutItem[],
+  ) {
+    this.lane = layout ? loadingLane(layout) : null;
+    this.assets = new WarehouseAssets(layout);
+  }
   init() {
     try {
       this.renderer = new T.WebGLRenderer({ antialias: true });
@@ -177,6 +184,26 @@ export class WarehouseScene implements WarehouseScenePort {
     else this.previous = 0;
   };
   private pose(t: number) {
+    if (this.layout) {
+      if (!this.lane) return;
+      const { x, start, stop, van } = this.lane;
+      const blend = (a: number, b: number, from: number, to: number) =>
+        T.MathUtils.lerp(a, b, T.MathUtils.smoothstep(t, from, to));
+      const pickup = start + 1.5;
+      const z =
+        t < 7
+          ? blend(start, pickup, 3, 7)
+          : t < 19
+            ? blend(pickup, stop, 7, 19)
+            : blend(stop, stop - 0.8, 22, 24);
+      this.assets.forklift.position.set(x, 0.12, z);
+      this.assets.pallet.position.set(
+        x,
+        t < 19 ? blend(0.14, 0.57, 7, 8) : blend(0.57, 1.18, 19, 22),
+        t < 7 ? pickup + 1.4 : t < 19 ? z + 1.4 : blend(stop + 1.4, van - 1.6, 19, 22),
+      );
+      return;
+    }
     const forklift = this.assets.forklift,
       pallet = this.assets.pallet;
     let heading = Math.PI;
@@ -214,7 +241,7 @@ export class WarehouseScene implements WarehouseScenePort {
   }
   focus(zone: WarehouseZone, instant = true) {
     const group = this.assets.zones.get(zone);
-    if (!group || !this.controls) return;
+    if (!group?.children.length || !this.controls) return;
     this.roof(false);
     this.clearSelection();
     const bounds = new T.Box3().setFromObject(group);
@@ -280,7 +307,7 @@ export class WarehouseScene implements WarehouseScenePort {
     this.invalidate();
   }
   play() {
-    if (this.disposed || this.reduced.matches) return false;
+    if ((this.layout && !this.lane) || this.disposed || this.reduced.matches) return false;
     this.sequence.play();
     this.previous = 0;
     this.events.sequence(this.sequence.snapshot());
@@ -310,6 +337,9 @@ export class WarehouseScene implements WarehouseScenePort {
     canvas?.removeEventListener('pointerdown', this.down);
     canvas?.removeEventListener('pointerup', this.up);
     canvas?.removeEventListener('webglcontextlost', this.lost);
+    this.world.traverse((object) => {
+      if (object instanceof T.DirectionalLight) object.shadow.dispose();
+    });
     this.assets.dispose();
     this.world.clear();
     this.renderer?.dispose();

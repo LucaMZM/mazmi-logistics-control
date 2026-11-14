@@ -363,6 +363,9 @@ export class ControlRoomScene implements ControlRoomScenePort {
     this.screens.forEach((screen) => screen.texture.dispose());
     this.extraMaterials.forEach((material) => material.dispose());
     this.extraGeometries.forEach((geometry) => geometry.dispose());
+    this.world.traverse((object) => {
+      if (object instanceof T.DirectionalLight) object.shadow.dispose();
+    });
     this.assets.dispose();
     this.world.clear();
     this.renderer?.dispose();

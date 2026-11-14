@@ -5,6 +5,8 @@ export interface WarehouseEditorScenePort {
   init(items: LayoutItem[]): void;
   update(items: LayoutItem[]): void;
   select(id: string | null): void;
+  focusSelected(): void;
+  zoom(delta: number): void;
   overview(): void;
   rotate(): void;
   dispose(): void;

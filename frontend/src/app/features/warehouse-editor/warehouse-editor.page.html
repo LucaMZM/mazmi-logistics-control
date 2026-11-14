@@ -4,7 +4,9 @@
     <h1>Warehouse Editor</h1>
     <p>Design a saved, illustrative warehouse blueprint without moving actual inventory.</p>
   </div>
-  <a routerLink="/warehouse-twin" class="back">Back to Warehouse Twin</a>
+  <a routerLink="/warehouse-twin" [queryParams]="{ warehouse: warehouseId() }" class="back"
+    >Back to Warehouse Twin</a
+  >
 </header>
 
 <section class="editor-toolbar">
@@ -71,6 +73,13 @@
     <div class="camera-controls">
       <button type="button" (click)="overview()" [disabled]="!ready()">Overview</button>
       <button type="button" (click)="rotateCamera()" [disabled]="!ready()">Rotate view</button>
+      <button type="button" (click)="zoom(1)" [disabled]="!ready()" aria-label="Zoom in">+</button>
+      <button type="button" (click)="zoom(-1)" [disabled]="!ready()" aria-label="Zoom out">
+        −
+      </button>
+      <button type="button" (click)="focusSelected()" [disabled]="!ready() || !selectedItem()">
+        Focus object
+      </button>
       <span>Click an object, then click an empty grid cell to place it · Drag to orbit</span>
     </div>
   </section>
@@ -83,7 +92,11 @@
     </div>
     <div class="palette">
       @for (kind of kinds; track kind) {
-        <button type="button" (click)="add(kind)" [disabled]="loading() || saving()">
+        <button
+          type="button"
+          (click)="add(kind)"
+          [disabled]="!layoutLoaded() || loading() || saving()"
+        >
           <strong>+ {{ labels[kind] }}</strong>
         </button>
       }
@@ -122,10 +135,18 @@
         </dl>
         <p class="instruction">Move one grid cell or select a free cell in the 3D scene.</p>
         <div class="step-buttons" aria-label="Move selected layout object">
-          <button type="button" (click)="step(-1, 0)" [disabled]="saving()">←</button>
-          <button type="button" (click)="step(0, -1)" [disabled]="saving()">↑</button>
-          <button type="button" (click)="step(0, 1)" [disabled]="saving()">↓</button>
-          <button type="button" (click)="step(1, 0)" [disabled]="saving()">→</button>
+          <button type="button" (click)="step(-1, 0)" [disabled]="saving()" aria-label="Move left">
+            ←
+          </button>
+          <button type="button" (click)="step(0, -1)" [disabled]="saving()" aria-label="Move up">
+            ↑
+          </button>
+          <button type="button" (click)="step(0, 1)" [disabled]="saving()" aria-label="Move down">
+            ↓
+          </button>
+          <button type="button" (click)="step(1, 0)" [disabled]="saving()" aria-label="Move right">
+            →
+          </button>
         </div>
         <div class="object-actions">
           <button type="button" (click)="turn()" [disabled]="saving()">Rotate object 90°</button>
@@ -153,5 +174,7 @@
     <strong>{{ items().length }} illustrated objects</strong>
     <span>Grid X: −10 to 10 · Z: −6 to 6 · Docks must remain near the dispatch edge.</span>
   </div>
-  <a routerLink="/warehouse-twin">Explore warehouse simulation</a>
+  <a routerLink="/warehouse-twin" [queryParams]="{ warehouse: warehouseId() }"
+    >View warehouse blueprint</a
+  >
 </section>

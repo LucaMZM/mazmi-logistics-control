@@ -79,13 +79,16 @@ async function main() {
     };
     await shot('warehouse-overview.png');
     const canvasBounds = await page.locator('.warehouse-scene canvas').boundingBox();
-    let picked = false;
-    for (const [x, y] of [[0.5, 0.4], [0.6, 0.5], [0.4, 0.4]]) {
-      await page.locator('.warehouse-scene canvas').click({ position: { x: canvasBounds.width * x, y: canvasBounds.height * y } });
-      await page.waitForTimeout(350);
-      if (await page.locator('.warehouse-zones button[aria-pressed="true"]').count()) { picked = true; break; }
-    }
-    assert(picked, 'Raycasting must select a real scene zone');
+    // Project the middle starter rack (0, 2.04, -3) using the overview camera.
+    // Picking must hit that rack, not just any mesh near the middle of the canvas.
+    const {width:w,height:h}=canvasBounds, half=Math.max(18,21*h/w);
+    const horizontal=Math.hypot(30,34), distance=Math.hypot(horizontal,26);
+    const u=5*30/horizontal;
+    const v=(1.04*horizontal+5*34*26/horizontal)/distance;
+    await page.locator('.warehouse-scene canvas').click({position:{
+      x:w/2+u*h/(2*half),y:h/2-v*h/(2*half)
+    }});
+    await page.getByRole('button',{name:'Storage racks',pressed:true}).waitFor();
     const storage = page.getByRole('button', { name: 'Storage racks', exact: true });
     await storage.focus();
     await page.keyboard.press('Enter');

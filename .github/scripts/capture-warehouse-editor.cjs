@@ -227,8 +227,17 @@ async function main() {
     await page.waitForFunction(()=>document.querySelector('progress').value===100,null,{timeout:180000});
     await page.getByRole('button',{name:'Reset sequence'}).click();
     await page.waitForFunction(()=>document.querySelector('progress').value===0);
-    const blocked=await context.request.put(planUrl,{data:{revision:3,items:request.items.filter(o=>o.kind!=='DOCK')},headers:{'X-XSRF-TOKEN':decodeURIComponent(token.value)}});
-    assert.equal(blocked.status(),200);
+    // Exercise the operator's normal Angular save path, using the current
+    // browser session rather than replaying headers captured before playback.
+    await page.getByRole('link',{name:'Edit 3D layout'}).click();
+    await page.getByLabel('Select layout object').selectOption('dock-1');
+    await page.getByRole('button',{name:'Remove',exact:true}).click();
+    await page.getByRole('button',{name:'Check forklift route'}).click();
+    await page.getByText('Add a dispatch dock facing the yard (0°).',{exact:true}).waitFor();
+    await page.getByRole('button',{name:'Save layout',exact:true}).click();
+    await page.getByText('Visual layout saved',{exact:false}).waitFor();
+    assert.equal((await fetchJSON('warehouses/'+warehouse.id+'/visual-layout')).revision,4);
+    await page.getByRole('link',{name:'Back to Warehouse Twin'}).click();
     await page.getByRole('button',{name:'Open 3D warehouse'}).click();
     await page.getByText('Static blueprint: Add a dispatch dock',{exact:false}).waitFor();
     assert(await page.getByRole('button',{name:'Play sequence'}).isDisabled());
@@ -242,7 +251,7 @@ async function main() {
     assert.equal((await viewContext.request.get(planUrl)).status(),200);
     const viewerToken=(await viewContext.cookies()).find(c=>c.name==='XSRF-TOKEN');
     assert(viewerToken);
-    assert.equal((await viewContext.request.put(planUrl,{data:{...request,revision:3},headers:{'X-XSRF-TOKEN':decodeURIComponent(viewerToken.value)}})).status(),403);
+    assert.equal((await viewContext.request.put(planUrl,{data:{...request,revision:4},headers:{'X-XSRF-TOKEN':decodeURIComponent(viewerToken.value)}})).status(),403);
     await viewContext.close();
     const ordersAfter=await fetchJSON('orders?warehouse='+warehouse.id+'&size=100');
     assert.equal(ordersAfter.totalElements,ordersBefore.totalElements);

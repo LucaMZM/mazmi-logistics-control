@@ -22,6 +22,8 @@ export function buildLayoutObject(assets: TwinAssets, item: LayoutItem) {
     }
     for (const y of [0.4, 1.65, 2.9]) {
       box(parent, [3.3, 0.14, 1.62], [0, y, 0], '#b69c75');
+      box(parent, [3.3, 0.14, 0.07], [0, y + 0.06, 0.8], '#967e55');
+      box(parent, [0.44, 0.12, 0.025], [-1.05, y + 0.06, 0.85], '#ede9db');
       for (const x of [-1.02, 0, 1.02]) {
         box(parent, [0.75, 0.62, 1.05], [x, y + 0.39, 0], '#cfbb99', 0.04);
       }
@@ -47,6 +49,9 @@ export function buildLayoutObject(assets: TwinAssets, item: LayoutItem) {
     for (const x of [-1.58, 1.58]) {
       for (const y of [0.38, 0.76]) box(parent, [0.195, 0.14, 0.265], [x, y, 0], '#bc9c5d');
     }
+    for (const x of [-1.32, 1.32]) box(parent, [0.24, 0.52, 0.19], [x, 0.42, 0.74], '#48535a');
+    box(parent, [0.24, 0.38, 0.2], [-1.58, 2.62, 0.17], '#36474b');
+    box(parent, [0.13, 0.13, 0.03], [-1.58, 2.66, 0.28], '#acc7b5');
     box(parent, [3, 0.15, 0.8], [0, 0.12, 0.5], '#768a94');
   } else if (item.kind === 'STAGING') {
     box(parent, [2.75, 0.05, 2.75], [0, 0.09, 0], '#a6bdb6');

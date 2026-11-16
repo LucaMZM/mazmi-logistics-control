@@ -63,7 +63,7 @@ La sala de control isométrica une los indicadores reales de operaciones y el ac
 
 El **Warehouse Editor** permite a los operadores diseñar una distribución visual de estanterías, muelles y zonas de trabajo, vinculada a cada almacén real y guardada en PostgreSQL mediante `/api/v1/warehouses/{id}/visual-layout`. La edición se realiza en una maqueta 3D con selección, colocación en cuadrícula, giro, eliminación, guardado, restauración y protección contra cambios simultáneos. No almacena posiciones de productos ni modifica existencias, pedidos o flota.
 
-La acción **Back to Warehouse Twin** abre el mismo almacén. El Twin muestra el plano guardado y su revisión; sólo usa la distribución predeterminada cuando no hay plano. Una maniobra en una distribución personalizada requiere un pasillo libre hasta un muelle orientado hacia la salida.
+La acción **Back to Warehouse Twin** abre el mismo almacén. El Twin muestra el plano guardado y su revisión; sólo usa la distribución predeterminada cuando no hay plano. El Editor permite comprobar si cabe la carretilla cargada. El Twin calcula un recorrido A* con giros hasta el muelle, lo dibuja en el suelo y permite seguir la máquina sin modificar registros del ERP.
 
 ![Plano guardado en el gemelo del almacén](docs/screenshots/warehouse-twin-saved-layout.png)
 

@@ -4,7 +4,11 @@ La ruta autenticada `/warehouse-twin` permite explorar una nave industrial isom�
 
 ## Plano del editor
 
-Al abrir la escena se consulta la revisión guardada. Si no hay plano se mantiene la maqueta original. Con plano se reemplazan los objetos, sin superponer las dos distribuciones. Un pasillo lateral recto requiere recepción, muelle orientado hacia la salida y espacio libre para palé, carretilla y furgoneta. Si no existe se conserva la exploración estática y se explica el motivo. No se calcula una ruta física real.
+Al abrir la escena se consulta la revisión guardada. Si no hay plano se utiliza la distribución inicial ilustrativa del Editor; no se guarda por abrirla. El mismo planificador alimenta **Check forklift route** en el Editor y la animación del Twin.
+
+A* explora estados de posición y orientación: pasos rectos de una celda y arcos tangentes de radio dos. La distancia al destino guía la búsqueda. Se comprueba la huella orientada de la máquina, las horquillas y el palé contra los objetos rotados, el perímetro, el pilar delantero y la furgoneta estacionada. Se añade margen para el movimiento entre muestras. La transferencia final se comprueba como una aproximación recta a la parte trasera abierta. No hay giros sobre el sitio ni una curva decorativa posterior que pueda recortar esquinas.
+
+**Show route** muestra la trayectoria calculada. **Follow forklift** (o seleccionar la máquina en 3D) sigue el movimiento; **Overview** vuelve a la isométrica. Si falta una recepción, un muelle orientado al patio o espacio para maniobrar, el Twin explica el bloqueo y mantiene la exploración. El planificador es conservador: busca maniobras hacia delante con radio fijo, no todas las soluciones de marcha atrás posibles. No es navegación certificada para maquinaria real.
 
 ## Registros y geometría
 
@@ -23,7 +27,7 @@ Al abrir la escena se consulta la revisión guardada. Si no hay plano se mantien
 4. Observar preparación, recogida de palé, traslado de carretilla, aproximación al muelle y carga ilustrativa en la furgoneta.
 5. Pausar, reanudar o reiniciar. Cambiar de pedido reinicia la secuencia; cambiar de almacén destruye la escena anterior.
 
-La secuencia tiene 24 segundos de tiempo visual y puede avanzar más despacio en renderizadores limitados. No representa una duración operativa medida. Se pausa al ocultar la pestaña. Con movimiento reducido se ofrece exploración estática, sin reproducción automática.
+La secuencia dura al menos 24 segundos de tiempo visual. Un rodeo prolonga el traslado para limitar su velocidad a 2,4 unidades de escena por segundo; la recogida y la carga conservan su duración. La animación puede avanzar más despacio en renderizadores limitados. No representa una duración operativa medida. Se pausa al ocultar la pestaña. Con movimiento reducido se ofrece exploración estática, sin reproducción automática.
 
 ## Arquitectura y recursos
 

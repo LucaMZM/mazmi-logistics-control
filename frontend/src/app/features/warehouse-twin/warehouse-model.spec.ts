@@ -1,3 +1,5 @@
+import { starterLayout } from '../warehouse-editor/warehouse-layout.model';
+import { planLoading } from '../warehouse-spatial/loading-lane';
 import * as T from 'three';
 import { WarehouseSequence } from './warehouse-model';
 import { WarehouseAssets } from './warehouse-assets';
@@ -27,6 +29,14 @@ describe('Warehouse visual sequence', () => {
     expect(clock.snapshot().running).toBe(false);
     expect(clock.snapshot().progress).toBe(0);
   });
+  it('lengthens only the travel phase on a detour and still finishes the loading stroke', () => {
+    const clock = new WarehouseSequence(48);
+    expect(clock.duration).toBe(42);
+    clock.play();
+    clock.advance(22);
+    expect(clock.choreographyTime()).toBe(13);
+    expect(clock.advance(20)).toMatchObject({ phase: 'Complete', progress: 100, running: false });
+  });
   it('ignores invalid time values without mutating domain objects', () => {
     const clock = new WarehouseSequence();
     clock.play();
@@ -44,7 +54,8 @@ describe('Warehouse resource catalog', () => {
     });
     let assets: WarehouseAssets;
     try {
-      assets = new WarehouseAssets();
+      const items = starterLayout();
+      assets = new WarehouseAssets(items, planLoading(items).lane);
     } finally {
       Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', descriptor);
     }

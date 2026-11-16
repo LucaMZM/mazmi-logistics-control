@@ -36,6 +36,18 @@ export class TwinAssets {
     parent.add(mesh);
     return mesh;
   }
+  tyre(parent: T.Group, position: [number, number, number], radius: number, width: number) {
+    const key = 'rubber-tyre';
+    if (!this.geometries.has(key)) this.geometries.set(key, new T.CylinderGeometry(1, 1, 1, 20));
+    if (!this.materials.has(key))
+      this.materials.set(key, new T.MeshStandardMaterial({ color: '#32383a', roughness: 0.91 }));
+    const wheel = new T.Mesh(this.geometries.get(key), this.materials.get(key));
+    wheel.position.set(...position);
+    wheel.scale.set(radius, width, radius);
+    wheel.rotation.z = Math.PI / 2;
+    wheel.castShadow = true;
+    parent.add(wheel);
+  }
   label(
     parent: T.Object3D,
     text: string,
@@ -67,9 +79,13 @@ export class TwinAssets {
     parent.add(mesh);
     return mesh;
   }
-  van(plate: string, color: string) {
+  van(plate: string, color: string, openCargo = false) {
     const van = new T.Group();
-    this.box(van, [1.9, 1.65, 3.1], [0, 1.45, -0.55], color, 0.16);
+    if (openCargo) {
+      this.box(van, [1.9, 0.13, 3.55], [0, 0.91, -0.77], '#51616a');
+      for (const x of [-0.91, 0.91]) this.box(van, [0.08, 1.6, 3.1], [x, 1.73, -0.55], color);
+      this.box(van, [1.9, 0.09, 3.1], [0, 2.55, -0.55], color);
+    } else this.box(van, [1.9, 1.65, 3.1], [0, 1.45, -0.55], color, 0.16);
     this.box(van, [1.85, 1.35, 1.65], [0, 1.25, 1.55], color, 0.18);
     this.box(van, [1.8, 0.42, 0.8], [0, 0.9, 2.05], color, 0.12);
     const windshield = this.box(van, [1.58, 0.65, 0.08], [0, 1.58, 2.32], '#354c57');
@@ -102,7 +118,7 @@ export class TwinAssets {
     this.box(van, [0.78, 0.21, 0.07], [0, 0.98, 2.48], '#30363d');
     this.label(van, plate, 0.9, 0.23, [0, 0.73, 2.53]);
     this.label(van, plate, 0.9, 0.23, [0, 0.73, -2.16]).rotation.y = Math.PI;
-    this.box(van, [0.025, 1.4, 0.025], [0, 1.43, -2.12], '#77828a');
+    if (!openCargo) this.box(van, [0.025, 1.4, 0.025], [0, 1.43, -2.12], '#77828a');
     return van;
   }
   yard() {

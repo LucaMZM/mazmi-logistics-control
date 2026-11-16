@@ -1,5 +1,6 @@
 import { computed } from '@angular/core';
-import { loadingLane } from '../warehouse-spatial/loading-lane';
+import { starterLayout } from '../warehouse-editor/warehouse-layout.model';
+import { planLoading } from '../warehouse-spatial/loading-lane';
 import { firstValueFrom } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../core/services/api.service';
@@ -171,6 +172,18 @@ import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-lo
         }
         <div class="sequence-panel">
           <h2>Preparation sequence</h2>
+          @if (ready() && !blockedLane()) {
+            <div class="sequence-actions">
+              <button (click)="scene?.follow(!following())" [attr.aria-pressed]="following()">
+                Follow forklift
+              </button>
+              @if (activePlan()?.lane) {
+                <button (click)="toggleRoute()" [attr.aria-pressed]="routeVisible()">
+                  Show route
+                </button>
+              }
+            </div>
+          }
           <p>Visual demonstration only. No stock or order changes.</p>
           @if (store.ordersError()) {
             <p role="alert">{{ store.ordersError() }}</p>
@@ -224,10 +237,7 @@ import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-lo
             <button (click)="scene?.reset()" [disabled]="!ready()">Reset sequence</button>
           </div>
           @if (blockedLane()) {
-            <p>
-              Static blueprint: no clear loading lane between staging and an outward-facing dock.
-              The default animation is not used here.
-            </p>
+            <p>Static blueprint: {{ blockedLane() }}</p>
           }
           @if (reduced()) {
             <p>Reduced motion enabled. Explore static zones with the camera controls.</p>
@@ -292,10 +302,10 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(ApiService);
   readonly blueprint = signal<WarehouseVisualLayout | null>(null);
-  readonly blockedLane = computed(() => {
-    const plan = this.blueprint();
-    return !!plan && !loadingLane(plan.items);
-  });
+  readonly activePlan = signal<ReturnType<typeof planLoading> | null>(null);
+  readonly blockedLane = computed(() => this.activePlan()?.reason ?? null);
+  readonly following = signal(false);
+  readonly routeVisible = signal(true);
   readonly auth = inject(AuthService);
   private readonly loadScene = inject(WAREHOUSE_SCENE_LOADER);
   private readonly zone = inject(NgZone);
@@ -325,6 +335,9 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
   private closeScene() {
     ++this.revision;
     this.blueprint.set(null);
+    this.activePlan.set(null);
+    this.following.set(false);
+    this.routeVisible.set(true);
     this.scene?.dispose();
     this.scene = undefined;
     this.ready.set(false);
@@ -365,10 +378,21 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
         throw new Error('Invalid blueprint');
       if (this.destroyed || revision !== this.revision) return;
       this.blueprint.set(layout.saved ? layout : null);
+      const items = layout.saved ? layout.items : starterLayout();
+      const plan = planLoading(items);
+      this.activePlan.set(plan);
       this.zone.runOutsideAngular(() => {
         this.scene = new Constructor(
           this.host.nativeElement,
           {
+            following: (enabled) =>
+              this.zone.run(() => {
+                this.following.set(enabled);
+                if (enabled) {
+                  this.selectedZone.set(null);
+                  this.roofVisible.set(false);
+                }
+              }),
             select: (id) =>
               this.zone.run(() => {
                 this.selectedZone.set(id);
@@ -384,7 +408,8 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
                 );
               }),
           },
-          layout.saved ? layout.items : undefined,
+          items,
+          plan.lane,
         );
         this.scene.init();
       });
@@ -413,6 +438,10 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
   overview() {
     this.selectedZone.set(null);
     this.scene?.overview();
+  }
+  toggleRoute() {
+    this.routeVisible.update((v) => !v);
+    this.scene?.showRoute(this.routeVisible());
   }
   toggleRoof() {
     this.roofVisible.set(!this.roofVisible());

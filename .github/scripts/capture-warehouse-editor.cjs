@@ -68,6 +68,8 @@ async function main() {
     await page.mouse.move(0, 0);
     await page.screenshot({ path: path.join(output, 'warehouse-editor-overview.png'), animations: 'disabled' });
 
+    await page.getByRole('button',{name:'Check forklift route'}).click();
+    await page.getByText('Clear route from staging to dispatch.').waitFor();
     // Project a known point of the starter rack into the actual orthographic viewport.
     const bounds=await canvas.boundingBox();
     const half=Math.max(15,17*bounds.height/bounds.width);
@@ -168,11 +170,12 @@ async function main() {
     await page.getByRole('button',{name:'Open 3D warehouse'}).click();
     await page.getByText('Saved blueprint · Revision 2',{exact:false}).waitFor();
     await page.locator('.warehouse-scene canvas').waitFor();
-    await page.getByText('Static blueprint:',{exact:false}).waitFor();
+    await page.getByRole('button',{name:'Show route'}).waitFor();
     await page.getByRole('button',{name:'Storage racks'}).focus();
     await page.keyboard.press('Enter');
     await page.locator('.warehouse-zones button[aria-pressed="true"]').waitFor();
     await page.getByRole('button',{name:'Overview',exact:true}).click();
+    await page.waitForTimeout(500);
     await page.screenshot({path:path.join(output,'warehouse-twin-saved-layout.png'),animations:'disabled'});
     const other=warehouses.find(w=>w.id!==warehouse.id);
     assert(other);
@@ -183,8 +186,7 @@ async function main() {
     // Save a designed scenario in this disposable warehouse. No domain writes.
     const planUrl=base+'/api/v1/warehouses/'+warehouse.id+'/visual-layout';
     const request={revision:2,items:[
-      {id:'staging-east',kind:'STAGING',x:8,z:-3,orientation:0},
-      {id:'dock-east',kind:'DOCK',x:8,z:5,orientation:0},
+      ...latest.items.map(item => item.id === 'rack-1' ? {...item,x:-7} : item),
     ]};
     assert.equal((await context.request.put(planUrl,{data:request})).status(),403);
     const token=(await context.cookies()).find(c=>c.name==='XSRF-TOKEN');
@@ -198,7 +200,36 @@ async function main() {
     await orderSelect.locator('option').nth(1).waitFor({state:'attached'});
     await orderSelect.selectOption({index:1});
     await page.getByRole('button',{name:'Play sequence',exact:true}).click();
+    await page.waitForFunction(()=>document.querySelector('progress').value>=43,null,{timeout:180000});
+    await page.getByRole('button',{name:'Pause sequence'}).click();
+    const paused=await page.locator('progress').evaluate(p=>p.value);
+    const follow=page.getByRole('button',{name:'Follow forklift'});
+    await follow.focus();await page.keyboard.press('Enter');
+    assert.equal(await follow.getAttribute('aria-pressed'),'true');
+    const route=page.getByRole('button',{name:'Show route'});
+    await route.click();assert.equal(await route.getAttribute('aria-pressed'),'false');await route.click();
+    await page.locator('.warehouse-world').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(550);
+    assert.equal(await page.locator('progress').evaluate(p=>p.value),paused);
+    await page.screenshot({path:path.join(output,'smart-warehouse-forklift.png'),animations:'disabled'});
+    await page.getByRole('button',{name:'Overview',exact:true}).click();
+    assert.equal(await follow.getAttribute('aria-pressed'),'false');
+    await page.setViewportSize({width:390,height:844});
+    await page.emulateMedia({reducedMotion:'reduce'});
+    assert(await page.getByRole('button',{name:'Play sequence'}).isDisabled());
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    await page.locator('.warehouse-world').screenshot({path:path.join(output,'smart-warehouse-mobile.png')});
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    await page.setViewportSize({width:1440,height:1100});
+    await page.getByRole('button',{name:'Play sequence'}).click();
     await page.waitForFunction(()=>document.querySelector('progress').value===100,null,{timeout:180000});
+    await page.getByRole('button',{name:'Reset sequence'}).click();
+    await page.waitForFunction(()=>document.querySelector('progress').value===0);
+    const blocked=await context.request.put(planUrl,{data:{revision:3,items:request.items.filter(o=>o.kind!=='DOCK')},headers:{'X-XSRF-TOKEN':decodeURIComponent(token.value)}});
+    assert.equal(blocked.status(),200);
+    await page.getByRole('button',{name:'Open 3D warehouse'}).click();
+    await page.getByText('Static blueprint: Add a dispatch dock',{exact:false}).waitFor();
+    assert(await page.getByRole('button',{name:'Play sequence'}).isDisabled());
     const viewContext=await browser.newContext();
     const viewer=await viewContext.newPage();
     await viewer.goto(base+'/login');
@@ -244,7 +275,8 @@ async function main() {
         'persistent save and reload',
         'two-tab optimistic version conflict',
         'saved blueprint and fallback across warehouses',
-        'blocked lane and completed certified loading sequence',
+        'layout-aware route, keyboard follow, route toggle, pause, resume, reset and completion',
+        'blocked layout cannot play; reduced motion and mobile twin',
         'CSRF and read-only viewer enforcement',
         'unchanged warehouse inventory and independent order reconciliation',
         'WebGL loss and recovery',

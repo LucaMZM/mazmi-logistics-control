@@ -161,6 +161,12 @@
       }
     </div>
 
+    <div class="item-controls">
+      <button type="button" (click)="checkRoute()" [disabled]="!layoutLoaded() || loading()">
+        Check forklift route
+      </button>
+      <p role="status">{{ routeMessage() }}</p>
+    </div>
     <p class="disclosure">
       <strong>Visual blueprint only.</strong>
       Saved positions are tied to this warehouse, but they do not identify product storage bins. All

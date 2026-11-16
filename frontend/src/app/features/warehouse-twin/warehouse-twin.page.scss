@@ -354,3 +354,20 @@ td span {
     transform: none;
   }
 }
+.sequence-actions button[aria-pressed='true'] {
+  border-color: #526f67;
+  background: #e6ede9;
+  color: #28483f;
+}
+button:focus-visible {
+  outline: 3px solid #49677a;
+  outline-offset: 2px;
+}
+@media (pointer: coarse) {
+  .sequence-actions button,
+  .warehouse-controls button,
+  .warehouse-zones button {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+}

@@ -1,3 +1,4 @@
+import { planLoading } from '../warehouse-spatial/loading-lane';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -69,6 +70,16 @@ export class WarehouseEditorPage implements AfterViewInit, OnDestroy {
   readonly sceneError = signal('');
   readonly kinds = LAYOUT_KINDS;
   readonly labels = LAYOUT_LABELS;
+  private readonly routeCheck = signal<{ items: LayoutItem[]; message: string } | null>(null);
+  readonly routeMessage = computed(() => {
+    const result = this.routeCheck();
+    return result?.items === this.items() ? result.message : null;
+  });
+  checkRoute() {
+    const items = this.items(),
+      plan = planLoading(items);
+    this.routeCheck.set({ items, message: plan.reason ?? 'Clear route from staging to dispatch.' });
+  }
   readonly dirty = computed(() => JSON.stringify(this.items()) !== JSON.stringify(this.base()));
   readonly canSave = computed(
     () =>

@@ -64,7 +64,21 @@ export interface SequenceSnapshot {
 export class WarehouseSequence {
   private elapsed = 0;
   private running = false;
-  readonly duration = 24;
+  private readonly transferSeconds: number;
+  readonly duration: number;
+  constructor(length = 0) {
+    // Smoothstep peaks at 1.5 times its average speed. Long detours take
+    // longer; they never make the loaded vehicle sprint to meet a deadline.
+    this.transferSeconds = Math.max(12, (1.5 * length) / 2.4);
+    this.duration = 12 + this.transferSeconds;
+  }
+  choreographyTime() {
+    if (this.elapsed === this.duration) return 24;
+    if (this.elapsed < 7) return this.elapsed;
+    if (this.elapsed < 7 + this.transferSeconds)
+      return 7 + ((this.elapsed - 7) * 12) / this.transferSeconds;
+    return this.elapsed - this.transferSeconds + 12;
+  }
   play() {
     if (this.elapsed >= this.duration) this.elapsed = 0;
     this.running = true;
@@ -83,11 +97,11 @@ export class WarehouseSequence {
     return this.snapshot();
   }
   snapshot(): SequenceSnapshot {
-    const t = this.elapsed;
+    const t = this.choreographyTime();
     const phase = t < 3 ? 0 : t < 7 ? 1 : t < 15 ? 2 : t < 19 ? 3 : t < 24 ? 4 : 5;
     return {
       elapsed: t,
-      progress: (t / this.duration) * 100,
+      progress: (this.elapsed / this.duration) * 100,
       phase: SEQUENCE_PHASES[phase],
       running: this.running,
     };

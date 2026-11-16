@@ -1,4 +1,4 @@
-import { loadingLane, type LoadingLane } from '../warehouse-spatial/loading-lane';
+import { sampleRoute, type LoadingLane } from '../warehouse-spatial/loading-lane';
 import type { LayoutItem } from '../warehouse-editor/warehouse-layout.model';
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -9,9 +9,11 @@ import { WarehouseSceneEvents, WarehouseScenePort } from './warehouse-scene-load
 export class WarehouseScene implements WarehouseScenePort {
   private readonly world = new T.Scene();
   private readonly camera = new T.OrthographicCamera(-22, 22, 18, -18, 0.1, 200);
-  private readonly lane: LoadingLane | null;
+  private following = false;
+  private readonly focusTarget = new T.Vector3();
+  private readonly delta = new T.Vector3();
   private readonly assets: WarehouseAssets;
-  private readonly sequence = new WarehouseSequence();
+  private readonly sequence: WarehouseSequence;
   private renderer?: T.WebGLRenderer;
   private controls?: OrbitControls;
   private observer?: ResizeObserver;
@@ -20,27 +22,25 @@ export class WarehouseScene implements WarehouseScenePort {
   private previous = 0;
   private disposed = false;
   private lastPublished = -1;
-  private transition?: { from: T.Vector3; to: T.Vector3; camera: T.Vector3; started: number };
+  private transition?: {
+    from: T.Vector3;
+    to: T.Vector3;
+    orbit: T.Spherical;
+    end: T.Spherical;
+    zoom: number;
+    endZoom: number;
+    started: number;
+  };
   private readonly reduced = matchMedia('(prefers-reduced-motion: reduce)');
   private readonly pointer = new T.Vector2();
-  private readonly transfer = new T.CatmullRomCurve3(
-    [
-      new T.Vector3(-5.5, 0.12, 0.8),
-      new T.Vector3(-5.5, 0.12, 3),
-      new T.Vector3(0, 0.12, 3),
-      new T.Vector3(5, 0.12, 3),
-      new T.Vector3(5, 0.12, 5.4),
-    ],
-    false,
-    'centripetal',
-  );
   constructor(
     private readonly host: HTMLElement,
     private readonly events: WarehouseSceneEvents,
-    private readonly layout?: LayoutItem[],
+    layout: LayoutItem[],
+    private readonly lane: LoadingLane | null = null,
   ) {
-    this.lane = layout ? loadingLane(layout) : null;
-    this.assets = new WarehouseAssets(layout);
+    this.sequence = new WarehouseSequence(lane?.length);
+    this.assets = new WarehouseAssets(layout, lane);
   }
   init() {
     try {
@@ -48,8 +48,10 @@ export class WarehouseScene implements WarehouseScenePort {
       this.renderer.setPixelRatio(
         Math.min(devicePixelRatio || 1, this.host.clientWidth < 600 ? 1.25 : 1.5),
       );
+      this.renderer.toneMapping = T.ACESFilmicToneMapping;
+      this.renderer.toneMappingExposure = 1.05;
       this.renderer.shadowMap.enabled = true;
-      this.renderer.shadowMap.type = T.PCFSoftShadowMap;
+      this.renderer.shadowMap.type = T.PCFShadowMap;
       this.world.background = new T.Color('#e8ecee');
       this.world.add(new T.HemisphereLight('#ffffff', '#86959e', 2.5));
       const sun = new T.DirectionalLight('#fff4e2', 3.2);
@@ -57,7 +59,8 @@ export class WarehouseScene implements WarehouseScenePort {
       sun.castShadow = true;
       sun.shadow.mapSize.set(1024, 1024);
       Object.assign(sun.shadow.camera, { left: -25, right: 25, top: 25, bottom: -25, far: 100 });
-      sun.shadow.normalBias = 0.05;
+      sun.shadow.radius = 2;
+      sun.shadow.normalBias = 0.035;
       this.world.add(sun, this.assets.root);
       this.camera.position.set(30, 27, 36);
       const canvas = this.renderer.domElement;
@@ -107,6 +110,10 @@ export class WarehouseScene implements WarehouseScenePort {
     )[0];
     let object: T.Object3D | null = hit?.object ?? null;
     while (object) {
+      if (object === this.assets.forklift) {
+        this.follow(true);
+        return;
+      }
       const zone = object.userData['zone'];
       if (zone === 'receiving' || zone === 'racks' || zone === 'picking' || zone === 'dispatch') {
         this.events.select(zone);
@@ -123,6 +130,7 @@ export class WarehouseScene implements WarehouseScenePort {
   };
   private readonly cancelFocus = () => {
     this.transition = undefined;
+    this.follow(false);
   };
   private readonly visibility = () => {
     this.previous = 0;
@@ -162,20 +170,44 @@ export class WarehouseScene implements WarehouseScenePort {
     const dt = this.previous ? Math.min((now - this.previous) / 1000, 0.05) : 0;
     this.previous = now;
     const state = this.sequence.advance(dt);
-    this.pose(state.elapsed);
+    this.pose(this.sequence.choreographyTime());
     const bucket = Math.floor(state.elapsed * 10);
     if (bucket !== this.lastPublished) {
       this.events.sequence(state);
       this.lastPublished = bucket;
     }
+    if (this.following && this.controls) {
+      this.focusTarget.copy(this.assets.forklift.position);
+      this.focusTarget.y += 1;
+      if (this.transition) this.transition.to.copy(this.focusTarget);
+      else {
+        this.delta.copy(this.focusTarget).sub(this.controls.target);
+        this.camera.position.add(this.delta);
+        this.controls.target.copy(this.focusTarget);
+        this.controls.update();
+      }
+    }
     if (this.transition && this.controls) {
       const t = Math.min(1, (now - this.transition.started) / 250),
         ease = 1 - (1 - t) ** 3;
-      const target = this.transition.from.clone().lerp(this.transition.to, ease);
+      const tr = this.transition;
+      this.controls.target.lerpVectors(tr.from, tr.to, ease);
+      const theta =
+        tr.orbit.theta +
+        Math.atan2(
+          Math.sin(tr.end.theta - tr.orbit.theta),
+          Math.cos(tr.end.theta - tr.orbit.theta),
+        ) *
+          ease;
       this.camera.position
-        .copy(this.transition.camera)
-        .add(target.clone().sub(this.transition.from));
-      this.controls.target.copy(target);
+        .setFromSphericalCoords(
+          T.MathUtils.lerp(tr.orbit.radius, tr.end.radius, ease),
+          T.MathUtils.lerp(tr.orbit.phi, tr.end.phi, ease),
+          theta,
+        )
+        .add(this.controls.target);
+      this.camera.zoom = T.MathUtils.lerp(tr.zoom, tr.endZoom, ease);
+      this.camera.updateProjectionMatrix();
       this.controls.update();
       if (t === 1) this.transition = undefined;
     }
@@ -184,84 +216,73 @@ export class WarehouseScene implements WarehouseScenePort {
     else this.previous = 0;
   };
   private pose(t: number) {
-    if (this.layout) {
-      if (!this.lane) return;
-      const { x, start, stop, van } = this.lane;
-      const blend = (a: number, b: number, from: number, to: number) =>
-        T.MathUtils.lerp(a, b, T.MathUtils.smoothstep(t, from, to));
-      const pickup = start + 1.5;
-      const z =
-        t < 7
-          ? blend(start, pickup, 3, 7)
-          : t < 19
-            ? blend(pickup, stop, 7, 19)
-            : blend(stop, stop - 0.8, 22, 24);
-      this.assets.forklift.position.set(x, 0.12, z);
-      this.assets.pallet.position.set(
-        x,
-        t < 19 ? blend(0.14, 0.57, 7, 8) : blend(0.57, 1.18, 19, 22),
-        t < 7 ? pickup + 1.4 : t < 19 ? z + 1.4 : blend(stop + 1.4, van - 1.6, 19, 22),
-      );
-      return;
-    }
-    const forklift = this.assets.forklift,
-      pallet = this.assets.pallet;
-    let heading = Math.PI;
-    if (t < 7) forklift.position.set(-5.5, 0.12, 4.5 - (Math.max(0, t - 3) / 4) * 3.7);
-    else if (t < 15) {
-      const ratio = (t - 7) / 8;
-      forklift.position.copy(this.transfer.getPointAt(ratio));
-      const tangent = this.transfer.getTangentAt(ratio);
-      heading = Math.atan2(tangent.x, tangent.z);
-    } else {
-      forklift.position.set(
-        5,
-        0.12,
-        5.4 + Math.min(1, (t - 15) / 4) * 0.8 - (Math.max(0, t - 22) / 2) * 0.8,
-      );
-      heading = 0;
-    }
-    // Heading is interpolated across the pickup turn; subsequent trajectory tangents are continuous.
-    if (t >= 7 && t < 8) heading = T.MathUtils.lerp(Math.PI, heading, t - 7);
-    forklift.rotation.y = heading;
-    if (t < 7) pallet.position.set(-5.5, 0.14, -0.65);
-    else if (t < 19)
-      pallet.position.copy(
-        new T.Vector3(0, T.MathUtils.lerp(0.02, 0.45, Math.min(1, t - 7)), 1.4)
-          .applyAxisAngle(new T.Vector3(0, 1, 0), heading)
-          .add(forklift.position),
-      );
-    else
-      pallet.position.set(
-        5,
-        0.57 + Math.min(1, (t - 19) / 3) * 0.65,
-        7.6 + Math.min(1, (t - 19) / 3) * 1.8,
-      );
-    pallet.rotation.y = heading;
+    if (!this.lane) return;
+    const ease = (from: number, to: number) => T.MathUtils.smoothstep(t, from, to);
+    const p = sampleRoute(this.lane, ease(7, 19));
+    const insertion = 1.9 * ease(19.9, 21.9),
+      withdrawal = 1.9 * ease(22.5, 24);
+    const lift = 0.38 * ease(3, 7) + 0.62 * ease(19, 19.9) - 0.045 * ease(21.9, 22.5);
+    this.assets.forklift.position.set(p.x, 0.12, p.z + insertion - withdrawal);
+    this.assets.forklift.rotation.y = p.yaw;
+    this.assets.carriage.position.y = lift;
+    this.assets.pallet.position.set(
+      p.x + Math.sin(p.yaw) * 1.4,
+      0.14 + lift,
+      p.z + Math.cos(p.yaw) * 1.4 + insertion,
+    );
+    this.assets.pallet.rotation.y = p.yaw;
   }
   focus(zone: WarehouseZone, instant = true) {
     const group = this.assets.zones.get(zone);
     if (!group?.children.length || !this.controls) return;
+    this.follow(false);
     this.roof(false);
     this.clearSelection();
     const bounds = new T.Box3().setFromObject(group);
     this.selection = new T.Box3Helper(bounds, new T.Color('#8c7046'));
     this.world.add(this.selection);
     const target = bounds.getCenter(new T.Vector3());
+    this.frameTarget(target, zone === 'racks' ? 1.15 : 1.6, instant);
+  }
+  private frameTarget(target: T.Vector3, zoom: number, instant = false, offset?: T.Vector3) {
+    if (!this.controls) return;
+    const current = this.camera.position.clone().sub(this.controls.target);
     if (instant || this.reduced.matches) {
-      this.camera.position.add(target.clone().sub(this.controls.target));
-      this.controls.target.copy(target);
       this.transition = undefined;
+      this.controls.target.copy(target);
+      this.camera.position.copy(offset ?? current).add(target);
+      this.camera.zoom = zoom;
+      this.camera.updateProjectionMatrix();
+      this.controls.update();
     } else
       this.transition = {
         from: this.controls.target.clone(),
         to: target,
-        camera: this.camera.position.clone(),
+        orbit: new T.Spherical().setFromVector3(current),
+        end: new T.Spherical().setFromVector3(offset ?? current),
+        zoom: this.camera.zoom,
+        endZoom: zoom,
         started: performance.now(),
       };
-    this.camera.zoom = zone === 'racks' ? 1.15 : 1.6;
-    this.camera.updateProjectionMatrix();
-    this.controls.update();
+    this.invalidate();
+  }
+  showRoute(visible: boolean) {
+    this.assets.route.visible = visible;
+    this.invalidate();
+  }
+  follow(enabled: boolean) {
+    if (this.following === enabled || !this.controls || (enabled && !this.assets.forklift.parent))
+      return;
+    this.following = enabled;
+    this.events.following(enabled);
+    this.assets.catalog.highlightBody('#ac925f', enabled);
+    if (enabled) {
+      this.clearSelection();
+      this.roof(false);
+      const target = this.assets.forklift.position.clone();
+      target.y += 1;
+      this.frameTarget(target, 1.85);
+    } else this.transition = undefined;
     this.invalidate();
   }
   private clearSelection() {
@@ -279,12 +300,7 @@ export class WarehouseScene implements WarehouseScenePort {
     if (!this.controls) return;
     this.cancelFocus();
     this.clearSelection();
-    this.camera.position.set(30, 27, 36);
-    this.controls.target.set(0, 1, 2);
-    this.camera.zoom = 1;
-    this.camera.updateProjectionMatrix();
-    this.controls.update();
-    this.invalidate();
+    this.frameTarget(new T.Vector3(0, 1, 2), 1, false, new T.Vector3(30, 26, 34));
   }
   rotate() {
     if (!this.controls) return;
@@ -298,6 +314,7 @@ export class WarehouseScene implements WarehouseScenePort {
     this.invalidate();
   }
   zoom(direction: number) {
+    this.transition = undefined;
     this.camera.zoom = T.MathUtils.clamp(this.camera.zoom + direction * 0.2, 0.6, 2.5);
     this.camera.updateProjectionMatrix();
     this.invalidate();
@@ -307,7 +324,7 @@ export class WarehouseScene implements WarehouseScenePort {
     this.invalidate();
   }
   play() {
-    if ((this.layout && !this.lane) || this.disposed || this.reduced.matches) return false;
+    if (!this.lane || this.disposed || this.reduced.matches) return false;
     this.sequence.play();
     this.previous = 0;
     this.events.sequence(this.sequence.snapshot());

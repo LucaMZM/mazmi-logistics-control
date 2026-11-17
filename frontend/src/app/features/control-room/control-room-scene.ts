@@ -1,6 +1,7 @@
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TwinAssets } from '../digital-twin/twin-assets';
+import { readSceneDiagnostics } from '../digital-twin/scene-diagnostics';
 import { resizeSceneRenderer } from '../digital-twin/renderer-quality';
 import { ControlRoomSnapshot, ControlRoomStation, metricLabel } from './control-room.model';
 import { ControlRoomSceneEvents, ControlRoomScenePort } from './control-room-scene-loader';
@@ -347,6 +348,9 @@ export class ControlRoomScene implements ControlRoomScenePort {
     this.camera.position.copy(this.controls.target).add(offset);
     this.controls.update();
     this.invalidate();
+  }
+  snapshotDiagnostics() {
+    return this.renderer && !this.disposed ? readSceneDiagnostics(this.renderer) : null;
   }
   dispose(): void {
     if (this.disposed) return;

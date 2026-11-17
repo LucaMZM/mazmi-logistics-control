@@ -3,6 +3,7 @@ import type { LayoutItem } from '../warehouse-editor/warehouse-layout.model';
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { WarehouseAssets } from './warehouse-assets';
+import { readSceneDiagnostics } from '../digital-twin/scene-diagnostics';
 import { resizeSceneRenderer } from '../digital-twin/renderer-quality';
 import { WarehouseSequence, WarehouseZone } from './warehouse-model';
 import { WarehouseSceneEvents, WarehouseScenePort } from './warehouse-scene-loader';
@@ -339,6 +340,9 @@ export class WarehouseScene implements WarehouseScenePort {
     this.pose(0);
     this.events.sequence(this.sequence.snapshot());
     this.invalidate();
+  }
+  snapshotDiagnostics() {
+    return this.renderer && !this.disposed ? readSceneDiagnostics(this.renderer) : null;
   }
   dispose() {
     if (this.disposed) return;

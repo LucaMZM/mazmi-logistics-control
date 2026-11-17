@@ -55,6 +55,14 @@ Este límite controla carga máxima por frame; **no es una medición de memoria 
 
 Fleet Twin reutiliza los vectores y cuaterniones del movimiento en cada fotograma, así como el Raycaster de selección, para reducir la presión del recolector de basura. El efecto de hover solo provoca un render adicional cuando cambia el objeto resaltado. Control Room también reutiliza el Raycaster y el conjunto de pantallas seleccionables. Son mejoras de asignaciones y repintado sin alterar la lógica de navegación del ERP.
 
+## Diagnóstico visual de la carga de render
+
+Las pantallas **Warehouse Twin** y **Control Room** incorporan la acción **Inspect renderer**, oculta por defecto y disponible únicamente cuando la escena está lista. Esta consulta lee una sola vez los contadores de Three.js **del último fotograma dibujado**: draw calls, triángulos, geometrías y texturas gestionadas por WebGL, tamaño físico del drawing buffer y DPR usado. **Refresh snapshot** actualiza los valores bajo demanda.
+
+No se programan sondeos periódicos, renders adicionales ni envío de datos a un servidor. Los contadores se reinician al cerrar la escena; los registros operativos no cambian. La información procede del navegador y puede ayudar a comparar dos planos del almacén en un mismo dispositivo, pero no representa FPS, tiempo real de GPU, memoria física consumida o un benchmark del MacBook Air M2. En escenas con render bajo demanda, puede reflejar un fotograma anterior hasta la siguiente interacción gráfica.
+
+Las pruebas unitarias verifican la lectura sin provocar nuevos frames, así como la apertura y cierre voluntarios del panel. Se conserva el fallback HTML cuando WebGL no está disponible.
+
 ## Fleet Twin — primera entrega
 
 Ruta autenticada: `/digital-twin`. Lectura de `/api/v1/vehicles` con los permisos existentes. No hay nuevas tablas, mutaciones ni reglas de negocio.

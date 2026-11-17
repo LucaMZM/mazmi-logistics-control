@@ -13,6 +13,15 @@ const engine = {
   focus: vi.fn(),
   reset: vi.fn(),
   play: vi.fn(() => true),
+  snapshotDiagnostics: vi.fn(() => ({
+    drawCalls: 42,
+    triangles: 8500,
+    geometryCount: 12,
+    textureCount: 2,
+    pixelRatio: 1.25,
+    bufferWidth: 1000,
+    bufferHeight: 800,
+  })),
 };
 class FakeScene {
   init = engine.init;
@@ -20,6 +29,7 @@ class FakeScene {
   focus = engine.focus;
   reset = engine.reset;
   play = engine.play;
+  snapshotDiagnostics = engine.snapshotDiagnostics;
   pause = vi.fn();
   overview = vi.fn();
   rotate = vi.fn();
@@ -75,6 +85,19 @@ describe('Warehouse page fallback and lifecycle', () => {
     expect(fixture.componentInstance.selectedZone()).toBe('racks');
     fixture.destroy();
     expect(engine.dispose).toHaveBeenCalledOnce();
+  });
+  it('shows an optional snapshot without polling or changing warehouse data', async () => {
+    const fixture = setup();
+    await fixture.componentInstance.openScene();
+    expect(engine.snapshotDiagnostics).not.toHaveBeenCalled();
+    fixture.componentInstance.toggleRendererStats();
+    expect(engine.snapshotDiagnostics).toHaveBeenCalledOnce();
+    expect(fixture.componentInstance.rendererStats()?.drawCalls).toBe(42);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Last rendered frame only');
+    fixture.componentInstance.toggleRendererStats();
+    expect(fixture.componentInstance.rendererStats()).toBeNull();
+    fixture.destroy();
   });
   it('preserves an explicitly saved empty blueprint without enabling the demo route', async () => {
     const fixture = setup();

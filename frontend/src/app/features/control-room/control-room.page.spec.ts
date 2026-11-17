@@ -24,6 +24,15 @@ class FakeRoom {
   focus = vi.fn();
   overview = vi.fn();
   rotate = vi.fn();
+  snapshotDiagnostics = vi.fn(() => ({
+    drawCalls: 25,
+    triangles: 2700,
+    geometryCount: 14,
+    textureCount: 3,
+    pixelRatio: 1.5,
+    bufferWidth: 1400,
+    bufferHeight: 900,
+  }));
   dispose = vi.fn();
   constructor() {
     FakeRoom.latest = this;
@@ -70,6 +79,21 @@ describe('Control Room page', () => {
     expect(FakeRoom.latest?.focus).toHaveBeenCalledWith('warehouse', false);
     fixture.destroy();
     expect(FakeRoom.latest?.dispose).toHaveBeenCalledOnce();
+  });
+
+  it('provides optional renderer stats and clears them when the 3D scene closes', async () => {
+    const fixture = TestBed.createComponent(ControlRoomPage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(FakeRoom.latest?.snapshotDiagnostics).not.toHaveBeenCalled();
+    fixture.componentInstance.toggleRendererStats();
+    expect(FakeRoom.latest?.snapshotDiagnostics).toHaveBeenCalledOnce();
+    expect(fixture.componentInstance.rendererStats()?.drawCalls).toBe(25);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Last rendered frame only');
+    fixture.componentInstance.toggleRendererStats();
+    expect(fixture.componentInstance.rendererStats()).toBeNull();
+    fixture.destroy();
   });
 
   it('updates the 3D monitors when dashboard data arrives after the scene', async () => {

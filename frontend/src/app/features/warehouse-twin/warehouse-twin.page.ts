@@ -23,6 +23,7 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { DecimalPipe } from '@angular/common';
 import { WarehouseTwinStore } from './warehouse-twin.store';
+import type { SceneDiagnostics } from '../digital-twin/scene-diagnostics';
 import { WAREHOUSE_ZONES, WarehouseZone, SequenceSnapshot } from './warehouse-model';
 import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-loader';
 
@@ -170,6 +171,25 @@ import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-lo
             <p class="zone-description">{{ zone.description }}</p>
           }
         }
+        <div class="renderer-panel">
+          <button type="button" (click)="toggleRendererStats()" [disabled]="!ready()"
+            [attr.aria-expanded]="rendererStats() !== null">
+            {{ rendererStats() ? 'Hide renderer stats' : 'Inspect renderer' }}
+          </button>
+          @if (rendererStats(); as stats) {
+            <div class="renderer-details">
+              <dl aria-label="Warehouse last frame renderer statistics">
+                <div><dt>Draw calls</dt><dd>{{ stats.drawCalls | number }}</dd></div>
+                <div><dt>Triangles</dt><dd>{{ stats.triangles | number }}</dd></div>
+                <div><dt>Geometries / textures</dt><dd>{{ stats.geometryCount }} / {{ stats.textureCount }}</dd></div>
+                <div><dt>Drawing buffer</dt><dd>{{ stats.bufferWidth }} × {{ stats.bufferHeight }}</dd></div>
+                <div><dt>Pixel ratio</dt><dd>{{ stats.pixelRatio | number: '1.0-2' }}</dd></div>
+              </dl>
+              <button type="button" (click)="refreshRendererStats()">Refresh snapshot</button>
+              <p>Last rendered frame only. Not an FPS or GPU-memory measurement.</p>
+            </div>
+          }
+        </div>
         <div class="sequence-panel">
           <h2>Preparation sequence</h2>
           @if (ready() && !blockedLane()) {
@@ -316,6 +336,7 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
   readonly sceneLoading = signal(false);
   readonly sceneError = signal('');
   readonly roofVisible = signal(false);
+  readonly rendererStats = signal<SceneDiagnostics | null>(null);
   readonly sequence = signal<SequenceSnapshot>({
     elapsed: 0,
     progress: 0,
@@ -345,6 +366,7 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
     this.sceneError.set('');
     this.selectedZone.set(null);
     this.roofVisible.set(false);
+    this.rendererStats.set(null);
     this.sequence.set({ elapsed: 0, progress: 0, phase: 'Preparing', running: false });
   }
   chooseWarehouse(event: Event) {
@@ -446,6 +468,13 @@ export class WarehouseTwinPage implements AfterViewInit, OnDestroy {
   toggleRoof() {
     this.roofVisible.set(!this.roofVisible());
     this.scene?.roof(this.roofVisible());
+  }
+  toggleRendererStats() {
+    if (this.rendererStats()) this.rendererStats.set(null);
+    else this.refreshRendererStats();
+  }
+  refreshRendererStats() {
+    this.rendererStats.set(this.scene?.snapshotDiagnostics() ?? null);
   }
   toggleSequence() {
     if (this.blockedLane() || !this.store.order()) return;

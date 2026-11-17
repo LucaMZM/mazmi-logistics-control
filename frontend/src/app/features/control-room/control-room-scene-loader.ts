@@ -1,8 +1,10 @@
 import { InjectionToken } from '@angular/core';
+import type { SceneDiagnostics } from '../digital-twin/scene-diagnostics';
 import { ControlRoomSnapshot, ControlRoomStation } from './control-room.model';
 
 export interface ControlRoomScenePort {
   init(snapshot: ControlRoomSnapshot): void;
+  snapshotDiagnostics(): SceneDiagnostics | null;
   update(snapshot: ControlRoomSnapshot): void;
   focus(station: ControlRoomStation, instant?: boolean): void;
   overview(): void;

@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DashboardStore } from '../dashboard/dashboard.store';
+import type { SceneDiagnostics } from '../digital-twin/scene-diagnostics';
 import {
   CONTROL_ROOM_STATIONS,
   ControlRoomStation,
@@ -45,6 +46,7 @@ export class ControlRoomPage implements AfterViewInit, OnDestroy {
   readonly sceneLoading = signal(false);
   readonly ready = signal(false);
   readonly sceneError = signal('');
+  readonly rendererStats = signal<SceneDiagnostics | null>(null);
   private scene?: ControlRoomScenePort;
   private generation = 0;
   private destroyed = false;
@@ -65,6 +67,7 @@ export class ControlRoomPage implements AfterViewInit, OnDestroy {
     this.scene = undefined;
     this.ready.set(false);
     this.sceneError.set('');
+    this.rendererStats.set(null);
     this.sceneLoading.set(true);
     try {
       const Scene = await this.loadScene();
@@ -111,6 +114,15 @@ export class ControlRoomPage implements AfterViewInit, OnDestroy {
     this.scene?.rotate();
   }
 
+  toggleRendererStats(): void {
+    if (this.rendererStats()) this.rendererStats.set(null);
+    else this.refreshRendererStats();
+  }
+
+  refreshRendererStats(): void {
+    this.rendererStats.set(this.scene?.snapshotDiagnostics() ?? null);
+  }
+
   refresh(): void {
     this.store.refresh();
   }
@@ -120,5 +132,6 @@ export class ControlRoomPage implements AfterViewInit, OnDestroy {
     ++this.generation;
     this.scene?.dispose();
     this.scene = undefined;
+    this.rendererStats.set(null);
   }
 }

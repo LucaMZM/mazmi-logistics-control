@@ -1,4 +1,5 @@
 import type { LoadingLane } from '../warehouse-spatial/loading-lane';
+import type { SceneDiagnostics } from '../digital-twin/scene-diagnostics';
 import type { LayoutItem } from '../warehouse-editor/warehouse-layout.model';
 import { InjectionToken } from '@angular/core';
 import { SequenceSnapshot, WarehouseZone } from './warehouse-model';
@@ -6,6 +7,7 @@ import { SequenceSnapshot, WarehouseZone } from './warehouse-model';
 export interface WarehouseScenePort {
   init(): void;
   dispose(): void;
+  snapshotDiagnostics(): SceneDiagnostics | null;
   focus(zone: WarehouseZone, instant?: boolean): void;
   overview(): void;
   follow(enabled: boolean): void;

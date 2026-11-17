@@ -25,6 +25,19 @@ describe('MAZMI Glass page headers', () => {
     fixture.destroy();
   });
 
+  it('never animates ordinary detail headings without an aurora hero', () => {
+    const fixture = TestBed.createComponent(PageHeaderComponent);
+    fixture.componentRef.setInput('title', 'ORD-2026-0042');
+    fixture.detectChanges();
+    const heading = fixture.nativeElement.querySelector('h1') as HTMLElement;
+    expect(heading.textContent?.trim()).toBe('ORD-2026-0042');
+    expect(heading.querySelector('.kinetic-word')).toBeNull();
+    fixture.componentRef.setInput('title', 'ORD-2026-0043');
+    fixture.detectChanges();
+    expect(heading.textContent?.trim()).toBe('ORD-2026-0043');
+    fixture.destroy();
+  });
+
   it('can display titles without any word animation markup', () => {
     const fixture = TestBed.createComponent(PageHeaderComponent);
     fixture.componentRef.setInput('title', 'Order details');

@@ -19,7 +19,7 @@ import { SilkAuroraComponent } from './silk-aurora.component';
           }
         </p>
         <h1 [attr.aria-label]="title">
-          @if (kinetic) {
+          @if (kinetic && aurora) {
             @for (word of titleWords(); track $index; let i = $index) {
               <span class="kinetic-word" aria-hidden="true" [style.--reveal-index]="i"
                 >{{ word }}&nbsp;</span

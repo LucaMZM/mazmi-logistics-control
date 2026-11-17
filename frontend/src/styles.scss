@@ -22,12 +22,19 @@ $theme: mat.m2-define-light-theme(
 
 :root {
   --surface: #fff;
-  --canvas: #eceef1;
-  --ink: #252a32;
+  --canvas: #edefec;
+  --ink: #202e32;
   --muted: #5c6470;
   --line: #d7dbe1;
-  --accent: #405567;
-  --glass: rgb(250 251 253 / 82%);
+  --petrol: #244953;
+  --sage: #c7dfcd;
+  --dock: #1d343b;
+  --dock-edge: #405b60;
+  --space-unit: 4px;
+  --layer-dock: 30;
+  --motion-short: 160ms;
+  --accent: var(--petrol);
+  --glass: rgb(250 251 248 / 89%);
   --radius: 9px;
   --shadow: 0 2px 6px rgb(25 31 42 / 4%), 0 1px 0 rgb(255 255 255 / 85%) inset;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);

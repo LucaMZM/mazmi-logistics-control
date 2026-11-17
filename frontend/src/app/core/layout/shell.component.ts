@@ -37,10 +37,13 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
           ><strong>MAZMI</strong><span>Logistics Control</span></a
         >
         <nav aria-label="Primary navigation">
-          <p>Command center</p>
+          <p>Operations</p>
           @for (item of navigation; track item.path) {
             @if (item.path === '/customers') {
               <p>Resources</p>
+            }
+            @if (item.path === '/digital-twin') {
+              <p>Digital spaces</p>
             }
             @if (item.path !== '/warehouse-editor' || auth.canOperate()) {
               <a [routerLink]="item.path" routerLinkActive="active" ariaCurrentWhenActive="page"
@@ -119,7 +122,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         position: fixed;
         inset: 0 auto 0 0;
         width: 248px;
-        background: #292e37;
+        background: var(--dock);
         color: #dce0e7;
         border-right: 1px solid rgb(255 255 255 / 16%);
         box-shadow:
@@ -127,7 +130,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
           8px 0 28px rgb(25 31 42 / 5%);
         display: flex;
         flex-direction: column;
-        z-index: 30;
+        z-index: var(--layer-dock);
       }
       .brand {
         height: 78px;
@@ -335,7 +338,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
           backdrop-filter: blur(16px) saturate(110%);
         }
         .sidebar {
-          background: rgb(36 41 50 / 94%);
+          background: rgb(29 52 59 / 96%);
           backdrop-filter: blur(16px);
         }
       }
@@ -343,9 +346,10 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         .topbar,
         .sidebar {
           backdrop-filter: none;
+          background: #fafbf8;
         }
         .sidebar {
-          background: #292e37;
+          background: var(--dock);
         }
       }
       @media (hover: hover) and (pointer: fine) {
@@ -356,6 +360,116 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
       @media (prefers-reduced-motion: reduce) {
         nav a:active:not(:focus-visible) {
           transform: none;
+        }
+      }
+      .brand {
+        position: relative;
+        padding-left: 70px;
+        flex-shrink: 0;
+      }
+      .brand::before {
+        content: '';
+        position: absolute;
+        left: 24px;
+        width: 26px;
+        height: 26px;
+        border: 2px solid var(--sage);
+        border-radius: 4px;
+        background: repeating-linear-gradient(
+          120deg,
+          transparent 0 5px,
+          var(--sage) 5px 8px,
+          transparent 8px 12px
+        );
+        background-clip: content-box;
+        padding: 3px;
+      }
+      nav {
+        gap: 2px;
+        padding: 10px 12px;
+        overscroll-behavior: contain;
+      }
+      nav p {
+        margin: 16px 12px 4px;
+        color: #c2d1cf;
+        letter-spacing: 0.08em;
+        font-weight: 600;
+      }
+      nav a {
+        position: relative;
+        border-left: 0;
+        padding: 8px 12px;
+        min-height: 40px;
+        color: #e1e9e7;
+      }
+      nav app-icon {
+        padding: 4px;
+        width: 27px;
+        height: 27px;
+        border-radius: 6px;
+        background: rgb(255 255 255 / 6%);
+      }
+      nav a.active {
+        background: var(--sage);
+        color: #17362f;
+        box-shadow: none;
+      }
+      nav a.active app-icon {
+        background: rgb(255 255 255 / 38%);
+      }
+      nav a.active::after {
+        content: '';
+        margin-left: auto;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+      nav a:focus-visible,
+      .brand:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: -3px;
+      }
+      @media (min-width: 901px) {
+        .sidebar {
+          inset: 12px auto 12px 12px;
+          width: 230px;
+          border: 1px solid var(--dock-edge);
+          border-radius: 14px;
+          overflow: hidden;
+        }
+        .main {
+          margin-left: 246px;
+        }
+      }
+      @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+        nav app-icon {
+          transition: transform 220ms cubic-bezier(0.22, 1.32, 0.36, 1);
+        }
+        nav a:hover app-icon {
+          transform: translateX(3px) scale(1.17);
+        }
+        nav a:has(+ a:hover) app-icon,
+        nav a:hover + a app-icon {
+          transform: translateX(1px) scale(1.07);
+        }
+        nav a.active::after {
+          animation: dock-marker var(--motion-short) ease-out;
+        }
+        @keyframes dock-marker {
+          from {
+            transform: scale(0.45);
+            opacity: 0.4;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+      }
+      @media (pointer: coarse) {
+        nav a {
+          min-height: 44px;
         }
       }
       .topbar .route {
@@ -455,10 +569,10 @@ export class ShellComponent implements OnInit, OnDestroy {
     { path: '/incidents', label: 'Incidents', icon: 'incidents' },
     { path: '/customers', label: 'Customers', icon: 'customers' },
     { path: '/fleet', label: 'Fleet', icon: 'fleet' },
-    { path: '/digital-twin', label: 'Fleet Twin', icon: 'fleet' },
-    { path: '/warehouse-twin', label: 'Warehouse Twin', icon: 'inventory' },
-    { path: '/warehouse-editor', label: 'Warehouse Editor', icon: 'inventory' },
-    { path: '/control-room', label: 'Control Room', icon: 'overview' },
+    { path: '/digital-twin', label: 'Fleet Twin', icon: 'twin' },
+    { path: '/warehouse-twin', label: 'Warehouse Twin', icon: 'warehouse' },
+    { path: '/warehouse-editor', label: 'Warehouse Editor', icon: 'editor' },
+    { path: '/control-room', label: 'Control Room', icon: 'room' },
   ];
   ngOnInit(): void {
     this.breakpointSubscription = this.breakpoints

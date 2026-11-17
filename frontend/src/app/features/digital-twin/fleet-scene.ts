@@ -20,6 +20,14 @@ export class FleetScene {
   private previous = 0;
   private focusTarget?: T.Vector3;
   private pointerStart = new T.Vector2();
+  private readonly pickRay = new T.Raycaster();
+  private readonly pointerNdc = new T.Vector2();
+  private readonly motionPoint = new T.Vector3();
+  private readonly motionTangent = new T.Vector3();
+  private readonly motionRotation = new T.Quaternion();
+  private readonly verticalAxis = new T.Vector3(0, 1, 0);
+  private readonly cameraDelta = new T.Vector3();
+  private hovered = false;
   private readonly path = new T.CatmullRomCurve3(
     [
       new T.Vector3(-3.2, 0, 3.5),
@@ -97,15 +105,12 @@ export class FleetScene {
   private hit(e: PointerEvent) {
     if (!this.renderer || !this.van) return false;
     const r = this.renderer.domElement.getBoundingClientRect();
-    const ray = new T.Raycaster();
-    ray.setFromCamera(
-      new T.Vector2(
-        ((e.clientX - r.left) / r.width) * 2 - 1,
-        (-(e.clientY - r.top) / r.height) * 2 + 1,
-      ),
-      this.camera,
+    this.pointerNdc.set(
+      ((e.clientX - r.left) / r.width) * 2 - 1,
+      (-(e.clientY - r.top) / r.height) * 2 + 1,
     );
-    return ray.intersectObject(this.van, true).length > 0;
+    this.pickRay.setFromCamera(this.pointerNdc, this.camera);
+    return this.pickRay.intersectObject(this.van, true).length > 0;
   }
   private readonly up = (e: PointerEvent) => {
     if (this.pointerStart.distanceTo(new T.Vector2(e.clientX, e.clientY)) < 5 && this.hit(e)) {
@@ -116,6 +121,8 @@ export class FleetScene {
   private readonly hover = (e: PointerEvent) => {
     const hit = this.hit(e);
     if (this.renderer) this.renderer.domElement.style.cursor = hit ? 'pointer' : 'grab';
+    if (this.hovered === hit) return;
+    this.hovered = hit;
     this.assets.highlightBody(this.bodyColor, hit || this.selected);
     this.invalidate();
   };
@@ -161,22 +168,21 @@ export class FleetScene {
     if (this.moving && this.van) {
       this.elapsed = Math.min(18, this.elapsed + dt);
       const t = this.elapsed / 18;
-      this.van.position.copy(this.path.getPointAt(t));
-      const tangent = this.path.getTangentAt(t);
-      const target = new T.Quaternion().setFromAxisAngle(
-        new T.Vector3(0, 1, 0),
+      this.van.position.copy(this.path.getPointAt(t, this.motionPoint));
+      const tangent = this.path.getTangentAt(t, this.motionTangent);
+      this.motionRotation.setFromAxisAngle(
+        this.verticalAxis,
         Math.atan2(tangent.x, tangent.z),
       );
-      this.van.quaternion.slerp(target, 1 - Math.exp(-dt * 8));
+      this.van.quaternion.slerp(this.motionRotation, 1 - Math.exp(-dt * 8));
       if (t === 1) this.pause();
     }
     if (this.focusTarget && this.controls) {
-      const delta = this.focusTarget
-        .clone()
-        .sub(this.controls.target)
+      this.cameraDelta
+        .subVectors(this.focusTarget, this.controls.target)
         .multiplyScalar(1 - Math.exp(-dt * 14));
-      this.controls.target.add(delta);
-      this.camera.position.add(delta);
+      this.controls.target.add(this.cameraDelta);
+      this.camera.position.add(this.cameraDelta);
       if (this.controls.target.distanceTo(this.focusTarget) < 0.01) this.focusTarget = undefined;
       this.controls.update();
     }

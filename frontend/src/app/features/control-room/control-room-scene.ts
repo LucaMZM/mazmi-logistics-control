@@ -23,6 +23,7 @@ export class ControlRoomScene implements ControlRoomScenePort {
   private readonly camera = new T.OrthographicCamera(-18, 18, 13, -13, 0.1, 150);
   private readonly assets = new TwinAssets();
   private readonly screens = new Map<ControlRoomStation, Screen>();
+  private readonly screenMeshes: T.Object3D[] = [];
   private readonly extraGeometries: T.BufferGeometry[] = [];
   private readonly extraMaterials: T.Material[] = [];
   private readonly reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -34,6 +35,8 @@ export class ControlRoomScene implements ControlRoomScenePort {
   private frame = 0;
   private disposed = false;
   private pointerStart = new T.Vector2();
+  private readonly pickRay = new T.Raycaster();
+  private readonly pointerNdc = new T.Vector2();
   private animation?: {
     cameraFrom: T.Vector3;
     cameraTo: T.Vector3;
@@ -150,6 +153,7 @@ export class ControlRoomScene implements ControlRoomScenePort {
       this.extraGeometries.push(geometry);
       this.extraMaterials.push(material);
       this.screens.set(station, { mesh, canvas, texture });
+      this.screenMeshes.push(mesh);
       box([0.85, 0.11, 0.2], [x, 2.52, -8.65], '#acbec5');
     }
 
@@ -250,15 +254,12 @@ export class ControlRoomScene implements ControlRoomScenePort {
     if (!this.renderer) return undefined;
     const rect = this.renderer.domElement.getBoundingClientRect();
     if (!rect.width || !rect.height) return undefined;
-    const ray = new T.Raycaster();
-    ray.setFromCamera(
-      new T.Vector2(
-        ((event.clientX - rect.left) / rect.width) * 2 - 1,
-        -((event.clientY - rect.top) / rect.height) * 2 + 1,
-      ),
-      this.camera,
+    this.pointerNdc.set(
+      ((event.clientX - rect.left) / rect.width) * 2 - 1,
+      -((event.clientY - rect.top) / rect.height) * 2 + 1,
     );
-    const hit = ray.intersectObjects([...this.screens.values()].map((screen) => screen.mesh))[0];
+    this.pickRay.setFromCamera(this.pointerNdc, this.camera);
+    const hit = this.pickRay.intersectObjects(this.screenMeshes)[0];
     return hit?.object.userData['station'] as ControlRoomStation | undefined;
   }
   private readonly hover = (event: PointerEvent) => {
@@ -372,5 +373,6 @@ export class ControlRoomScene implements ControlRoomScenePort {
     this.renderer?.dispose();
     canvas?.remove();
     this.screens.clear();
+    this.screenMeshes.length = 0;
   }
 }

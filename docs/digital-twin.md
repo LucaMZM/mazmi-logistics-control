@@ -53,6 +53,8 @@ Los visores de **Fleet Twin, Warehouse Twin, Warehouse Editor y Control Room** c
 
 Este límite controla carga máxima por frame; **no es una medición de memoria GPU, FPS ni rendimiento en un MacBook Air M2 físico**. MapLibre usa su propio renderer cartográfico y no se modifica por esta política.
 
+Fleet Twin reutiliza los vectores y cuaterniones del movimiento en cada fotograma, así como el Raycaster de selección, para reducir la presión del recolector de basura. El efecto de hover solo provoca un render adicional cuando cambia el objeto resaltado. Control Room también reutiliza el Raycaster y el conjunto de pantallas seleccionables. Son mejoras de asignaciones y repintado sin alterar la lógica de navegación del ERP.
+
 ## Fleet Twin — primera entrega
 
 Ruta autenticada: `/digital-twin`. Lectura de `/api/v1/vehicles` con los permisos existentes. No hay nuevas tablas, mutaciones ni reglas de negocio.

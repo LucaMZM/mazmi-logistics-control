@@ -51,6 +51,8 @@ Los datos del perfil demo son ficticios. Las posiciones de los envíos se calcul
 
 ## Capturas
 
+[Guía de la navegación MAZMI Glass](docs/mazmi-glass.md).
+
 ### Control Room 3D
 
 La sala de control isométrica une los indicadores reales de operaciones y el acceso a Fleet Twin, World Map y Warehouse Twin. Se abre desde **Control Room** en el menú lateral o directamente en `/control-room`. Los monitores 3D leen las mismas métricas verificadas de `/api/v1/dashboard`; no representan cámaras, oficinas reales ni telemetría adicional.

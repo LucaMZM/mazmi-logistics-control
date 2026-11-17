@@ -26,6 +26,7 @@ import { Incident } from '../../shared/models/models';
     StatusChipComponent,
   ],
   template: `<app-page-header
+      [aurora]="true"
       title="Incidents"
       subtitle="Operational exceptions linked to shipment health and ETA."
     />

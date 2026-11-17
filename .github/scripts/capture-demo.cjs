@@ -106,6 +106,17 @@ async function main() {
       ".attention-board",
       true,
     );
+    // Motion is reduced in this browser: the decorative title and aurora
+    // must remain readable and should not animate.
+    const auroraHero = page.locator('app-dashboard-page app-page-header header.aurora');
+    await auroraHero.waitFor();
+    assert.equal(await auroraHero.locator('app-silk-aurora [aria-hidden="true"]').count(), 1);
+    const heading = auroraHero.locator('h1');
+    assert.equal(await heading.getAttribute('aria-label'), 'Operations command center');
+    const words = heading.locator('.kinetic-word');
+    assert.equal(await words.count(), 3);
+    const revealAnimation = await words.first().evaluate((node) => getComputedStyle(node).animationName);
+    assert.equal(revealAnimation, 'none', 'Reduced motion must disable kinetic text animation');
 
     // Visual contract for the Phase B materials, with reduced motion enabled.
     const cards = page.locator('app-dashboard-page .pulse a');

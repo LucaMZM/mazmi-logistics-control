@@ -34,6 +34,7 @@ import { ShipmentsStore } from './shipments.store';
     StatusChipComponent,
   ],
   template: `<app-page-header
+      [aurora]="true"
       title="Shipments"
       subtitle="Assignment, dispatch and simulated delivery tracking."
     />

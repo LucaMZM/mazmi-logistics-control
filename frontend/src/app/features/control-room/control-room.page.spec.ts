@@ -74,6 +74,8 @@ describe('Control Room page', () => {
     expect(text).toContain('Control Room');
     expect(text).toContain('8');
     expect(text).toContain('Warehouse Twin');
+    expect(text).toContain('Verified ERP counts, not physical connections.');
+    expect(fixture.nativeElement.querySelector('app-operational-circuit')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('a[href="/digital-twin"]')).toBeTruthy();
     fixture.componentInstance.focus('warehouse');
     expect(FakeRoom.latest?.focus).toHaveBeenCalledWith('warehouse', false);
@@ -130,6 +132,7 @@ describe('Control Room page', () => {
     fixture.detectChanges();
     expect(fixture.componentInstance.sceneError()).toContain('unavailable');
     expect(fixture.nativeElement.textContent).toContain('8');
+    expect(fixture.nativeElement.textContent).toContain('Illustrative grouping');
     fixture.destroy();
   });
 

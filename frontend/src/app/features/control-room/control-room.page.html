@@ -1,7 +1,8 @@
 <header class="intro">
+  <app-silk-aurora />
   <div>
     <p class="eyebrow">MAZMI DIGITAL TWIN / 04</p>
-    <h1>Control Room</h1>
+    <h1 class="kinetic-heading">Control Room</h1>
     <p>One operational overview. Three connected logistics worlds.</p>
   </div>
   <a class="back-link" routerLink="/dashboard">Open command center</a>
@@ -79,6 +80,7 @@
         </button>
       }
     </div>
+    <app-operational-circuit [snapshot]="metrics()" />
     <div class="renderer-panel">
       <button
         type="button"

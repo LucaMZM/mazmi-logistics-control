@@ -1,0 +1,66 @@
+name: Temporary MAZMI premium formatter
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/temporary-premium-formatter.yml'
+permissions:
+  contents: read
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.15.0
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --prefix frontend --no-audit --no-fund
+      - name: Format modified Angular sources
+        run: |
+          cd frontend
+          ./node_modules/.bin/prettier --write \
+            src/app/shared/components/silk-aurora.component.ts \
+            src/app/shared/components/operational-circuit.component.ts \
+            src/app/shared/components/page-header.component.ts \
+            src/app/shared/components/silk-aurora.component.spec.ts \
+            src/app/shared/components/page-header.component.spec.ts \
+            src/app/shared/components/operational-circuit.component.spec.ts \
+            src/app/features/dashboard/dashboard.page.ts \
+            src/app/features/orders/orders.page.ts \
+            src/app/features/shipments/shipments.page.ts \
+            src/app/features/inventory/inventory.page.ts \
+            src/app/features/incidents/incidents.page.ts \
+            src/app/features/fleet/fleet.page.ts \
+            src/app/features/customers/customers.page.ts \
+            src/app/features/control-room/control-room.page.ts \
+            src/app/features/control-room/control-room.page.html \
+            src/app/features/control-room/control-room.page.spec.ts \
+            src/app/features/control-room/control-room.page.scss \
+            src/styles.scss
+      - name: Export formatted source
+        run: |
+          for f in \
+            frontend/src/app/shared/components/silk-aurora.component.ts \
+            frontend/src/app/shared/components/operational-circuit.component.ts \
+            frontend/src/app/shared/components/page-header.component.ts \
+            frontend/src/app/shared/components/silk-aurora.component.spec.ts \
+            frontend/src/app/shared/components/page-header.component.spec.ts \
+            frontend/src/app/shared/components/operational-circuit.component.spec.ts \
+            frontend/src/app/features/dashboard/dashboard.page.ts \
+            frontend/src/app/features/orders/orders.page.ts \
+            frontend/src/app/features/shipments/shipments.page.ts \
+            frontend/src/app/features/inventory/inventory.page.ts \
+            frontend/src/app/features/incidents/incidents.page.ts \
+            frontend/src/app/features/fleet/fleet.page.ts \
+            frontend/src/app/features/customers/customers.page.ts \
+            frontend/src/app/features/control-room/control-room.page.ts \
+            frontend/src/app/features/control-room/control-room.page.html \
+            frontend/src/app/features/control-room/control-room.page.spec.ts \
+            frontend/src/app/features/control-room/control-room.page.scss \
+            frontend/src/styles.scss; do
+            echo "__MAZMI_FORMAT_BEGIN__:$f"
+            base64 "$f"
+            echo "__MAZMI_FORMAT_END__:$f"
+          done

@@ -33,6 +33,7 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
   ],
   template: `
     <app-page-header
+      [aurora]="true"
       title="Inventory"
       subtitle="Stock is controlled through auditable movements at each warehouse."
     />

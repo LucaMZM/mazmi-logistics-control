@@ -74,6 +74,20 @@ async function main() {
     );
     assert.deepEqual(await page.locator('.summary strong').allInnerTexts(), expectedMetrics,
       'HTML operational metrics must match the real dashboard API');
+    const circuit = page.getByRole('region', { name: 'Illustrative operational connections' });
+    await circuit.waitFor();
+    assert((await circuit.innerText()).includes('not physical connections'),
+      'The visual links must be labelled illustrative');
+    const nodeCounts = await circuit.locator('.node strong').allInnerTexts();
+    assert.deepEqual(nodeCounts, [
+      expectedMetrics[2],
+      expectedMetrics[0],
+      expectedMetrics[3],
+    ], 'Circuit nodes must match live dashboard counters');
+    const circuitSvg = circuit.locator('svg');
+    assert.equal(await circuitSvg.getAttribute('aria-hidden'), 'true');
+    const aurora = page.locator('.intro app-silk-aurora');
+    assert.equal(await aurora.count(), 1);
     assert.equal(await page.locator('.scene canvas').count(), 1);
     assert(await page.getByRole('link', { name: 'Explore Fleet Twin' }).count() === 0,
       'The selected station must initially be Operations');
@@ -145,7 +159,8 @@ async function main() {
       mobile: '390x844',
       verified: [
         'authenticated route', 'metrics match dashboard API', 'lazy WebGL scene',
-        'operations, fleet and warehouse navigation', 'keyboard station selection',
+        'operations, fleet and warehouse navigation',
+        'illustrative circuit topology with verified dashboard counters', 'keyboard station selection',
         'camera focus and overview', 'WebGL context recovery',
         'on-demand WebGL frame diagnostics without data mutations',
         'mobile viewport without horizontal overflow',

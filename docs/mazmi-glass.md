@@ -22,6 +22,18 @@ capture-demo.cjs verifica en Chromium que las cuatro tarjetas KPI, el registro d
 
 Quedan pendientes las fases siguientes: dirección artística de **Silk Aurora**, introducciones discretas con **Kinetic Text Reveal**, y una integración de **Circuit Board** en Control Room que no invente relaciones entre entidades.
 
+## Fases C–E — Identidad, movimiento y Control Room
+
+**Silk Aurora** se implementa como componente angular `SilkAuroraComponent`, con un gradiente sedoso de gris perla, azul petróleo y verde salvia. No importa React, no crea WebGL ni solicita recursos externos. Se usa en las cabeceras de las secciones principales y en Control Room; el efecto decorativo está marcado `aria-hidden`, se detiene fuera de viewport mediante `IntersectionObserver` y no se anima cuando está activado el movimiento reducido.
+
+**Kinetic Text Reveal** aparece en los encabezados `PageHeaderComponent` mediante palabras visibles que entran una vez al montar la página. El elemento sigue siendo un `h1` con nombre accesible completo mediante `aria-label`. No interfiere con títulos de pedidos dinámicos, cifras que cambian o tablas. En Control Room, el encabezado conserva su `h1` y una transición equivalente. Todo el efecto se desactiva con `prefers-reduced-motion`.
+
+**Circuit Board**, implementado como `OperationalCircuitComponent`, añade al panel lateral de Control Room una agrupación visual de Operations, Fleet y Warehouse. Las cifras **open incidents**, **active shipments** y **critical positions** proceden exclusivamente del mismo snapshot del dashboard; el SVG no es una topología física ni representa comunicaciones reales. La etiqueta visible deja clara esa distinción. No se altera el visor Three.js ni las escrituras de negocio.
+
+Los módulos Inventory, Shipments, Fleet, Customers, Incidents, formularios, fichas y vistas 3D comparten tratamiento visual de paneles, filtros, tablas, etiquetas y foco. Las superficies con datos siguen siendo opacas. Se mantienen todas las rutas y reglas del ERP. El CI usa pruebas unitarias para comprobar la desconexión del observer, la semántica de títulos y la procedencia de métricas; el navegador comprueba los materiales, el modo de movimiento reducido y los contadores ilustrativos.
+
+**Limitaciones:** esta implementación adapta el vocabulario visual de Componentry sin copiar su código React. La aurora es una interpretación CSS ligera, no un shader original de su librería; el circuito no ofrece relaciones físicas ni sensores; las cifras WebGL no son FPS de GPU. El aspecto final en Safari, la fluidez en el MacBook Air M2 y las preferencias de transparencia deben contrastarse localmente antes de dar el producto por finalizado.
+
 ## Comparación en Chromium
 
 Mismo dashboard, perfil demo y viewport de 1440 × 1440: [antes](screenshots/navigation-before.png) · [después](screenshots/dashboard.png). [Dock móvil con foco de teclado, 390 × 844](screenshots/mobile-dock.png).

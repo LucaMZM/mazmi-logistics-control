@@ -37,6 +37,7 @@ import { OrdersStore } from './orders.store';
   ],
   template: `
     <app-page-header
+      [aurora]="true"
       title="Orders"
       subtitle="Create and manage the complete warehouse-to-delivery workflow."
     >

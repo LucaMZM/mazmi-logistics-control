@@ -803,3 +803,154 @@ app-operations-world-map .world-marker:focus-visible {
     border-color: #617e73;
   }
 }
+
+/* MAZMI Glass — phases C–E: unify the surrounding enterprise UI without
+   introducing a second canvas, animation engine or extra data requests. */
+.content app-page-header header.aurora {
+  padding: 27px 30px;
+  background: #f1f7f3;
+}
+.content app-page-header header.aurora h1 {
+  color: #213e35;
+}
+.content app-page-header header.aurora .subtitle {
+  color: #526e62;
+}
+.content app-page-header header.aurora .actions {
+  align-self: center;
+}
+.content app-page-header header.aurora .actions :is(a, button) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Reports, registers and details share a single calibrated surface material. */
+.content :is(
+  app-shipments-page,
+  app-inventory-page,
+  app-fleet-page,
+  app-customers-page,
+  app-incidents-page,
+  app-orders-page,
+  app-order-detail-page,
+  app-inventory-detail-page,
+  app-customer-detail-page,
+  app-incident-detail-page,
+  app-shipment-detail-page,
+  app-users-page
+) :is(.section, .table-card, .tabs-card, .history, .profile, .warehouse-grid > article) {
+  background: #fff;
+  border-color: var(--panel-line);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--panel-shadow);
+}
+.content :is(app-inventory-page, app-shipments-page, app-incidents-page) .filters {
+  background: var(--panel-surface);
+}
+.content :is(
+  app-fleet-page,
+  app-customers-page,
+  app-incidents-page,
+  app-shipments-page,
+  app-inventory-page,
+  app-users-page
+) .table-wrap {
+  border-radius: 0 0 var(--panel-radius) var(--panel-radius);
+}
+.content :is(app-orders-page, app-shipments-page) .table-card {
+  overflow: clip;
+}
+.content :is(app-shipments-page, app-inventory-page, app-incidents-page) .list-summary {
+  border-bottom-color: #e2eae5;
+}
+.content .table-wrap :is(th, td) {
+  font-variant-numeric: tabular-nums;
+}
+.content .table-wrap tbody tr:hover :is(a, button) {
+  text-decoration-thickness: 1px;
+}
+.content .mat-mdc-form-field {
+  --mdc-outlined-text-field-container-shape: 11px;
+  --mdc-filled-text-field-container-shape: 11px;
+  --mdc-outlined-text-field-outline-color: #cbdad1;
+  --mdc-outlined-text-field-hover-outline-color: #8aac9e;
+  --mdc-outlined-text-field-focus-outline-color: #436f5e;
+}
+.content :is(button[mat-stroked-button], a[mat-stroked-button]) {
+  --mdc-outlined-button-container-shape: 10px;
+  border-color: #bacfc3;
+  transition:
+    background-color var(--panel-transition),
+    box-shadow var(--panel-transition);
+}
+@media (hover: hover) and (pointer: fine) {
+  .content :is(button[mat-stroked-button], a[mat-stroked-button]):hover:not(:disabled) {
+    background-color: #edf7f0;
+    box-shadow: 0 3px 10px rgb(35 78 52 / 8%);
+  }
+}
+/* Status chips deliberately retain red/amber/blue distinctions; softening their
+   outer shape must not turn critical operational states into decorative badges. */
+.content app-status-chip .status {
+  min-height: 24px;
+  padding-inline: 9px;
+  border-radius: 7px;
+  font-weight: 650;
+}
+/* 3D environments continue rendering in their existing canvases. */
+.content :is(app-digital-twin-page, app-warehouse-twin-page) :is(.world, .warehouse-world),
+.content app-control-room-page .world {
+  border-radius: var(--panel-radius);
+  border-color: var(--panel-line);
+  box-shadow: var(--panel-shadow);
+}
+.content :is(app-digital-twin-page, app-warehouse-twin-page) :is(.controls, .warehouse-controls) {
+  border-radius: 12px;
+  background: rgb(251 253 251 / 89%);
+  border-color: rgb(255 255 255 / 95%);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .content :is(app-digital-twin-page, app-warehouse-twin-page) :is(.controls, .warehouse-controls) {
+    background: #fff;
+    backdrop-filter: none;
+  }
+}
+.content :is(app-digital-twin-page, app-warehouse-twin-page, app-control-room-page)
+  :is(.controls, .warehouse-controls, .scene-controls) button:focus-visible {
+  outline-color: #325e50;
+  outline-offset: 2px;
+}
+.mat-mdc-dialog-surface {
+  border-radius: 16px;
+  border-color: #d7e4db;
+  box-shadow: 0 18px 54px rgb(27 51 43 / 18%);
+}
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-shape: 11px;
+}
+@media (max-width: 700px) {
+  .content app-page-header header.aurora {
+    padding: 22px;
+  }
+  .content app-page-header header.aurora .actions {
+    align-self: stretch;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .content app-page-header .kinetic-word,
+  .content app-control-room-page .kinetic-heading {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (prefers-contrast: more) {
+  .content app-page-header header.aurora {
+    border-color: #456e5e;
+    background: #f7faf8;
+  }
+  .content :is(.section, .table-card, .tabs-card),
+  .mat-mdc-dialog-surface {
+    border-color: #627c70;
+  }
+}

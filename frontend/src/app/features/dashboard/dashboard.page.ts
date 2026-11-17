@@ -24,6 +24,7 @@ import { DashboardStore } from './dashboard.store';
   ],
   template: `
     <app-page-header
+      [aurora]="true"
       title="Operations command center"
       subtitle="Exceptions, active routes and stock pressure in one operational view."
     >

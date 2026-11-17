@@ -12,6 +12,8 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { OperationalCircuitComponent } from '../../shared/components/operational-circuit.component';
+import { SilkAuroraComponent } from '../../shared/components/silk-aurora.component';
 import { DashboardStore } from '../dashboard/dashboard.store';
 import type { SceneDiagnostics } from '../digital-twin/scene-diagnostics';
 import {
@@ -24,7 +26,7 @@ import { CONTROL_ROOM_SCENE_LOADER, ControlRoomScenePort } from './control-room-
 
 @Component({
   selector: 'app-control-room-page',
-  imports: [RouterLink],
+  imports: [RouterLink, OperationalCircuitComponent, SilkAuroraComponent],
   providers: [DashboardStore],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './control-room.page.html',

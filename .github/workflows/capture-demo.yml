@@ -5,6 +5,14 @@ on:
     branches: [main]
     paths:
       - 'frontend/src/styles.scss'
+      - 'frontend/src/app/shared/components/**'
+      - 'frontend/src/app/features/dashboard/**'
+      - 'frontend/src/app/features/orders/**'
+      - 'frontend/src/app/features/shipments/**'
+      - 'frontend/src/app/features/inventory/**'
+      - 'frontend/src/app/features/fleet/**'
+      - 'frontend/src/app/features/incidents/**'
+      - 'frontend/src/app/features/customers/**'
       - '.github/scripts/capture-demo.cjs'
       - 'frontend/src/app/features/control-room/**'
       - 'frontend/src/app/features/warehouse-editor/**'

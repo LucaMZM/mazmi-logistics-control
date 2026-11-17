@@ -24,6 +24,7 @@ import { DriverEditorDialog, VehicleEditorDialog } from './fleet-editor.dialogs'
     StatusChipComponent,
   ],
   template: `<app-page-header
+      [aurora]="true"
       title="Fleet"
       subtitle="Driver availability and vehicle capacity for shipment assignment."
     >

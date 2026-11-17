@@ -24,6 +24,7 @@ import { Customer } from '../../shared/models/models';
     StatusChipComponent,
   ],
   template: `<app-page-header
+      [aurora]="true"
       title="Customers"
       subtitle="Fictional companies and shipping destinations used by the demo workflow."
     /><mat-form-field appearance="outline" subscriptSizing="dynamic"

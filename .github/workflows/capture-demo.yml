@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths:
+      - 'frontend/src/styles.scss'
+      - '.github/scripts/capture-demo.cjs'
       - 'frontend/src/app/features/control-room/**'
       - 'frontend/src/app/features/warehouse-editor/**'
       - 'frontend/src/app/features/warehouse-spatial/**'
@@ -74,7 +76,7 @@ jobs:
       - name: Build and start the full application
         run: docker compose --env-file "$RUNNER_TEMP/capture.env" -p mazmi-capture up --build --detach --wait --wait-timeout 240
       - name: Capture desktop and verify mobile
-        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.warehouse_only && !inputs.world_map_only && !inputs.control_room_only && !inputs.warehouse_editor_only }}
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.warehouse_only && !inputs.world_map_only && !inputs.control_room_only && !inputs.warehouse_editor_only) }}
         env:
           NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
           CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots

@@ -106,7 +106,28 @@ async function main() {
       ".attention-board",
       true,
     );
+
+    // Visual contract for the Phase B materials, with reduced motion enabled.
+    const cards = page.locator('app-dashboard-page .pulse a');
+    assert.equal(await cards.count(), 4);
+    const cardStyle = await cards.first().evaluate((node) => {
+      const css = getComputedStyle(node);
+      return {
+        radius: parseFloat(css.borderTopLeftRadius),
+        shadow: css.boxShadow,
+        background: css.backgroundColor,
+      };
+    });
+    assert(cardStyle.radius >= 14, 'KPI cards must have the new rounded premium treatment');
+    assert(cardStyle.shadow !== 'none', 'KPI cards should be visually elevated');
+    assert(cardStyle.background !== 'rgba(0, 0, 0, 0)', 'KPI content needs an opaque surface');
+
     await capture("orders.png", "/orders", "Orders", "table tbody tr");
+    const orderPanel = page.locator('app-orders-page .table-card');
+    const tableRadius = await orderPanel.evaluate((node) =>
+      parseFloat(getComputedStyle(node).borderTopLeftRadius),
+    );
+    assert(tableRadius >= 14, 'Order registers must use the shared panel radius');
     const firstOrder = page.locator('td[data-label="Order"] a').first();
     const orderNumber = (await firstOrder.innerText()).trim();
     await page.getByPlaceholder("Order number or customer").fill(orderNumber);
@@ -115,7 +136,11 @@ async function main() {
     await page.getByRole('heading',{name:orderNumber, exact:true}).waitFor();
     await page.screenshot({path:path.join(output,'review','order-detail.png'),animations:'disabled'});
     await page.goto(baseURL+'/orders/new');
+
     await page.locator('form,mat-form-field').first().waitFor();
+    const formSectionRadius = await page.locator('app-order-form-page .section').first()
+      .evaluate((node) => parseFloat(getComputedStyle(node).borderTopLeftRadius));
+    assert(formSectionRadius >= 14, 'Order forms must share the premium panel material');
     await page.screenshot({path:path.join(output,'review','order-form.png'),animations:'disabled'});
     await capture("inventory.png", "/inventory", "Inventory", "table tbody tr");
     const response = await context.request.get(

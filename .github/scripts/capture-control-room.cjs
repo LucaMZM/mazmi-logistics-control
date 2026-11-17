@@ -56,7 +56,7 @@ async function main() {
     assert(roomDrawCalls > 0, 'Control Room must report nonzero calls from an actual rendered frame');
     await page.getByRole('button', { name: 'Refresh snapshot' }).click();
     await page.getByRole('button', { name: 'Hide renderer stats' }).click();
-    assert.equal(await page.locator('.renderer-details').count(), 0);
+    await page.locator('.renderer-details').waitFor({ state: 'hidden' });
 
     const expectedMetrics = [
       data.activeShipments, data.delayedShipments,

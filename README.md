@@ -63,7 +63,7 @@ La sala de control isométrica une los indicadores reales de operaciones y el ac
 
 El **Warehouse Editor** permite a los operadores diseñar una distribución visual de estanterías, muelles y zonas de trabajo, vinculada a cada almacén real y guardada en PostgreSQL mediante `/api/v1/warehouses/{id}/visual-layout`. La edición se realiza en una maqueta 3D con selección, colocación en cuadrícula, giro, eliminación, guardado, restauración y protección contra cambios simultáneos. No almacena posiciones de productos ni modifica existencias, pedidos o flota.
 
-La acción **Back to Warehouse Twin** abre el mismo almacén. El Twin muestra el plano guardado y su revisión; sólo usa la distribución predeterminada cuando no hay plano. El Editor permite comprobar si cabe la carretilla cargada. El Twin calcula un recorrido A* con giros hasta el muelle, lo dibuja en el suelo y permite seguir la máquina sin modificar registros del ERP.
+La acción **Back to Warehouse Twin** abre el mismo almacén. El Twin muestra el plano guardado y su revisión; sólo usa la distribución predeterminada cuando no hay plano. El Editor permite comprobar si cabe la carretilla cargada. El Twin calcula un recorrido A* con giros hasta el muelle, lo dibuja en el suelo y permite seguir la máquina sin modificar registros del ERP. [Validación gráfica completa de Smart Warehouse](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971965827) y [CI final](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971964920) (123 tests frontend, 65 backend). La galería de la prueba contiene capturas nuevas del recorrido y de móvil; las imágenes enlazadas aquí documentan una fase previa.
 
 ![Plano guardado en el gemelo del almacén](docs/screenshots/warehouse-twin-saved-layout.png)
 

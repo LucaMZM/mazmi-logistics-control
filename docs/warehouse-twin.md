@@ -50,6 +50,12 @@ La [ejecución gráfica 43388691998](https://github.com/LucaMZM/mazmi-logistics-
 
 El [CI de la implementación](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43388699233) pasó formato, lint, typecheck, 81 tests frontend, build y 57 tests backend, sin omitidos. Se mantuvieron los umbrales de build: hay advertencias de tamaño de bundles/estilos y CommonJS, no errores. La creación del cliente STOMP usa un punto de inyección para que sus seis tests no dependan del mock de módulos; su configuración y protocolo no cambian.
 
+### Fase 5 — Smart Warehouse (estado verificado)
+
+La versión publicada en `main` con commit `0271067` incorpora planificación A* con estado de posición y orientación, recorrido dibujado y seguimiento de carretilla. La validación automática final pasó **123/123 tests frontend** y **65/65 backend**, además de formato, lint, typecheck, build y Gitleaks. La [prueba E2E final](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971965827) terminó en verde con Chromium, PostgreSQL y Spring Boot: comprobó entre otros la maniobra con giros, pausa, seguimiento, finalización, reinicio y bloqueo cuando falta un muelle adecuado. Las capturas `smart-warehouse-forklift.png` y `smart-warehouse-mobile.png` están disponibles en el artifact temporal **portfolio-screenshots** de esa ejecución; las capturas históricas de esta carpeta ilustran estados anteriores.
+
+La [CI final de la fase 5](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971964920) deja advertencias no bloqueantes de tamaño (incluidas hojas de estilos) y módulos CommonJS; no se ha medido la GPU física del MacBook Air M2. El cálculo de rutas es una representación visual de demostración, no software de seguridad para vehículos reales.
+
 ## Capturas reales
 
 Escritorio de 1.440 × 1.100 px; vista móvil de 390 × 844 px capturada a página completa.

@@ -172,18 +172,37 @@ import { WAREHOUSE_SCENE_LOADER, WarehouseScenePort } from './warehouse-scene-lo
           }
         }
         <div class="renderer-panel">
-          <button type="button" (click)="toggleRendererStats()" [disabled]="!ready()"
-            [attr.aria-expanded]="rendererStats() !== null">
+          <button
+            type="button"
+            (click)="toggleRendererStats()"
+            [disabled]="!ready()"
+            [attr.aria-expanded]="rendererStats() !== null"
+          >
             {{ rendererStats() ? 'Hide renderer stats' : 'Inspect renderer' }}
           </button>
           @if (rendererStats(); as stats) {
             <div class="renderer-details">
               <dl aria-label="Warehouse last frame renderer statistics">
-                <div><dt>Draw calls</dt><dd>{{ stats.drawCalls | number }}</dd></div>
-                <div><dt>Triangles</dt><dd>{{ stats.triangles | number }}</dd></div>
-                <div><dt>Geometries / textures</dt><dd>{{ stats.geometryCount }} / {{ stats.textureCount }}</dd></div>
-                <div><dt>Drawing buffer</dt><dd>{{ stats.bufferWidth }} × {{ stats.bufferHeight }}</dd></div>
-                <div><dt>Pixel ratio</dt><dd>{{ stats.pixelRatio | number: '1.0-2' }}</dd></div>
+                <div>
+                  <dt>Draw calls</dt>
+                  <dd>{{ stats.drawCalls | number }}</dd>
+                </div>
+                <div>
+                  <dt>Triangles</dt>
+                  <dd>{{ stats.triangles | number }}</dd>
+                </div>
+                <div>
+                  <dt>Geometries / textures</dt>
+                  <dd>{{ stats.geometryCount }} / {{ stats.textureCount }}</dd>
+                </div>
+                <div>
+                  <dt>Drawing buffer</dt>
+                  <dd>{{ stats.bufferWidth }} × {{ stats.bufferHeight }}</dd>
+                </div>
+                <div>
+                  <dt>Pixel ratio</dt>
+                  <dd>{{ stats.pixelRatio | number: '1.0-2' }}</dd>
+                </div>
               </dl>
               <button type="button" (click)="refreshRendererStats()">Refresh snapshot</button>
               <p>Last rendered frame only. Not an FPS or GPU-memory measurement.</p>

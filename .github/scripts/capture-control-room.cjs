@@ -49,6 +49,14 @@ async function main() {
     await page.getByRole('button', { name: 'Overview', exact: true }).waitFor();
     await page.waitForFunction(() => document.querySelector('.scene canvas')?.width > 0);
     await page.evaluate(() => document.fonts.ready);
+    await page.waitForTimeout(150);
+    await page.getByRole('button', { name: 'Inspect renderer', exact: true }).click();
+    await page.locator('.renderer-details').waitFor();
+    const roomDrawCalls = Number(await page.locator('.renderer-details dd').first().innerText());
+    assert(roomDrawCalls > 0, 'Control Room must report nonzero calls from an actual rendered frame');
+    await page.getByRole('button', { name: 'Refresh snapshot' }).click();
+    await page.getByRole('button', { name: 'Hide renderer stats' }).click();
+    assert.equal(await page.locator('.renderer-details').count(), 0);
 
     const expectedMetrics = [
       data.activeShipments, data.delayedShipments,
@@ -139,6 +147,7 @@ async function main() {
         'authenticated route', 'metrics match dashboard API', 'lazy WebGL scene',
         'operations, fleet and warehouse navigation', 'keyboard station selection',
         'camera focus and overview', 'WebGL context recovery',
+        'on-demand WebGL frame diagnostics without data mutations',
         'mobile viewport without horizontal overflow',
         'reduced motion', 'scene destroyed when navigating away',
         'zero API mutations', 'zero JavaScript errors',

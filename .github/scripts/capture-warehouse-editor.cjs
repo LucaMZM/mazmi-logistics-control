@@ -171,6 +171,13 @@ async function main() {
     await page.getByText('Saved blueprint · Revision 2',{exact:false}).waitFor();
     await page.locator('.warehouse-scene canvas').waitFor();
     await page.getByRole('button',{name:'Show route'}).waitFor();
+    await page.waitForTimeout(150);
+    await page.getByRole('button',{name:'Inspect renderer',exact:true}).click();
+    await page.locator('.renderer-details').waitFor();
+    const warehouseDrawCalls=Number(await page.locator('.renderer-details dd').first().innerText());
+    assert(warehouseDrawCalls>0,'Warehouse Twin must report a real rendered frame');
+    await page.getByRole('button',{name:'Refresh snapshot'}).click();
+    await page.getByRole('button',{name:'Hide renderer stats'}).click();
     await page.getByRole('button',{name:'Storage racks'}).focus();
     await page.keyboard.press('Enter');
     await page.locator('.warehouse-zones button[aria-pressed="true"]').waitFor();
@@ -286,6 +293,7 @@ async function main() {
         'persistent save and reload',
         'two-tab optimistic version conflict',
         'saved blueprint and fallback across warehouses',
+        'on-demand warehouse WebGL draw call diagnostics',
         'layout-aware route, keyboard follow, route toggle, pause, resume, reset and completion',
         'blocked layout cannot play; reduced motion and mobile twin',
         'CSRF and read-only viewer enforcement',

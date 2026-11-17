@@ -11,7 +11,9 @@ describe('3D renderer diagnostic snapshots', () => {
       },
       domElement: { width: 1600, height: 900 },
       getPixelRatio: () => 1.25,
-      render: () => { renderCalls++; },
+      render: () => {
+        renderCalls++;
+      },
     };
     const snapshot = readSceneDiagnostics(fake as never);
     expect(snapshot).toEqual({

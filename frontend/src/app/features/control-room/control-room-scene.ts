@@ -1,6 +1,7 @@
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TwinAssets } from '../digital-twin/twin-assets';
+import { resizeSceneRenderer } from '../digital-twin/renderer-quality';
 import { ControlRoomSnapshot, ControlRoomStation, metricLabel } from './control-room.model';
 import { ControlRoomSceneEvents, ControlRoomScenePort } from './control-room-scene-loader';
 
@@ -49,7 +50,7 @@ export class ControlRoomScene implements ControlRoomScenePort {
   init(snapshot: ControlRoomSnapshot): void {
     try {
       this.renderer = new T.WebGLRenderer({ antialias: true, alpha: false });
-      this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.type = T.PCFSoftShadowMap;
       this.world.background = new T.Color('#e9edf0');
@@ -288,7 +289,7 @@ export class ControlRoomScene implements ControlRoomScenePort {
     this.camera.top = half;
     this.camera.bottom = -half;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(width, height);
+    resizeSceneRenderer(this.renderer, width, height, devicePixelRatio || 1);
     this.invalidate();
   };
   private readonly invalidate = () => {

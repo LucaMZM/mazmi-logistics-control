@@ -41,6 +41,18 @@ La pérdida del contexto o un error de proveedor ofrece **Retry 3D map** y **Use
 
 Tests Vitest de identidad, posiciones inválidas, interpolación, muestras antiguas, pausa, entrega, movimiento reducido, cambio de modo/ruta, carga tardía, errores y limpieza. Tests JUnit del DTO agregado con y sin asignación. El workflow manual **Capture demo screenshots**, opción `world_map_only=true`, levanta el stack real en Ubuntu y ejecuta `capture-world-map.cjs`. Comprueba la identidad HTTP, mensajes STOMP, movimiento visual, cambio 2D/3D, seguimiento, móvil y recuperación de contexto; guarda capturas y un informe JSON como artifact.
 
+## Rendimiento 3D compartido — presupuesto de resolución
+
+Los visores de **Fleet Twin, Warehouse Twin, Warehouse Editor y Control Room** comparten la política `renderer-quality.ts`. En lugar de elegir el DPR solo al crear el renderer, calculan la resolución de su drawing buffer en cada cambio de tamaño del contenedor.
+
+- Escena en escritorio: límite de DPR **1,5**; en contenedores estrechos (menos de 700 px), **1,25**.
+- Independientemente del DPR nativo, se limita cada canvas a aproximadamente **2,5 millones de píxeles físicos** (`width × height × DPR²`). En pantallas grandes el DPR puede bajar de 1 para preservar el presupuesto.
+- Se respeta un DPR físico menor que el límite. La cámara conserva sus dimensiones CSS y controles, evitando cambios de escala o coordenadas incorrectas de selección al reducir la resolución interna.
+- `resizeSceneRenderer` solo reajusta el pixel ratio si ha cambiado, y actualiza la dimensión de canvas con `setSize`; no añade un loop de render, servicio ni dependencia.
+- Las pruebas unitarias comprueban Retina, móvil, cambio de escritorio a móvil y límite de píxeles. Las pruebas E2E de cada módulo siguen comprobando WebGL, selección, navegación y fallback.
+
+Este límite controla carga máxima por frame; **no es una medición de memoria GPU, FPS ni rendimiento en un MacBook Air M2 físico**. MapLibre usa su propio renderer cartográfico y no se modifica por esta política.
+
 ## Fleet Twin — primera entrega
 
 Ruta autenticada: `/digital-twin`. Lectura de `/api/v1/vehicles` con los permisos existentes. No hay nuevas tablas, mutaciones ni reglas de negocio.
@@ -63,7 +75,7 @@ Seleccionar un vehículo y pulsar **Open vehicle in 3D**. Las furgonetas tienen 
 - `TwinAssets`: catálogo por escena, geometrías y materiales compartidos, texturas de matrícula limitadas y liberación idempotente.
 - `DigitalTwinPage`: interfaz accesible, carga dinámica del motor, protección frente a cargas obsoletas, fallback y reconstrucción tras pérdida de contexto.
 
-Three.js se importa al abrir el visor, no en las rutas existentes. Resolución limitada a DPR 1.5 y sombras de 1024 px. Sin postprocesado ni assets remotos. No se aplica LOD a esta escena pequeña.
+Three.js se importa al abrir el visor, no en las rutas existentes. La resolución se ajusta en cada resize con presupuesto de 2,5 millones de píxeles, DPR máximo 1,5 en escritorio y 1,25 en móvil; las sombras se limitan a 1024 px. Sin postprocesado ni assets remotos. No se aplica LOD a esta escena pequeña.
 
 ## Assets y licencias
 

@@ -2,6 +2,7 @@ import * as T from 'three';
 import { buildLayoutObject, positionLayoutObject } from '../warehouse-spatial/layout-objects';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TwinAssets } from '../digital-twin/twin-assets';
+import { resizeSceneRenderer } from '../digital-twin/renderer-quality';
 import { LayoutItem } from './warehouse-layout.model';
 import { WarehouseEditorEvents, WarehouseEditorScenePort } from './warehouse-editor-scene-loader';
 
@@ -58,7 +59,7 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
       this.grid.position.y = 0.065;
       this.world.add(this.grid, this.layoutRoot);
       this.renderer = new T.WebGLRenderer({ antialias: true });
-      this.renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.type = T.PCFSoftShadowMap;
       const canvas = this.renderer.domElement;
@@ -183,7 +184,7 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
     this.camera.top = half;
     this.camera.bottom = -half;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(width, height);
+    resizeSceneRenderer(this.renderer, width, height, devicePixelRatio || 1);
     this.invalidate();
   };
   private readonly invalidate = () => {

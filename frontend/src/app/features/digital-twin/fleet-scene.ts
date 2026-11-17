@@ -1,6 +1,7 @@
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { TwinAssets } from './twin-assets';
+import { resizeSceneRenderer } from './renderer-quality';
 
 export class FleetScene {
   private readonly assets = new TwinAssets();
@@ -43,7 +44,7 @@ export class FleetScene {
     this.bodyColor = color;
     try {
       this.renderer = new T.WebGLRenderer({ antialias: true, alpha: false });
-      this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.type = T.PCFSoftShadowMap;
       this.scene.background = new T.Color('#e8ecee');
@@ -145,7 +146,7 @@ export class FleetScene {
     this.camera.top = half;
     this.camera.bottom = -half;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(w, h);
+    resizeSceneRenderer(this.renderer, w, h, devicePixelRatio || 1);
     this.invalidate();
   };
   private readonly invalidate = () => {

@@ -3,6 +3,7 @@ import type { LayoutItem } from '../warehouse-editor/warehouse-layout.model';
 import * as T from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { WarehouseAssets } from './warehouse-assets';
+import { resizeSceneRenderer } from '../digital-twin/renderer-quality';
 import { WarehouseSequence, WarehouseZone } from './warehouse-model';
 import { WarehouseSceneEvents, WarehouseScenePort } from './warehouse-scene-loader';
 
@@ -45,9 +46,7 @@ export class WarehouseScene implements WarehouseScenePort {
   init() {
     try {
       this.renderer = new T.WebGLRenderer({ antialias: true });
-      this.renderer.setPixelRatio(
-        Math.min(devicePixelRatio || 1, this.host.clientWidth < 600 ? 1.25 : 1.5),
-      );
+
       this.renderer.toneMapping = T.ACESFilmicToneMapping;
       this.renderer.toneMappingExposure = 1.05;
       this.renderer.shadowMap.enabled = true;
@@ -157,7 +156,7 @@ export class WarehouseScene implements WarehouseScenePort {
       bottom: -half,
     });
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize(w, h);
+    resizeSceneRenderer(this.renderer, w, h, devicePixelRatio || 1);
     this.invalidate();
   };
   private readonly invalidate = () => {

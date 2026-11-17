@@ -170,10 +170,7 @@ export class FleetScene {
       const t = this.elapsed / 18;
       this.van.position.copy(this.path.getPointAt(t, this.motionPoint));
       const tangent = this.path.getTangentAt(t, this.motionTangent);
-      this.motionRotation.setFromAxisAngle(
-        this.verticalAxis,
-        Math.atan2(tangent.x, tangent.z),
-      );
+      this.motionRotation.setFromAxisAngle(this.verticalAxis, Math.atan2(tangent.x, tangent.z));
       this.van.quaternion.slerp(this.motionRotation, 1 - Math.exp(-dt * 8));
       if (t === 1) this.pause();
     }

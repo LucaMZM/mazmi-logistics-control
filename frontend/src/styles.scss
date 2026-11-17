@@ -429,7 +429,6 @@ app-operations-world-map .world-marker:focus-visible {
   outline-offset: 2px;
 }
 
-
 /* MAZMI Glass — Phase B: readable surfaces and restrained microinteractions.
    Keep dense enterprise content opaque; reserve translucent material for navigation. */
 :root {
@@ -547,9 +546,7 @@ app-operations-world-map .world-marker:focus-visible {
 }
 .content app-dashboard-page .pulse a.attention-metric {
   border-color: #e9d4bd;
-  background:
-    radial-gradient(circle at 100% 0%, rgb(234 187 137 / 18%), transparent 55%),
-    #fffcf8;
+  background: radial-gradient(circle at 100% 0%, rgb(234 187 137 / 18%), transparent 55%), #fffcf8;
 }
 .content app-dashboard-page .pulse a.attention-metric::after {
   border-color: #da9a63;

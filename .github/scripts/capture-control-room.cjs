@@ -93,6 +93,10 @@ async function main() {
       'The selected station must initially be Operations');
 
     const canvas = page.locator('.scene canvas');
+    // Reading an offscreen sidebar panel may change the scroll position.
+    // Capture the intended overview from the top of the page.
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForFunction(() => window.scrollY === 0);
     await page.mouse.move(0, 0);
     await page.screenshot({ path: path.join(output, 'control-room-overview.png'), animations: 'disabled' });
 

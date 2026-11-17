@@ -115,6 +115,14 @@ async function main() {
     assert.equal(await heading.getAttribute('aria-label'), 'Operations command center');
     const words = heading.locator('.kinetic-word');
     assert.equal(await words.count(), 3);
+    const titleStyle = await words.first().evaluate((node) => ({
+      fontSize: parseFloat(getComputedStyle(node).fontSize),
+      display: getComputedStyle(node).display,
+      marginTop: parseFloat(getComputedStyle(node).marginTop),
+    }));
+    assert(titleStyle.fontSize >= 28, 'Kinetic words must inherit the full page-title size');
+    assert.equal(titleStyle.display, 'inline-block', 'Kinetic words must stay inline');
+    assert.equal(titleStyle.marginTop, 0, 'Kinetic word spans must not inherit subtitle margins');
     const revealAnimation = await words.first().evaluate((node) => getComputedStyle(node).animationName);
     assert.equal(revealAnimation, 'none', 'Reduced motion must disable kinetic text animation');
 

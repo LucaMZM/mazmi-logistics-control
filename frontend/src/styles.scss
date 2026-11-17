@@ -813,6 +813,17 @@ app-operations-world-map .world-marker:focus-visible {
 .content app-page-header header.aurora h1 {
   color: #213e35;
 }
+/* A generic page-header span rule must never shrink or stack kinetic words. */
+.content app-page-header h1 .kinetic-word {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
+}
 .content app-page-header header.aurora .subtitle {
   color: #526e62;
 }

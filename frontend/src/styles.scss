@@ -971,3 +971,74 @@ app-operations-world-map .world-marker:focus-visible {
     border-color: #627c70;
   }
 }
+
+
+/* MAZMI Glass QA: high-contrast actions and consistent system feedback. */
+.content app-page-header .actions .mat-mdc-unelevated-button,
+.content app-page-header .actions a[mat-flat-button],
+.content app-page-header .actions button[mat-flat-button] {
+  --mdc-filled-button-container-color: #244b40;
+  --mdc-filled-button-label-text-color: #ffffff;
+  background: #244b40;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .content app-page-header .actions :is(a[mat-flat-button], button[mat-flat-button]):hover {
+    background: #183b32;
+    color: #ffffff;
+  }
+}
+.content app-page-header .actions :is(a[mat-flat-button], button[mat-flat-button]):focus-visible {
+  outline: 3px solid #386f59;
+  outline-offset: 3px;
+}
+
+/* Empty, loading and error panels share a consistent, opaque material. */
+.content app-feedback-state {
+  display: block;
+  min-width: 0;
+}
+.content app-feedback-state .state {
+  margin: 12px;
+  padding: 38px 24px;
+  border: 1px dashed #cedfd4;
+  border-radius: 14px;
+  background: linear-gradient(140deg, #fbfdfb, #f4f9f5);
+}
+.content app-feedback-state .state.error {
+  border-color: #e5c8bc;
+  background: #fff9f6;
+}
+.content app-feedback-state .state-symbol {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border-color: #cfe1d6;
+  background: #e9f4ec;
+  color: #3f745e;
+}
+.content app-feedback-state .state strong {
+  color: #264f41;
+  font-size: 15px;
+}
+.content app-feedback-state .state.error strong {
+  color: #923b32;
+}
+.content app-loading-state [role='status'] {
+  color: #547064;
+}
+.content app-loading-state section i {
+  border-radius: 7px;
+  background: #e5f0e8;
+}
+.content app-metric-card article {
+  background: linear-gradient(135deg, #fff, #f6faf7);
+}
+@media (prefers-contrast: more) {
+  .content app-feedback-state .state {
+    border-style: solid;
+    border-color: #627d71;
+  }
+}

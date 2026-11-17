@@ -20,7 +20,7 @@ El registro de pedidos, los formularios de creación, los controles de búsqueda
 
 capture-demo.cjs verifica en Chromium que las cuatro tarjetas KPI, el registro de pedidos y los formularios utilicen los nuevos estilos calculados en navegador. Mantiene las comprobaciones existentes de datos, vistas, responsive y permisos. No equivale a una prueba física en Safari o en la GPU M2.
 
-Quedan pendientes las fases siguientes: dirección artística de **Silk Aurora**, introducciones discretas con **Kinetic Text Reveal**, y una integración de **Circuit Board** en Control Room que no invente relaciones entre entidades.
+Esta primera entrega se amplió posteriormente con **Silk Aurora**, **Kinetic Text Reveal** y **Circuit Board**, descritos en la sección siguiente.
 
 ## Fases C–E — Identidad, movimiento y Control Room
 
@@ -33,6 +33,14 @@ Quedan pendientes las fases siguientes: dirección artística de **Silk Aurora**
 Los módulos Inventory, Shipments, Fleet, Customers, Incidents, formularios, fichas y vistas 3D comparten tratamiento visual de paneles, filtros, tablas, etiquetas y foco. Las superficies con datos siguen siendo opacas. Se mantienen todas las rutas y reglas del ERP. El CI usa pruebas unitarias para comprobar la desconexión del observer, la semántica de títulos y la procedencia de métricas; el navegador comprueba los materiales, el modo de movimiento reducido y los contadores ilustrativos.
 
 **Limitaciones:** esta implementación adapta el vocabulario visual de Componentry sin copiar su código React. La aurora es una interpretación CSS ligera, no un shader original de su librería; el circuito no ofrece relaciones físicas ni sensores; las cifras WebGL no son FPS de GPU. El aspecto final en Safari, la fluidez en el MacBook Air M2 y las preferencias de transparencia deben contrastarse localmente antes de dar el producto por finalizado.
+
+## Fase F — Contraste, estados y revisión visual
+
+La inspección manual de capturas detectó un defecto que el CI no identificaba: una regla compartida de `span` reducía los títulos cinéticos del `h1`. Se corrigió aumentando la especificidad del selector tipográfico y el smoke de Chromium verifica ahora el tamaño real de las palabras y el estado `display: inline-block`.
+
+La revisión de capturas también detectó que **New order**, la acción primaria del dashboard, tenía un contraste insuficiente en el material de botón. El tema MAZMI Glass fija el texto blanco y un fondo verde petróleo oscuro, y el smoke mide el contraste calculado entre texto y fondo (mínimo **4.5:1**) en el navegador real. Se comprueban también estados vacíos y de error sin añadir rutas ni acciones empresariales.
+
+Se mantiene el encuadre de captura de Control Room al inicio de página para evitar capturas desplazadas después de comprobar métricas bajo el viewport. Las pruebas de Chrome/SwiftShader validan estructura y funcionalidad, pero no la fluidez física de Safari en un MacBook Air M2.
 
 ## Comparación en Chromium
 

@@ -126,6 +126,26 @@ async function main() {
     const revealAnimation = await words.first().evaluate((node) => getComputedStyle(node).animationName);
     assert.equal(revealAnimation, 'none', 'Reduced motion must disable kinetic text animation');
 
+    // Color contrast is a usability requirement, not just a screenshot detail.
+    const primaryActionContrast = await page.getByRole('link', { name: 'New order' }).evaluate((node) => {
+      const style = getComputedStyle(node);
+      const parseColor = (value) =>
+        [...value.matchAll(/[\d.]+/g)].slice(0, 3).map((match) => Number(match[0]) / 255);
+      const luminance = (rgb) => {
+        const linear = rgb.map((channel) =>
+          channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
+        );
+        return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+      };
+      const foreground = luminance(parseColor(style.color));
+      const background = luminance(parseColor(style.backgroundColor));
+      return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+    });
+    assert(
+      primaryActionContrast >= 4.5,
+      'Primary New order action must provide at least 4.5:1 label contrast',
+    );
+
     // Visual contract for the Phase B materials, with reduced motion enabled.
     const cards = page.locator('app-dashboard-page .pulse a');
     assert.equal(await cards.count(), 4);

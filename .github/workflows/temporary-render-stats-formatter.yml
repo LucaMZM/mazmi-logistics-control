@@ -1,0 +1,40 @@
+name: Temporary renderer stats formatter
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/temporary-render-stats-formatter.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.15.0
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --prefix frontend --no-audit --no-fund
+      - name: Apply repository Prettier
+        run: |
+          cd frontend
+          ./node_modules/.bin/prettier --write \
+            src/app/features/control-room/control-room.page.html \
+            src/app/features/digital-twin/scene-diagnostics.spec.ts \
+            src/app/features/warehouse-twin/warehouse-twin.page.ts
+      - name: Export formatted files
+        shell: bash
+        run: |
+          for f in \
+            frontend/src/app/features/control-room/control-room.page.html \
+            frontend/src/app/features/digital-twin/scene-diagnostics.spec.ts \
+            frontend/src/app/features/warehouse-twin/warehouse-twin.page.ts; do
+            echo "__MAZMI_FORMAT_BEGIN__:$f"
+            base64 "$f"
+            echo "__MAZMI_FORMAT_END__:$f"
+          done

@@ -28,11 +28,15 @@ describe('Silk Aurora', () => {
 
     notify([{ isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.silk').classList.contains('silk-paused')).toBe(true);
+    expect(fixture.nativeElement.querySelector('.silk').classList.contains('silk-paused')).toBe(
+      true,
+    );
 
     notify([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.silk').classList.contains('silk-paused')).toBe(false);
+    expect(fixture.nativeElement.querySelector('.silk').classList.contains('silk-paused')).toBe(
+      false,
+    );
     fixture.destroy();
     expect(disconnect).toHaveBeenCalledOnce();
   });

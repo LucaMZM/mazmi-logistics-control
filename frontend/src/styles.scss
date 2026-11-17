@@ -825,20 +825,22 @@ app-operations-world-map .world-marker:focus-visible {
 }
 
 /* Reports, registers and details share a single calibrated surface material. */
-.content :is(
-  app-shipments-page,
-  app-inventory-page,
-  app-fleet-page,
-  app-customers-page,
-  app-incidents-page,
-  app-orders-page,
-  app-order-detail-page,
-  app-inventory-detail-page,
-  app-customer-detail-page,
-  app-incident-detail-page,
-  app-shipment-detail-page,
-  app-users-page
-) :is(.section, .table-card, .tabs-card, .history, .profile, .warehouse-grid > article) {
+.content
+  :is(
+    app-shipments-page,
+    app-inventory-page,
+    app-fleet-page,
+    app-customers-page,
+    app-incidents-page,
+    app-orders-page,
+    app-order-detail-page,
+    app-inventory-detail-page,
+    app-customer-detail-page,
+    app-incident-detail-page,
+    app-shipment-detail-page,
+    app-users-page
+  )
+  :is(.section, .table-card, .tabs-card, .history, .profile, .warehouse-grid > article) {
   background: #fff;
   border-color: var(--panel-line);
   border-radius: var(--panel-radius);
@@ -847,14 +849,16 @@ app-operations-world-map .world-marker:focus-visible {
 .content :is(app-inventory-page, app-shipments-page, app-incidents-page) .filters {
   background: var(--panel-surface);
 }
-.content :is(
-  app-fleet-page,
-  app-customers-page,
-  app-incidents-page,
-  app-shipments-page,
-  app-inventory-page,
-  app-users-page
-) .table-wrap {
+.content
+  :is(
+    app-fleet-page,
+    app-customers-page,
+    app-incidents-page,
+    app-shipments-page,
+    app-inventory-page,
+    app-users-page
+  )
+  .table-wrap {
   border-radius: 0 0 var(--panel-radius) var(--panel-radius);
 }
 .content :is(app-orders-page, app-shipments-page) .table-card {
@@ -915,8 +919,10 @@ app-operations-world-map .world-marker:focus-visible {
     backdrop-filter: none;
   }
 }
-.content :is(app-digital-twin-page, app-warehouse-twin-page, app-control-room-page)
-  :is(.controls, .warehouse-controls, .scene-controls) button:focus-visible {
+.content
+  :is(app-digital-twin-page, app-warehouse-twin-page, app-control-room-page)
+  :is(.controls, .warehouse-controls, .scene-controls)
+  button:focus-visible {
   outline-color: #325e50;
   outline-offset: 2px;
 }

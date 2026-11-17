@@ -32,8 +32,9 @@ describe('Control Room illustrative circuit', () => {
       criticalPositions: null,
     });
     fixture.detectChanges();
-    expect([...fixture.nativeElement.querySelectorAll('.node strong')].map((n) => n.textContent))
-      .toEqual(['—', '—', '—']);
+    expect(
+      [...fixture.nativeElement.querySelectorAll('.node strong')].map((n) => n.textContent),
+    ).toEqual(['—', '—', '—']);
     fixture.destroy();
   });
 });

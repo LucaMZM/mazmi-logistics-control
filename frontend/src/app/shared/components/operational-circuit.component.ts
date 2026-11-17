@@ -42,7 +42,10 @@ import { ControlRoomSnapshot, metricLabel } from '../../features/control-room/co
   `,
   styles: [
     `
-      :host { display: block; min-width: 0; }
+      :host {
+        display: block;
+        min-width: 0;
+      }
       .circuit {
         overflow: hidden;
         border: 1px solid #d4e3dc;
@@ -50,7 +53,10 @@ import { ControlRoomSnapshot, metricLabel } from '../../features/control-room/co
         padding: 13px 13px 10px;
         background: linear-gradient(140deg, #edf5f0, #f8fbf8 55%, #eff5f2);
       }
-      header { display: grid; gap: 3px; }
+      header {
+        display: grid;
+        gap: 3px;
+      }
       .eyebrow {
         font-size: 9px;
         font-weight: 750;
@@ -91,7 +97,9 @@ import { ControlRoomSnapshot, metricLabel } from '../../features/control-room/co
         stroke-dasharray: 6 18;
         animation: circuit-flow 12s linear infinite;
       }
-      circle { fill: #5c9c88; }
+      circle {
+        fill: #5c9c88;
+      }
       .node {
         position: absolute;
         display: grid;
@@ -103,23 +111,54 @@ import { ControlRoomSnapshot, metricLabel } from '../../features/control-room/co
         background: #fff;
         box-shadow: 0 3px 12px rgb(34 70 56 / 7%);
       }
-      .node-operations { top: 0; left: 0; width: 41%; }
-      .node-fleet { top: 50px; right: 0; width: 42%; }
-      .node-warehouse { bottom: 0; left: 0; width: 44%; }
-      .node-title { color: #506b5d; font-size: 10px; font-weight: 650; }
+      .node-operations {
+        top: 0;
+        left: 0;
+        width: 41%;
+      }
+      .node-fleet {
+        top: 50px;
+        right: 0;
+        width: 42%;
+      }
+      .node-warehouse {
+        bottom: 0;
+        left: 0;
+        width: 44%;
+      }
+      .node-title {
+        color: #506b5d;
+        font-size: 10px;
+        font-weight: 650;
+      }
       .node strong {
         color: #214e41;
         font-size: 18px;
         font-variant-numeric: tabular-nums;
         line-height: 1.1;
       }
-      .node small { font-size: 9px; color: #63786c; line-height: 1.3; }
-      p { margin: 9px 0 0; font-size: 10px; line-height: 1.5; color: #61746a; }
+      .node small {
+        font-size: 9px;
+        color: #63786c;
+        line-height: 1.3;
+      }
+      p {
+        margin: 9px 0 0;
+        font-size: 10px;
+        line-height: 1.5;
+        color: #61746a;
+      }
       @keyframes circuit-flow {
-        to { stroke-dashoffset: -144; }
+        to {
+          stroke-dashoffset: -144;
+        }
       }
       @media (prefers-reduced-motion: reduce) {
-        .signal { animation: none; stroke-dasharray: none; opacity: 0.5; }
+        .signal {
+          animation: none;
+          stroke-dasharray: none;
+          opacity: 0.5;
+        }
       }
     `,
   ],

@@ -423,14 +423,18 @@ h3 {
   font-size: 30px;
   letter-spacing: -0.035em;
 }
-.summary span { color: #5a7268; }
+.summary span {
+  color: #5a7268;
+}
 .world,
 .station-panel {
   border-color: var(--panel-line);
   border-radius: var(--panel-radius);
   box-shadow: var(--panel-shadow);
 }
-.station-panel { background: #fbfdfb; }
+.station-panel {
+  background: #fbfdfb;
+}
 .station-choice {
   border-color: #d7e4dd;
   border-radius: 10px;
@@ -464,21 +468,39 @@ h3 {
   background: #1c3d32;
 }
 @keyframes room-heading-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @media (max-width: 700px) {
-  .intro { min-height: 0; padding: 20px; }
+  .intro {
+    min-height: 0;
+    padding: 20px;
+  }
   .summary > div {
     padding: 16px;
     border-bottom: 1px solid var(--panel-line);
   }
-  .summary > div:nth-child(2) { border-right: 1px solid var(--panel-line); }
+  .summary > div:nth-child(2) {
+    border-right: 1px solid var(--panel-line);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .intro .kinetic-heading { animation: none; }
+  .intro .kinetic-heading {
+    animation: none;
+  }
 }
 @media (prefers-reduced-transparency: reduce) {
-  .intro .back-link { background: #fff; }
-  .scene-controls { background: #fff; backdrop-filter: none; }
+  .intro .back-link {
+    background: #fff;
+  }
+  .scene-controls {
+    background: #fff;
+    backdrop-filter: none;
+  }
 }

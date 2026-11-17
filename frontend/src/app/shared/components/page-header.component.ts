@@ -75,7 +75,9 @@ import { SilkAuroraComponent } from './silk-aurora.component';
         display: inline-block;
         padding: 3px 0;
       }
-      p a:hover { text-decoration: underline; }
+      p a:hover {
+        text-decoration: underline;
+      }
       h1 {
         font-size: clamp(27px, 2.2vw, 33px);
         letter-spacing: -0.035em;
@@ -105,8 +107,14 @@ import { SilkAuroraComponent } from './silk-aurora.component';
         gap: 8px;
       }
       @keyframes kinetic-word-in {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       @media (max-width: 700px) {
         header {
@@ -125,10 +133,14 @@ import { SilkAuroraComponent } from './silk-aurora.component';
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        h1 .kinetic-word { animation: none; }
+        h1 .kinetic-word {
+          animation: none;
+        }
       }
       @media (prefers-reduced-transparency: reduce) {
-        header.aurora { background: #f3f8f4; }
+        header.aurora {
+          background: #f3f8f4;
+        }
       }
     `,
   ],

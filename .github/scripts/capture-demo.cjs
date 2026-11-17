@@ -107,6 +107,16 @@ async function main() {
       true,
     );
     await capture("orders.png", "/orders", "Orders", "table tbody tr");
+    const firstOrder = page.locator('td[data-label="Order"] a').first();
+    const orderNumber = (await firstOrder.innerText()).trim();
+    await page.getByPlaceholder("Order number or customer").fill(orderNumber);
+    await page.waitForFunction(() => document.querySelectorAll('td[data-label="Order"] a').length === 1);
+    await firstOrder.click();
+    await page.getByRole('heading',{name:orderNumber, exact:true}).waitFor();
+    await page.screenshot({path:path.join(output,'review','order-detail.png'),animations:'disabled'});
+    await page.goto(baseURL+'/orders/new');
+    await page.locator('form,mat-form-field').first().waitFor();
+    await page.screenshot({path:path.join(output,'review','order-form.png'),animations:'disabled'});
     await capture("inventory.png", "/inventory", "Inventory", "table tbody tr");
     const response = await context.request.get(
       `${baseURL}/api/v1/shipments?status=IN_TRANSIT&size=50`,
@@ -240,6 +250,9 @@ async function main() {
     await page.getByRole("button", { name: "Toggle navigation" }).focus();
     await page.keyboard.press("Enter");
     await page.locator(".sidebar-open").waitFor();
+    await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('link',{name:'Orders',exact:true}).focus();
+    assert(await page.evaluate(()=>document.activeElement?.closest('nav') !== null));
+    await page.screenshot({path:path.join(output,'review','mobile-dock.png'),animations:'disabled'});
     await page.keyboard.press("Escape");
     await page.waitForFunction(
       () => document.activeElement?.id === "navigation-toggle",

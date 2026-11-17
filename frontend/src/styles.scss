@@ -661,6 +661,13 @@ app-operations-world-map .world-marker:focus-visible {
   background: #fff;
   box-shadow: var(--panel-shadow);
 }
+.content app-orders-page .table-card,
+.content app-order-detail-page .section {
+  border: 1px solid var(--panel-line);
+  border-radius: var(--panel-radius);
+  background: #fff;
+  box-shadow: var(--panel-shadow);
+}
 .content .table-wrap {
   border-radius: 0 0 var(--panel-radius) var(--panel-radius);
 }

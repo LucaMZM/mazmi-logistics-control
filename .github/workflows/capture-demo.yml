@@ -90,13 +90,13 @@ jobs:
           CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
         run: node .github/scripts/capture-demo.cjs
       - name: Validate and capture Warehouse Twin
-        if: ${{ inputs.warehouse_only && !inputs.control_room_only }}
+        if: ${{ github.event_name == 'push' || (inputs.warehouse_only && !inputs.control_room_only) }}
         env:
           NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
           CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots
         run: node .github/scripts/capture-warehouse.cjs
       - name: Validate and capture World Map
-        if: ${{ inputs.world_map_only && !inputs.control_room_only }}
+        if: ${{ github.event_name == 'push' || (inputs.world_map_only && !inputs.control_room_only) }}
         env:
           NODE_PATH: ${{ runner.temp }}/capture-tools/node_modules
           CAPTURE_DIR: ${{ runner.temp }}/portfolio-screenshots

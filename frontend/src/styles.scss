@@ -1036,6 +1036,6 @@ app-operations-world-map .world-marker:focus-visible {
 @media (prefers-contrast: more) {
   .content app-feedback-state .state {
     border-style: solid;
-    border-color: #627d71;
+    border-color: var(--accent);
   }
 }

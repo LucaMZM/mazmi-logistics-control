@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'frontend/src/styles.scss'
+      - 'frontend/src/app/core/layout/**'
       - 'frontend/src/app/shared/components/**'
       - 'frontend/src/app/features/dashboard/**'
       - 'frontend/src/app/features/orders/**'

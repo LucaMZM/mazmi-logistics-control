@@ -44,7 +44,7 @@ import { Customer } from '../../shared/models/models';
       } @else {
         @if (customers().length) {
           <div class="table-wrap">
-            <table>
+            <table class="responsive-table" aria-label="Customers">
               <thead>
                 <tr>
                   <th>Code</th>
@@ -58,16 +58,16 @@ import { Customer } from '../../shared/models/models';
               <tbody>
                 @for (customer of customers(); track customer.id) {
                   <tr>
-                    <td>
+                    <td data-label="Code">
                       <a [routerLink]="['/customers', customer.id]">{{ customer.code }}</a>
                     </td>
-                    <td>
+                    <td data-label="Company">
                       <strong>{{ customer.companyName }}</strong>
                     </td>
-                    <td>{{ customer.contactName }}</td>
-                    <td>{{ customer.city }}, {{ customer.country }}</td>
-                    <td>{{ customer.email }}</td>
-                    <td>
+                    <td data-label="Contact">{{ customer.contactName }}</td>
+                    <td data-label="Location">{{ customer.city }}, {{ customer.country }}</td>
+                    <td data-label="Email" data-wide>{{ customer.email }}</td>
+                    <td data-label="Status">
                       <app-status-chip [status]="customer.active ? 'AVAILABLE' : 'INACTIVE'" />
                     </td>
                   </tr>
@@ -91,7 +91,7 @@ import { Customer } from '../../shared/models/models';
       }
       section {
         background: #fff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--line);
       }
       table {
         width: 100%;

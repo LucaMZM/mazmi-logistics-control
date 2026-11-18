@@ -166,7 +166,7 @@ export class PasswordDialog {
       } @else {
         @if (users().length) {
           <div class="table-wrap">
-            <table>
+            <table class="responsive-table" aria-label="Users">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -180,19 +180,19 @@ export class PasswordDialog {
               <tbody>
                 @for (user of users(); track user.id) {
                   <tr>
-                    <td>
+                    <td data-label="Name">
                       <strong>{{ user.name }}</strong>
                     </td>
-                    <td>{{ user.email }}</td>
-                    <td><app-status-chip [status]="user.role" /></td>
-                    <td>
+                    <td data-label="Email" data-wide>{{ user.email }}</td>
+                    <td data-label="Role"><app-status-chip [status]="user.role" /></td>
+                    <td data-label="Status">
                       <app-status-chip
                         [status]="user.enabled ? 'AVAILABLE' : 'INACTIVE'"
                         [label]="user.enabled ? 'ENABLED' : 'DISABLED'"
                       />
                     </td>
-                    <td>{{ user.createdAt | date: 'mediumDate' }}</td>
-                    <td class="actions">
+                    <td data-label="Created">{{ user.createdAt | date: 'mediumDate' }}</td>
+                    <td data-label="Actions" data-wide class="actions">
                       <button mat-button (click)="openUser(user)">Edit</button
                       ><button mat-button (click)="resetPassword(user)">Reset password</button>
                     </td>
@@ -213,7 +213,7 @@ export class PasswordDialog {
     `
       section {
         background: #fff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--line);
       }
       table {
         width: 100%;

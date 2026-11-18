@@ -272,6 +272,12 @@ async function main() {
       path: path.join(output, "review", "order-detail.png"),
       animations: "disabled",
     });
+    assert.equal(
+      await dock
+        .getByRole("link", { name: "Orders", exact: true })
+        .getAttribute("aria-current"),
+      "page",
+    );
     await page.goto(baseURL + "/orders/new");
 
     await page.locator("form,mat-form-field").first().waitFor();
@@ -503,6 +509,20 @@ async function main() {
       "Users",
       "table tbody tr",
     );
+    assert.equal(
+      await page
+        .locator(".responsive-table tbody tr")
+        .first()
+        .evaluate((row) => getComputedStyle(row).display),
+      "grid",
+    );
+    await page
+      .getByRole("button", { name: "Edit", exact: true })
+      .first()
+      .click();
+    await page.getByRole("dialog").waitFor();
+    await page.keyboard.press("Escape");
+    await page.getByRole("dialog").waitFor({ state: "hidden" });
     assert.deepEqual(errors, [], "Unexpected JavaScript errors");
     await fs.writeFile(
       path.join(output, "capture-report.json"),

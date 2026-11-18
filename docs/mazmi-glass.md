@@ -49,3 +49,28 @@ Mismo dashboard, perfil demo y viewport de 1440 × 1440: [antes](screenshots/nav
 Recorrido de pedidos: [listado](screenshots/orders.png) · [detalle](screenshots/order-detail.png) · [formulario](screenshots/order-form.png).
 
 [Ejecución de referencia](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/44186312513) · [Prueba gráfica de la Fase A](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/44186886023).
+
+## Entrega UI/UX — auditoría de cierre
+
+La solicitud original está implementada con adaptaciones nativas de Angular/CSS, sin dependencia de componentes React de Componentry:
+
+| Efecto solicitado | Implementación | Alcance |
+| --- | --- | --- |
+| Apple-style Liquid Glass | `backdrop-filter` con respaldo opaco | Sidebar, barra superior y algunos controles flotantes |
+| Magnetic Dock | Escalado CSS de icono activo y vecinos al pasar el ratón | Navegación principal en escritorio |
+| Hover transitions | Transiciones cortas y foco visible | Navegación, tarjetas, botones y superficies operativas |
+| Silk Aurora | `SilkAuroraComponent`, gradientes CSS con observador de visibilidad | Cabeceras principales y Control Room |
+| Circuit Board | `OperationalCircuitComponent`, SVG ilustrativo con datos del dashboard | Panel de Control Room |
+| Kinetic Text Reveal | `PageHeaderComponent` y título de Control Room | Cabeceras, no datos dinámicos ni fichas |
+
+El refinamiento final restringe la regla tipográfica global del encabezado al selector `.subtitle`, evitando contaminar las etiquetas y palabras animadas. El smoke de Chromium mide el contraste de `.mdc-button__label` en la acción **New order** y exige al menos 4.5:1. Las escenas y operaciones de negocio no han sido modificadas por este ajuste.
+
+En la captura automática de `main` se incluyen ahora los recorridos de **Warehouse Twin** y **World Map** además del dashboard, las fichas, Control Room y Warehouse Editor. Los resultados de cada ejecución deben consultarse en GitHub Actions; una ejecución todavía pendiente no equivale a una aprobación.
+
+### Comprobaciones que requieren equipo real
+
+- Safari en macOS: transparencia reducida, movimiento reducido, foco, apertura/cierre del menú y legibilidad a diferentes anchos.
+- MacBook Air M2: fluidez percibida de hover, aurora y escenas 3D, memoria/temperatura y calidad visual en pantalla Retina.
+- Rendimiento: el build de referencia avisó de un inicial de 603.86 kB respecto al umbral de aviso de 500 kB, además de presupuestos SCSS; es deuda de optimización, no un error de compilación. No aumentar presupuestos para ocultar avisos.
+
+**Criterio de cierre:** funcionalidad UI/UX implementada y cobertura automatizada ampliada. El cierre de calidad final exige CI/capturas verdes en el último SHA y la revisión local de Safari; esta guía no afirma que las pruebas de hardware ya se hayan realizado.

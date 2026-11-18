@@ -81,11 +81,13 @@ El centro de operaciones reúne las excepciones, los envíos activos y el invent
 
 Las posiciones y maniobras son simuladas. [Flota y mapa](docs/digital-twin.md) · [Almacén](docs/warehouse-twin.md) · [Editor](docs/warehouse-editor.md).
 
-### En móvil
+### Navegación en escritorio y móvil
 
-| <a href="docs/screenshots/mobile-dock.webp"><img src="docs/screenshots/mobile-dock.webp" width="195" alt="Dock móvil con foco visible"></a> | <a href="docs/screenshots/mobile-orders.webp"><img src="docs/screenshots/mobile-orders.webp" width="195" alt="Pedidos en fichas a 390 px"></a> |
-|:---|:---|
-| Navegación con teclado | Pedidos a 390 px |
+El dock mantiene marcada la sección al abrir un detalle. [Ver el dock activo en un pedido](docs/screenshots/order-detail.webp) · [Ver el panel de espacios digitales](docs/screenshots/secondary-panel.webp).
+
+| Centro de operaciones | Menú secundario | Pedidos |
+|:---|:---|:---|
+| <a href="docs/screenshots/mobile-dashboard.webp"><img src="docs/screenshots/mobile-dashboard.webp" width="185" alt="Dashboard con el dock al pie"></a> | <a href="docs/screenshots/mobile-dock.webp"><img src="docs/screenshots/mobile-dock.webp" width="185" alt="Menú secundario abierto sobre el ERP"></a> | <a href="docs/screenshots/mobile-orders.webp"><img src="docs/screenshots/mobile-orders.webp" width="185" alt="Pedidos en fichas a 390 px"></a> |
 
 [Materiales, movimiento y accesibilidad de MAZMI Glass](docs/mazmi-glass.md).
 

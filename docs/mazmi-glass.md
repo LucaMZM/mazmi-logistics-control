@@ -19,4 +19,6 @@ El magnetismo se calcula desde el cursor hasta el centro de cada botón. Se tran
 
 La [galería del proyecto](../README.md#capturas) muestra la aplicación con los datos demo. El [workflow de captura](../.github/workflows/capture-demo.yml) arranca Angular, Spring Boot y PostgreSQL y abre Chromium con Playwright. Además de tomar imágenes, verifica la navegación por teclado, la preferencia de movimiento reducido, el contraste del botón **New order**, los desbordamientos y los flujos operativos y 3D.
 
+Para comparar el cambio sin duplicar imágenes antiguas en el repositorio: [captura anterior al ajuste del dock](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/44293648546) y [captura de la interfaz revisada](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/44299941981). La portada del dashboard se capturó en Chromium local con el mismo frontend, Spring Boot y PostgreSQL 17: incluye los 1513 px de la página completa. El resto de la galería procede del runner. Los artefactos de Actions son temporales; la galería del README queda versionada con el proyecto.
+
 Las capturas son fotogramas, no una medición de fluidez. Chromium con SwiftShader permite comprobar que una escena se dibuja; no mide el rendimiento de Safari ni de la GPU de un MacBook Air M2.

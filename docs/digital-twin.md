@@ -8,9 +8,9 @@ Seleccionar un envío desde su marcador o la lista HTML abre su ficha y permite 
 
 ### Arquitectura geográfica
 
-![World Map con vehículo enfocado y marcadores despejados](screenshots/world-map-selected.png)
+![World Map 3D con los envíos activos](screenshots/world-map-overview.webp)
 
-[General](screenshots/world-map-overview.png) · [Tracking simulado](screenshots/world-map-tracking.png) · [Móvil](screenshots/world-map-mobile.png)
+[Seguimiento simulado](screenshots/shipment-tracking.webp)
 
 Capturas auténticas de [la ejecución 43385192310](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43385192310): Chromium 141 / SwiftShader, Ubuntu, PostgreSQL y backend reales; escritorio 1440×1100 y móvil 390×844. Se recibieron cuatro mensajes STOMP, se verificaron identidad HTTP, cambio 2D/3D, pausa, seguimiento cancelado por gesto y recuperación de contexto; cero errores JavaScript. No es una medición de rendimiento en GPU física.
 
@@ -73,9 +73,9 @@ Seleccionar un vehículo y pulsar **Open vehicle in 3D**. Las furgonetas tienen 
 
 ## Capturas
 
-![Patio Fleet Twin con un vehículo vinculado al registro real](screenshots/fleet-twin.png)
+![Patio Fleet Twin con un vehículo vinculado al registro real](screenshots/fleet-twin.webp)
 
-[Vista móvil completa](screenshots/fleet-twin-mobile.png)
+[Galería del proyecto](../README.md#capturas)
 
 ## Arquitectura
 

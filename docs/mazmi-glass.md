@@ -42,13 +42,11 @@ La revisión de capturas también detectó que **New order**, la acción primari
 
 Se mantiene el encuadre de captura de Control Room al inicio de página para evitar capturas desplazadas después de comprobar métricas bajo el viewport. Las pruebas de Chrome/SwiftShader validan estructura y funcionalidad, pero no la fluidez física de Safari en un MacBook Air M2.
 
-## Comparación en Chromium
+## Galería en Chromium
 
-Mismo dashboard, perfil demo y viewport de 1440 × 1440: [antes](screenshots/navigation-before.png) · [después](screenshots/dashboard.png). [Dock móvil con foco de teclado, 390 × 844](screenshots/mobile-dock.png).
+[Dashboard y cabecera Silk Aurora](screenshots/dashboard.webp) · [Dock móvil con foco visible](screenshots/mobile-dock.webp) · [Circuit Board en Control Room](screenshots/control-room-overview.webp). Las imágenes son fotogramas estáticos: no reproducen la animación de proximidad del dock.
 
-Recorrido de pedidos: [listado](screenshots/orders.png) · [detalle](screenshots/order-detail.png) · [formulario](screenshots/order-form.png).
-
-[Ejecución de referencia](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/44186312513) · [Prueba gráfica de la Fase A](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/44186886023).
+[Galería completa](../README.md#capturas). Las imágenes publicadas conservan los píxeles de Chromium en WebP sin pérdida. Proceden de la [captura integral de MAZMI Glass](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/44205542839) y de la [captura del registro de flota](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/44207308025), sin cambios de aplicación entre ambas.
 
 ## Entrega UI/UX — auditoría de cierre
 

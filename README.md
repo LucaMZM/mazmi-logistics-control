@@ -51,59 +51,43 @@ Los datos del perfil demo son ficticios. Las posiciones de los envíos se calcul
 
 ## Capturas
 
-[Guía de la navegación MAZMI Glass](docs/mazmi-glass.md).
+[![Dashboard MAZMI Glass: indicadores, prioridades y mapa de actividad](docs/screenshots/dashboard.webp)](docs/screenshots/dashboard.webp)
 
-### Control Room 3D
+El centro de operaciones reúne las excepciones, los envíos activos y el inventario crítico. Las capturas proceden del ERP con datos de demostración. Selecciona una imagen para abrirla a tamaño completo.
 
-La sala de control isométrica une los indicadores reales de operaciones y el acceso a Fleet Twin, World Map y Warehouse Twin. Se abre desde **Control Room** en el menú lateral o directamente en `/control-room`. Los monitores 3D leen las mismas métricas verificadas de `/api/v1/dashboard`; no representan cámaras, oficinas reales ni telemetría adicional.
+### Operaciones
 
-![Control Room con indicadores del ERP](docs/screenshots/control-room-overview.png)
+| | |
+|:---|:---|
+| <a href="docs/screenshots/orders.webp"><img src="docs/screenshots/orders.webp" width="410" alt="Pedidos y filtros"></a> | <a href="docs/screenshots/shipments.webp"><img src="docs/screenshots/shipments.webp" width="410" alt="Envíos y estado de entrega"></a> |
+| Pedidos y filtros | Envíos y estado de entrega |
+| <a href="docs/screenshots/inventory.webp"><img src="docs/screenshots/inventory.webp" width="410" alt="Existencias y reservas"></a> | <a href="docs/screenshots/fleet.webp"><img src="docs/screenshots/fleet.webp" width="410" alt="Vehículos y capacidad"></a> |
+| Existencias y reservas | Vehículos y capacidad |
 
-[Arquitectura, controles, privacidad y límites de Control Room](docs/control-room.md).
+| <a href="docs/screenshots/incidents.webp"><img src="docs/screenshots/incidents.webp" width="410" alt="Incidencias por estado y severidad"></a> | <a href="docs/screenshots/shipment-tracking.webp"><img src="docs/screenshots/shipment-tracking.webp" width="410" alt="Seguimiento simulado de un envío"></a> |
+|:---|:---|
+| Incidencias por estado y severidad | Seguimiento simulado de un envío |
 
-### Warehouse Editor 3D
+### Digital Twin 3D
 
-El **Warehouse Editor** permite a los operadores diseñar una distribución visual de estanterías, muelles y zonas de trabajo, vinculada a cada almacén real y guardada en PostgreSQL mediante `/api/v1/warehouses/{id}/visual-layout`. La edición se realiza en una maqueta 3D con selección, colocación en cuadrícula, giro, eliminación, guardado, restauración y protección contra cambios simultáneos. No almacena posiciones de productos ni modifica existencias, pedidos o flota.
+[![Control Room: sala de operaciones y panel de conexiones ilustrativas](docs/screenshots/control-room-overview.webp)](docs/screenshots/control-room-overview.webp)
 
-La acción **Back to Warehouse Twin** abre el mismo almacén. El Twin muestra el plano guardado y su revisión; sólo usa la distribución predeterminada cuando no hay plano. El Editor permite comprobar si cabe la carretilla cargada. El Twin calcula un recorrido A* con giros hasta el muelle, lo dibuja en el suelo y permite seguir la máquina sin modificar registros del ERP. [Validación gráfica completa de Smart Warehouse](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971508967) y [CI final](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971964920) (123 tests frontend, 65 backend). La galería de la prueba contiene capturas nuevas del recorrido y de móvil; las imágenes enlazadas aquí documentan una fase previa.
+| | |
+|:---|:---|
+| <a href="docs/screenshots/fleet-twin.webp"><img src="docs/screenshots/fleet-twin.webp" width="410" alt="Fleet Twin: inspección de la flota"></a> | <a href="docs/screenshots/world-map-overview.webp"><img src="docs/screenshots/world-map-overview.webp" width="410" alt="World Map: envíos sobre el mapa 3D"></a> |
+| Fleet Twin: inspección de la flota | World Map: envíos sobre el mapa 3D |
+| <a href="docs/screenshots/warehouse-twin-saved-layout.webp"><img src="docs/screenshots/warehouse-twin-saved-layout.webp" width="410" alt="Warehouse Twin: distribución guardada"></a> | <a href="docs/screenshots/warehouse-editor-saved.webp"><img src="docs/screenshots/warehouse-editor-saved.webp" width="410" alt="Warehouse Editor: edición del plano"></a> |
+| Warehouse Twin: distribución guardada | Warehouse Editor: edición del plano |
 
-![Plano guardado en el gemelo del almacén](docs/screenshots/warehouse-twin-saved-layout.png)
+Las posiciones y maniobras son simuladas. [Flota y mapa](docs/digital-twin.md) · [Almacén](docs/warehouse-twin.md) · [Editor](docs/warehouse-editor.md).
 
-[Editar el plano](docs/screenshots/warehouse-editor-saved.png) · [Editor en móvil](docs/screenshots/warehouse-editor-mobile.png)
+### En móvil
 
-Ruta: `/warehouse-editor`. [Arquitectura del editor, validaciones y límites](docs/warehouse-editor.md).
+| <a href="docs/screenshots/mobile-dock.webp"><img src="docs/screenshots/mobile-dock.webp" width="195" alt="Dock móvil con foco visible"></a> | <a href="docs/screenshots/mobile-orders.webp"><img src="docs/screenshots/mobile-orders.webp" width="195" alt="Pedidos en fichas a 390 px"></a> |
+|:---|:---|
+| Navegación con teclado | Pedidos a 390 px |
 
-### Warehouse Twin
-
-Almacén isométrico con inventario real, selección de zonas y una secuencia de carretilla y carga. El layout interior y los movimientos son ilustrativos: no modifican registros del ERP.
-
-![Warehouse Twin con nave abierta, estanterías, carretilla, expedición e inventario verificado](docs/screenshots/warehouse-overview.png)
-
-[Estanterías](docs/screenshots/warehouse-storage.png) · [Maniobra de carretilla](docs/screenshots/warehouse-manoeuvre.png) · [Muelles y expedición](docs/screenshots/warehouse-dispatch.png) · [Vista móvil](docs/screenshots/warehouse-mobile.png)
-
-Disponible en `/warehouse-twin`. [Controles, arquitectura y límites de representación](docs/warehouse-twin.md).
-
-### World Map 3D
-
-![Envío seleccionado con vehículo 3D y datos reales de asignación](docs/screenshots/world-map-selected.png)
-
-[Vista general](docs/screenshots/world-map-overview.png) · [Seguimiento simulado](docs/screenshots/world-map-tracking.png) · [Vista móvil](docs/screenshots/world-map-mobile.png)
-
-### Centro de operaciones
-
-![Centro de operaciones con pulso logístico, cola de atención, mapa de envíos e inventario crítico](docs/screenshots/dashboard.png)
-
-### Seguimiento simulado de envíos
-
-![Detalle de un envío con ruta simulada, progreso, flota asignada, timeline e incidencia abierta](docs/screenshots/shipment-tracking.png)
-
-<table>
-  <tr>
-    <td width="33%"><img src="docs/screenshots/orders.png" alt="Registro de pedidos con filtros y estados operativos"><br><strong>Pedidos</strong></td>
-    <td width="33%"><img src="docs/screenshots/inventory.png" alt="Inventario por almacén con existencias, reservas y disponibilidad"><br><strong>Inventario</strong></td>
-    <td width="33%"><img src="docs/screenshots/incidents.png" alt="Registro de incidencias con severidad y estado"><br><strong>Incidencias</strong></td>
-  </tr>
-</table>
+[Materiales, movimiento y accesibilidad de MAZMI Glass](docs/mazmi-glass.md).
 
 ## Problema que resuelve
 

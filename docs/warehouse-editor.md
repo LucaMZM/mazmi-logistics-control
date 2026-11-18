@@ -57,7 +57,7 @@ Los tests del modelo cubren las ubicaciones permitidas, colisiones, rotaciones y
 
 [CI de la fase 5](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971964920): **123 tests frontend y 65 backend**. El [recorrido E2E de Editor y Smart Warehouse](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971508967) utiliza Chromium con PostgreSQL y Spring Boot en un entorno demo temporal, no imágenes de diseño. Además, la [captura estándar de Warehouse Twin sobre `0271067`](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971965827) está en verde. Además de guardar y recuperar los planos, el Editor permite comprobar si existe una maniobra compatible antes del guardado. Un plano válido geométricamente no garantiza que exista una ruta para la carretilla; el Twin muestra un bloqueo explícito si no la encuentra.
 
-[Editor anterior](screenshots/warehouse-editor-before.png) · [Editor actual](screenshots/warehouse-editor-saved.png) · [Plano en Warehouse Twin](screenshots/warehouse-twin-saved-layout.png) · [Vista móvil](screenshots/warehouse-editor-mobile.png).
+[Editor con plano guardado](screenshots/warehouse-editor-saved.webp) · [El plano en Warehouse Twin](screenshots/warehouse-twin-saved-layout.webp).
 
 Pendiente una medición de rendimiento y revisión ergonómica sobre la GPU física del MacBook Air M2; las pruebas con SwiftShader no equivalen a una medición de FPS en ese equipo.
 

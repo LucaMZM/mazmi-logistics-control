@@ -52,20 +52,13 @@ El [CI de la implementación](https://github.com/LucaMZM/mazmi-logistics-control
 
 ### Fase 5 — Smart Warehouse (estado verificado)
 
-La versión publicada en `main` con commit `0271067` incorpora planificación A* con estado de posición y orientación, recorrido dibujado y seguimiento de carretilla. La validación automática final pasó **123/123 tests frontend** y **65/65 backend**, además de formato, lint, typecheck, build y Gitleaks. La [prueba E2E de Smart Warehouse](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971508967) terminó en verde con Chromium, PostgreSQL y Spring Boot: comprobó entre otros la maniobra con giros, pausa, seguimiento, finalización, reinicio y bloqueo cuando falta un muelle adecuado. Las capturas `smart-warehouse-forklift.png` y `smart-warehouse-mobile.png` están disponibles en el artifact temporal **portfolio-screenshots** de esa ejecución. Además, la [captura manual del almacén sobre el commit final `0271067`](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971965827) pasó y contiene el conjunto estándar de cinco imágenes. Las capturas históricas de esta carpeta ilustran estados anteriores.
+La versión publicada en `main` con commit `0271067` incorpora planificación A* con estado de posición y orientación, recorrido dibujado y seguimiento de carretilla. La validación automática final pasó **123/123 tests frontend** y **65/65 backend**, además de formato, lint, typecheck, build y Gitleaks. La [prueba E2E de Smart Warehouse](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971508967) terminó en verde con Chromium, PostgreSQL y Spring Boot: comprobó entre otros la maniobra con giros, pausa, seguimiento, finalización, reinicio y bloqueo cuando falta un muelle adecuado. La [sesión gráfica del plano inicial](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971965827) documenta la validación histórica; la imagen que se muestra abajo corresponde a la galería MAZMI Glass.
 
 La [CI final de la fase 5](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/43971964920) deja advertencias no bloqueantes de tamaño (incluidas hojas de estilos) y módulos CommonJS; no se ha medido la GPU física del MacBook Air M2. El cálculo de rutas es una representación visual de demostración, no software de seguridad para vehículos reales.
 
 ## Capturas reales
 
-Escritorio de 1.440 × 1.100 px; vista móvil de 390 × 844 px capturada a página completa.
-
-![Almacén general](screenshots/warehouse-overview.png)
-
-- [Estanterías seleccionadas](screenshots/warehouse-storage.png)
-- [Carretilla durante el traslado](screenshots/warehouse-manoeuvre.png)
-- [Muelles tras completar la secuencia](screenshots/warehouse-dispatch.png)
-- [Vista móvil con movimiento reducido](screenshots/warehouse-mobile.png)
+[![Plano guardado en Warehouse Twin](screenshots/warehouse-twin-saved-layout.webp)](screenshots/warehouse-twin-saved-layout.webp)
 
 ## Límites y continuidad
 

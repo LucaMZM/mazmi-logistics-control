@@ -48,10 +48,10 @@ import { ControlRoomSnapshot, metricLabel } from '../../features/control-room/co
       }
       .circuit {
         overflow: hidden;
-        border: 1px solid #d4e3dc;
+        border: 1px solid #dedee4;
         border-radius: 14px;
         padding: 13px 13px 10px;
-        background: linear-gradient(140deg, #edf5f0, #f8fbf8 55%, #eff5f2);
+        background: linear-gradient(140deg, #f1f1f4, #fafafd 55%, #f3f3f6);
       }
       header {
         display: grid;
@@ -61,12 +61,12 @@ import { ControlRoomSnapshot, metricLabel } from '../../features/control-room/co
         font-size: 9px;
         font-weight: 750;
         letter-spacing: 0.14em;
-        color: #5a796e;
+        color: #73737d;
       }
       header strong {
         font-size: 13px;
         font-weight: 700;
-        color: #294b40;
+        color: #383840;
       }
       .diagram {
         position: relative;
@@ -83,14 +83,14 @@ import { ControlRoomSnapshot, metricLabel } from '../../features/control-room/co
       }
       .traces {
         fill: none;
-        stroke: #9abbaa;
+        stroke: #aaaab3;
         stroke-width: 1.8;
         stroke-linecap: round;
         stroke-linejoin: round;
       }
       .signal {
         fill: none;
-        stroke: #438c77;
+        stroke: #777781;
         stroke-width: 2.2;
         stroke-linecap: round;
         stroke-linejoin: round;
@@ -98,7 +98,7 @@ import { ControlRoomSnapshot, metricLabel } from '../../features/control-room/co
         animation: circuit-flow 12s linear infinite;
       }
       circle {
-        fill: #5c9c88;
+        fill: #868690;
       }
       .node {
         position: absolute;
@@ -106,10 +106,10 @@ import { ControlRoomSnapshot, metricLabel } from '../../features/control-room/co
         gap: 2px;
         min-width: 0;
         padding: 9px 10px;
-        border: 1px solid #d3e2d9;
+        border: 1px solid #e3e3e8;
         border-radius: 9px;
         background: #fff;
-        box-shadow: 0 3px 12px rgb(34 70 56 / 7%);
+        box-shadow: 0 3px 12px rgb(35 35 42 / 7%);
       }
       .node-operations {
         top: 0;
@@ -127,26 +127,26 @@ import { ControlRoomSnapshot, metricLabel } from '../../features/control-room/co
         width: 44%;
       }
       .node-title {
-        color: #506b5d;
+        color: #65656f;
         font-size: 10px;
         font-weight: 650;
       }
       .node strong {
-        color: #214e41;
+        color: #303036;
         font-size: 18px;
         font-variant-numeric: tabular-nums;
         line-height: 1.1;
       }
       .node small {
         font-size: 9px;
-        color: #63786c;
+        color: #787882;
         line-height: 1.3;
       }
       p {
         margin: 9px 0 0;
         font-size: 10px;
         line-height: 1.5;
-        color: #61746a;
+        color: #73737c;
       }
       @keyframes circuit-flow {
         to {

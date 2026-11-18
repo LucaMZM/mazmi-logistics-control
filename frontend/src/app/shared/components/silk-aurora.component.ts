@@ -29,8 +29,8 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, inject, signal } from 
         inset: 0;
         overflow: hidden;
         background:
-          radial-gradient(ellipse at 88% 10%, rgb(195 226 210 / 34%), transparent 64%),
-          linear-gradient(120deg, #fbfdfb, #e9f2ee 50%, #f5f7f4);
+          radial-gradient(ellipse at 88% 10%, rgb(209 209 218 / 34%), transparent 64%),
+          linear-gradient(120deg, #fbfbfc, #ececf1 50%, #f6f6f8);
       }
       .silk-sweep {
         position: absolute;
@@ -48,8 +48,8 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, inject, signal } from 
         background: linear-gradient(
           110deg,
           transparent 9%,
-          rgb(133 190 175 / 54%) 33%,
-          rgb(211 224 212 / 32%) 55%,
+          rgb(166 166 178 / 54%) 33%,
+          rgb(220 220 226 / 32%) 55%,
           transparent 77%
         );
       }
@@ -60,8 +60,8 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, inject, signal } from 
         background: linear-gradient(
           105deg,
           transparent 10%,
-          rgb(114 161 168 / 50%) 44%,
-          rgb(221 210 187 / 42%) 64%,
+          rgb(160 160 173 / 50%) 44%,
+          rgb(225 225 232 / 42%) 64%,
           transparent 84%
         );
         animation-delay: -13s;

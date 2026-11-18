@@ -92,14 +92,14 @@ import { AuthService } from './auth.service';
         height: 44px;
         display: grid;
         place-items: center;
-        background: #1d4ed8;
+        background: #36363f;
         color: #fff;
         font-weight: 800;
         margin-bottom: 28px;
         border-radius: 8px;
       }
       .eyebrow {
-        color: #1d4ed8;
+        color: #36363f;
         font-size: 12px;
         font-weight: 700;
         letter-spacing: 0.12em;
@@ -139,10 +139,10 @@ import { AuthService } from './auth.service';
         color: #475569;
       }
       .demo-note strong {
-        color: #0f172a;
+        color: #24242a;
       }
       aside {
-        background: #0f172a;
+        background: #24242a;
         color: #fff;
         padding: 7vw;
         display: flex;
@@ -150,7 +150,7 @@ import { AuthService } from './auth.service';
         justify-content: center;
       }
       aside span {
-        color: #67e8f9;
+        color: #e4e4e9;
         text-transform: uppercase;
         letter-spacing: 0.14em;
         font-size: 12px;

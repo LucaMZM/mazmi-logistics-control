@@ -184,6 +184,7 @@ async function main() {
     assert(formSectionRadius >= 14, 'Order forms must share the premium panel material');
     await page.screenshot({path:path.join(output,'review','order-form.png'),animations:'disabled'});
     await capture("inventory.png", "/inventory", "Inventory", "table tbody tr");
+    await capture("fleet.png", "/fleet", "Fleet", "app-fleet-page [role=tabpanel] tbody tr td strong");
     const response = await context.request.get(
       `${baseURL}/api/v1/shipments?status=IN_TRANSIT&size=50`,
     );

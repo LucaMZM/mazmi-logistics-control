@@ -364,7 +364,7 @@ import { DashboardStore } from './dashboard.store';
       }
       .section {
         background: #fff;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--line);
         min-width: 0;
       }
       .section > header {
@@ -373,7 +373,7 @@ import { DashboardStore } from './dashboard.store';
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--line);
       }
       .section h2 {
         font-size: 14px;
@@ -381,12 +381,12 @@ import { DashboardStore } from './dashboard.store';
       }
       .section header p {
         font-size: 11px;
-        color: #5c6470;
+        color: var(--muted);
         margin: 4px 0 0;
       }
       .section header a {
         font-size: 11px;
-        color: #405567;
+        color: var(--accent);
         text-decoration: none;
         font-weight: 700;
       }
@@ -404,17 +404,17 @@ import { DashboardStore } from './dashboard.store';
         z-index: 500;
         inset: auto 16px 16px;
         padding: 10px 12px;
-        border: 1px solid #cbd5e1;
+        border: 1px solid var(--line);
         background: rgb(255 255 255 / 94%);
-        color: #475569;
+        color: var(--accent);
         font-size: 11px;
         text-align: center;
       }
       .live-dot {
         font-size: 9px;
-        color: #405567;
-        border: 1px solid #d7dbe1;
-        background: #f1f3f6;
+        color: var(--accent);
+        border: 1px solid var(--line);
+        background: var(--canvas);
         padding: 4px 7px;
         letter-spacing: 0.1em;
       }
@@ -431,7 +431,7 @@ import { DashboardStore } from './dashboard.store';
       }
       .empty {
         padding: 24px;
-        color: #5c6470;
+        color: var(--muted);
         font-size: 12px;
       }
       @media (max-width: 1150px) {

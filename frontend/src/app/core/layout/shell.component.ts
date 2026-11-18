@@ -93,7 +93,9 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
           [id]="panel() === 'spaces' ? 'spaces-panel' : 'more-panel'"
           [attr.aria-label]="panel() === 'spaces' ? 'Digital spaces' : 'More sections'"
           cdkTrapFocus
-          [cdkTrapFocusAutoCapture]="false"
+          role="dialog"
+          aria-modal="true"
+          [cdkTrapFocusAutoCapture]="true"
         >
           <header class="panel-heading">
             <div>
@@ -102,6 +104,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
             </div>
             <button
               class="panel-close"
+              cdkFocusInitial
               type="button"
               aria-label="Close panel"
               (click)="dismissPanel()"
@@ -116,6 +119,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
                   <a
                     [routerLink]="item.path"
                     [class.active]="isRouteActive(item.path)"
+                    [attr.aria-current]="isRouteActive(item.path) ? 'page' : null"
                     (click)="dismissPanel()"
                   >
                     <app-icon [name]="item.icon" /><span>{{ item.label }}</span
@@ -129,6 +133,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
                 <a
                   [routerLink]="item.path"
                   [class.active]="isRouteActive(item.path)"
+                  [attr.aria-current]="isRouteActive(item.path) ? 'page' : null"
                   (click)="dismissPanel()"
                 >
                   <app-icon [name]="item.icon" /><span>{{ item.label }}</span
@@ -136,11 +141,19 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
                 </a>
               }
               <div class="mobile-extras">
-                <a routerLink="/inventory" (click)="dismissPanel()"
+                <a
+                  routerLink="/inventory"
+                  [class.active]="isRouteActive('/inventory')"
+                  [attr.aria-current]="isRouteActive('/inventory') ? 'page' : null"
+                  (click)="dismissPanel()"
                   ><app-icon name="inventory" /><span>Inventory</span
                   ><span class="chevron">↗</span></a
                 >
-                <a routerLink="/fleet" (click)="dismissPanel()"
+                <a
+                  routerLink="/fleet"
+                  [class.active]="isRouteActive('/fleet')"
+                  [attr.aria-current]="isRouteActive('/fleet') ? 'page' : null"
+                  (click)="dismissPanel()"
                   ><app-icon name="fleet" /><span>Fleet</span><span class="chevron">↗</span></a
                 >
               </div>
@@ -149,6 +162,7 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
                 <a
                   routerLink="/admin/users"
                   [class.active]="isRouteActive('/admin/users')"
+                  [attr.aria-current]="isRouteActive('/admin/users') ? 'page' : null"
                   (click)="dismissPanel()"
                 >
                   <app-icon name="users" /><span>Users</span><span class="chevron">↗</span>
@@ -283,7 +297,6 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
       .dock-item app-icon {
         transform: translateX(var(--lift, 0px)) scale(var(--scale, 1));
         transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-        will-change: transform;
       }
       .dock-item:hover,
       .dock-item.active {
@@ -344,6 +357,9 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
           opacity: 1;
           transform: translate(0, -50%);
         }
+      }
+      .dock-item:hover:not(:focus-visible)::after {
+        transition-delay: 100ms;
       }
       .main {
         min-width: 0;
@@ -588,7 +604,6 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         .selection-pill,
         .dock-item::after {
           transition: none;
-          transform: none;
         }
       }
       @media (max-height: 700px) and (min-width: 681px) {
@@ -719,6 +734,9 @@ export class ShellComponent implements OnInit, AfterViewInit, OnDestroy {
   private navigationSubscription?: Subscription;
   private resizeObserver?: ResizeObserver;
   private frame = 0;
+  private magnetFrame = 0;
+  private cursorX = 0;
+  private cursorY = 0;
   readonly isMobile = signal(false);
   readonly panel = signal<'spaces' | 'more' | null>(null);
   readonly pageTitle = signal('Command center');
@@ -807,19 +825,29 @@ export class ShellComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     const nav = this.railNav?.nativeElement;
     if (!nav) return;
-    const elements = nav.querySelectorAll<HTMLElement>('[data-magnetic]');
-    for (const item of elements) {
-      const rect = item.getBoundingClientRect();
-      const distance = this.isMobile()
-        ? Math.abs(event.clientX - rect.left - rect.width / 2)
-        : Math.abs(event.clientY - rect.top - rect.height / 2);
-      const intensity = Math.max(0, 1 - distance / 110);
-      const horizontal = this.isMobile() ? 0 : intensity * 3.5;
-      item.style.setProperty('--lift', horizontal.toFixed(2) + 'px');
-      item.style.setProperty('--scale', (1 + intensity * 0.2).toFixed(3));
-    }
+    this.cursorX = event.clientX;
+    this.cursorY = event.clientY;
+    if (this.magnetFrame) return;
+    this.magnetFrame = requestAnimationFrame(() => {
+      this.magnetFrame = 0;
+      const vertical = nav.clientHeight > nav.clientWidth;
+      const samples = Array.from(nav.querySelectorAll<HTMLElement>('[data-magnetic]'), (item) => {
+        const rect = item.getBoundingClientRect();
+        const distance = Math.hypot(
+          this.cursorX - rect.left - rect.width / 2,
+          this.cursorY - rect.top - rect.height / 2,
+        );
+        return { item, intensity: rect.width ? Math.max(0, 1 - distance / 110) : 0 };
+      });
+      for (const { item, intensity } of samples) {
+        item.style.setProperty('--lift', (vertical ? intensity * 3.5 : 0).toFixed(2) + 'px');
+        item.style.setProperty('--scale', (1 + intensity * 0.2).toFixed(3));
+      }
+    });
   }
   resetMagnet(): void {
+    if (this.magnetFrame) cancelAnimationFrame(this.magnetFrame);
+    this.magnetFrame = 0;
     this.railNav?.nativeElement.querySelectorAll<HTMLElement>('[data-magnetic]').forEach((item) => {
       item.style.removeProperty('--lift');
       item.style.removeProperty('--scale');

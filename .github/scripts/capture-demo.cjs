@@ -41,6 +41,8 @@ async function main() {
     assert.equal(health.status(), 200);
     assert.equal((await health.json()).status, "UP");
     await page.goto(`${baseURL}/login`);
+    await page.getByLabel("Email", { exact: true }).waitFor();
+    await page.screenshot({ path: path.join(output, "review/login.png") });
     await page
       .getByLabel("Email", { exact: true })
       .fill("operator@mazmilogistics.test");
@@ -107,6 +109,44 @@ async function main() {
       "Operations command center",
       ".attention-board",
       true,
+    );
+    const dock = page.locator(".rail-nav");
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    for (const width of [1440, 640]) {
+      await page.setViewportSize({ width, height: 900 });
+      await dock.getByRole("link", { name: "Orders", exact: true }).hover();
+      await page.waitForFunction(() => {
+        const scale = (name) =>
+          Number(
+            document
+              .querySelector(`.rail-nav [aria-label="${name}"]`)
+              .style.getPropertyValue("--scale"),
+          );
+        return (
+          scale("Orders") > 1.15 && scale("Orders") > scale("Command center")
+        );
+      });
+      await page.mouse.move(0, 0);
+    }
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.setViewportSize({ width: 1440, height: 1440 });
+    await page
+      .locator(".rail")
+      .screenshot({ path: path.join(output, "review/desktop-dock.png") });
+    const spaces = dock.getByRole("button", { name: "Digital spaces" });
+    await spaces.focus();
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() =>
+      document.activeElement?.matches(".panel-close"),
+    );
+    await page.screenshot({
+      path: path.join(output, "review/secondary-panel.png"),
+      animations: "disabled",
+    });
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(
+      () =>
+        document.activeElement?.getAttribute("aria-label") === "Digital spaces",
     );
     // Motion is reduced in this browser: the decorative title and aurora
     // must remain readable and should not animate.
@@ -339,7 +379,14 @@ async function main() {
       "table tbody tr",
     );
 
+    await capture(
+      "review/customers.png",
+      "/customers",
+      "Customers",
+      "table tbody tr",
+    );
     for (const viewport of [
+      { width: 375, height: 812 },
       { width: 1280, height: 900 },
       { width: 768, height: 1024 },
     ]) {
@@ -444,6 +491,18 @@ async function main() {
     await require("./capture-twin.cjs")(page, output);
     await page.getByRole("button", { name: "Log out", exact: true }).click();
     await page.waitForURL("**/login");
+    await page
+      .getByLabel("Email", { exact: true })
+      .fill("admin@mazmilogistics.test");
+    await page.getByLabel("Password", { exact: true }).fill("Demo2026!");
+    await page.getByRole("button", { name: "Sign in", exact: true }).click();
+    await page.waitForURL("**/dashboard");
+    await capture(
+      "review/admin-users.png",
+      "/admin/users",
+      "Users",
+      "table tbody tr",
+    );
     assert.deepEqual(errors, [], "Unexpected JavaScript errors");
     await fs.writeFile(
       path.join(output, "capture-report.json"),

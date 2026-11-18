@@ -50,10 +50,10 @@ import { SilkAuroraComponent } from './silk-aurora.component';
         align-items: center;
         min-height: 156px;
         padding: 27px 30px;
-        border: 1px solid #d4e5da;
+        border: 1px solid #dedee4;
         border-radius: 19px;
-        background: #f3f8f4;
-        box-shadow: 0 8px 28px rgb(34 66 52 / 4%);
+        background: #f3f3f6;
+        box-shadow: 0 8px 28px rgb(35 35 42 / 4%);
       }
       .heading-content,
       .actions {
@@ -139,7 +139,7 @@ import { SilkAuroraComponent } from './silk-aurora.component';
       }
       @media (prefers-reduced-transparency: reduce) {
         header.aurora {
-          background: #f3f8f4;
+          background: #f3f3f6;
         }
       }
     `,

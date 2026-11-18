@@ -11,7 +11,9 @@ assert(output, "CAPTURE_DIR must identify the artifact directory");
 async function main() {
   await fs.mkdir(output, { recursive: true });
   await fs.mkdir(path.join(output, "review"), { recursive: true });
-  const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
+  const browser = await chromium.launch({
+    args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
+  });
   try {
     const context = await browser.newContext({
       viewport: { width: 1440, height: 1440 },
@@ -108,48 +110,83 @@ async function main() {
     );
     // Motion is reduced in this browser: the decorative title and aurora
     // must remain readable and should not animate.
-    const auroraHero = page.locator('app-dashboard-page app-page-header header.aurora');
+    const auroraHero = page.locator(
+      "app-dashboard-page app-page-header header.aurora",
+    );
     await auroraHero.waitFor();
-    assert.equal(await auroraHero.locator('app-silk-aurora [aria-hidden="true"]').count(), 1);
-    const heading = auroraHero.locator('h1');
-    assert.equal(await heading.getAttribute('aria-label'), 'Operations command center');
-    const words = heading.locator('.kinetic-word');
+    assert.equal(
+      await auroraHero.locator('app-silk-aurora [aria-hidden="true"]').count(),
+      1,
+    );
+    const heading = auroraHero.locator("h1");
+    assert.equal(
+      await heading.getAttribute("aria-label"),
+      "Operations command center",
+    );
+    const words = heading.locator(".kinetic-word");
     assert.equal(await words.count(), 3);
     const titleStyle = await words.first().evaluate((node) => ({
       fontSize: parseFloat(getComputedStyle(node).fontSize),
       display: getComputedStyle(node).display,
       marginTop: parseFloat(getComputedStyle(node).marginTop),
     }));
-    assert(titleStyle.fontSize >= 28, 'Kinetic words must inherit the full page-title size');
-    assert.equal(titleStyle.display, 'inline-block', 'Kinetic words must stay inline');
-    assert.equal(titleStyle.marginTop, 0, 'Kinetic word spans must not inherit subtitle margins');
-    const revealAnimation = await words.first().evaluate((node) => getComputedStyle(node).animationName);
-    assert.equal(revealAnimation, 'none', 'Reduced motion must disable kinetic text animation');
+    assert(
+      titleStyle.fontSize >= 28,
+      "Kinetic words must inherit the full page-title size",
+    );
+    assert.equal(
+      titleStyle.display,
+      "inline-block",
+      "Kinetic words must stay inline",
+    );
+    assert.equal(
+      titleStyle.marginTop,
+      0,
+      "Kinetic word spans must not inherit subtitle margins",
+    );
+    const revealAnimation = await words
+      .first()
+      .evaluate((node) => getComputedStyle(node).animationName);
+    assert.equal(
+      revealAnimation,
+      "none",
+      "Reduced motion must disable kinetic text animation",
+    );
 
     // Color contrast is a usability requirement, not just a screenshot detail.
-    const primaryActionContrast = await page.getByRole('link', { name: 'New order' }).evaluate((node) => {
-      const style = getComputedStyle(node);
-      const parseColor = (value) =>
-        [...value.matchAll(/[\d.]+/g)].slice(0, 3).map((match) => Number(match[0]) / 255);
-      const luminance = (rgb) => {
-        const linear = rgb.map((channel) =>
-          channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
+    const primaryActionContrast = await page
+      .getByRole("link", { name: "New order" })
+      .evaluate((node) => {
+        const style = getComputedStyle(node);
+        const parseColor = (value) =>
+          [...value.matchAll(/[\d.]+/g)]
+            .slice(0, 3)
+            .map((match) => Number(match[0]) / 255);
+        const luminance = (rgb) => {
+          const linear = rgb.map((channel) =>
+            channel <= 0.04045
+              ? channel / 12.92
+              : ((channel + 0.055) / 1.055) ** 2.4,
+          );
+          return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+        };
+        const label = node.querySelector(".mdc-button__label");
+        if (!label)
+          throw new Error("Angular Material must render the New order label");
+        const foreground = luminance(parseColor(getComputedStyle(label).color));
+        const background = luminance(parseColor(style.backgroundColor));
+        return (
+          (Math.max(foreground, background) + 0.05) /
+          (Math.min(foreground, background) + 0.05)
         );
-        return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
-      };
-      const label = node.querySelector('.mdc-button__label');
-      if (!label) throw new Error('Angular Material must render the New order label');
-      const foreground = luminance(parseColor(getComputedStyle(label).color));
-      const background = luminance(parseColor(style.backgroundColor));
-      return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
-    });
+      });
     assert(
       primaryActionContrast >= 4.5,
-      'Primary New order action must provide at least 4.5:1 label contrast',
+      "Primary New order action must provide at least 4.5:1 label contrast",
     );
 
     // Visual contract for the Phase B materials, with reduced motion enabled.
-    const cards = page.locator('app-dashboard-page .pulse a');
+    const cards = page.locator("app-dashboard-page .pulse a");
     assert.equal(await cards.count(), 4);
     const cardStyle = await cards.first().evaluate((node) => {
       const css = getComputedStyle(node);
@@ -159,32 +196,66 @@ async function main() {
         background: css.backgroundColor,
       };
     });
-    assert(cardStyle.radius >= 14, 'KPI cards must have the new rounded premium treatment');
-    assert(cardStyle.shadow !== 'none', 'KPI cards should be visually elevated');
-    assert(cardStyle.background !== 'rgba(0, 0, 0, 0)', 'KPI content needs an opaque surface');
+    assert(
+      cardStyle.radius >= 14,
+      "KPI cards must have the new rounded premium treatment",
+    );
+    assert(
+      cardStyle.shadow !== "none",
+      "KPI cards should be visually elevated",
+    );
+    assert(
+      cardStyle.background !== "rgba(0, 0, 0, 0)",
+      "KPI content needs an opaque surface",
+    );
 
     await capture("orders.png", "/orders", "Orders", "table tbody tr");
-    const orderPanel = page.locator('app-orders-page .table-card');
+    const orderPanel = page.locator("app-orders-page .table-card");
     const tableRadius = await orderPanel.evaluate((node) =>
       parseFloat(getComputedStyle(node).borderTopLeftRadius),
     );
-    assert(tableRadius >= 14, 'Order registers must use the shared panel radius');
+    assert(
+      tableRadius >= 14,
+      "Order registers must use the shared panel radius",
+    );
     const firstOrder = page.locator('td[data-label="Order"] a').first();
     const orderNumber = (await firstOrder.innerText()).trim();
     await page.getByPlaceholder("Order number or customer").fill(orderNumber);
-    await page.waitForFunction(() => document.querySelectorAll('td[data-label="Order"] a').length === 1);
+    await page.waitForFunction(
+      () => document.querySelectorAll('td[data-label="Order"] a').length === 1,
+    );
     await firstOrder.click();
-    await page.getByRole('heading',{name:orderNumber, exact:true}).waitFor();
-    await page.screenshot({path:path.join(output,'review','order-detail.png'),animations:'disabled'});
-    await page.goto(baseURL+'/orders/new');
+    await page
+      .getByRole("heading", { name: orderNumber, exact: true })
+      .waitFor();
+    await page.screenshot({
+      path: path.join(output, "review", "order-detail.png"),
+      animations: "disabled",
+    });
+    await page.goto(baseURL + "/orders/new");
 
-    await page.locator('form,mat-form-field').first().waitFor();
-    const formSectionRadius = await page.locator('app-order-form-page .section').first()
-      .evaluate((node) => parseFloat(getComputedStyle(node).borderTopLeftRadius));
-    assert(formSectionRadius >= 14, 'Order forms must share the premium panel material');
-    await page.screenshot({path:path.join(output,'review','order-form.png'),animations:'disabled'});
+    await page.locator("form,mat-form-field").first().waitFor();
+    const formSectionRadius = await page
+      .locator("app-order-form-page .section")
+      .first()
+      .evaluate((node) =>
+        parseFloat(getComputedStyle(node).borderTopLeftRadius),
+      );
+    assert(
+      formSectionRadius >= 14,
+      "Order forms must share the premium panel material",
+    );
+    await page.screenshot({
+      path: path.join(output, "review", "order-form.png"),
+      animations: "disabled",
+    });
     await capture("inventory.png", "/inventory", "Inventory", "table tbody tr");
-    await capture("fleet.png", "/fleet", "Fleet", "app-fleet-page [role=tabpanel] tbody tr td strong");
+    await capture(
+      "fleet.png",
+      "/fleet",
+      "Fleet",
+      "app-fleet-page [role=tabpanel] tbody tr td strong",
+    );
     const response = await context.request.get(
       `${baseURL}/api/v1/shipments?status=IN_TRANSIT&size=50`,
     );
@@ -315,18 +386,32 @@ async function main() {
       });
     }
     // Mobile navigation is now a persistent icon dock with secondary popover panels.
-    const mobileDock = page.getByRole("navigation", { name: "Workspace sections" });
-    const ordersDockLink = mobileDock.getByRole("link", { name: "Orders", exact: true });
+    const mobileDock = page.getByRole("navigation", {
+      name: "Workspace sections",
+    });
+    const ordersDockLink = mobileDock.getByRole("link", {
+      name: "Orders",
+      exact: true,
+    });
     await ordersDockLink.focus();
-    assert(await ordersDockLink.evaluate((node) => document.activeElement === node));
-    const moreButton = mobileDock.getByRole("button", { name: "More sections" });
+    assert(
+      await ordersDockLink.evaluate((node) => document.activeElement === node),
+    );
+    const moreButton = mobileDock.getByRole("button", {
+      name: "More sections",
+    });
     await moreButton.focus();
     await page.keyboard.press("Enter");
     await page.locator("#more-panel").waitFor();
-    await page.screenshot({path:path.join(output,'review','mobile-dock.png'),animations:'disabled'});
+    await page.screenshot({
+      path: path.join(output, "review", "mobile-dock.png"),
+      animations: "disabled",
+    });
     await page.keyboard.press("Escape");
     await page.locator("#more-panel").waitFor({ state: "detached" });
-    assert(await moreButton.evaluate((node) => document.activeElement === node));
+    assert(
+      await moreButton.evaluate((node) => document.activeElement === node),
+    );
     const publicationRejected = await page.evaluate(
       () =>
         new Promise((resolve, reject) => {
@@ -356,7 +441,7 @@ async function main() {
       "Clients must not publish operational updates",
     );
     const businessFlow = await verifyLogistics(context, baseURL);
-    await require('./capture-twin.cjs')(page, output);
+    await require("./capture-twin.cjs")(page, output);
     await page.getByRole("button", { name: "Log out", exact: true }).click();
     await page.waitForURL("**/login");
     assert.deepEqual(errors, [], "Unexpected JavaScript errors");

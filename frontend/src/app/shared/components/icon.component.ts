@@ -13,6 +13,7 @@ const paths = {
     'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M17 4a4 4 0 0 1 0 8 M22 21v-2a4 4 0 0 0-3-4',
   fleet: 'M5 17H3v-5l3-7h12l3 7v5h-2 M5 17h14 M3 12h18 M7 17v3 M17 17v3 M6 15h2 M16 15h2',
   incidents: 'm12 3 10 18H2L12 3z M12 9v5 M12 17v.1',
+  more: 'M4 6h16 M4 12h16 M4 18h16',
   users: 'M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M4 21v-2a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v2',
 } as const;
 export type IconName = keyof typeof paths;

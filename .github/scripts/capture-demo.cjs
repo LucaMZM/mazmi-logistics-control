@@ -314,16 +314,19 @@ async function main() {
         animations: "disabled",
       });
     }
-    await page.getByRole("button", { name: "Toggle navigation" }).focus();
+    // Mobile navigation is now a persistent icon dock with secondary popover panels.
+    const mobileDock = page.getByRole("navigation", { name: "Workspace sections" });
+    const ordersDockLink = mobileDock.getByRole("link", { name: "Orders", exact: true });
+    await ordersDockLink.focus();
+    assert(await ordersDockLink.evaluate((node) => document.activeElement === node));
+    const moreButton = mobileDock.getByRole("button", { name: "More sections" });
+    await moreButton.focus();
     await page.keyboard.press("Enter");
-    await page.locator(".sidebar-open").waitFor();
-    await page.getByRole('navigation',{name:'Primary navigation'}).getByRole('link',{name:'Orders',exact:true}).focus();
-    assert(await page.evaluate(()=>document.activeElement?.closest('nav') !== null));
+    await page.locator("#more-panel").waitFor();
     await page.screenshot({path:path.join(output,'review','mobile-dock.png'),animations:'disabled'});
     await page.keyboard.press("Escape");
-    await page.waitForFunction(
-      () => document.activeElement?.id === "navigation-toggle",
-    );
+    await page.locator("#more-panel").waitFor({ state: "detached" });
+    assert(await moreButton.evaluate((node) => document.activeElement === node));
     const publicationRejected = await page.evaluate(
       () =>
         new Promise((resolve, reject) => {

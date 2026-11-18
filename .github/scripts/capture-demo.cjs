@@ -137,7 +137,9 @@ async function main() {
         );
         return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
       };
-      const foreground = luminance(parseColor(style.color));
+      const label = node.querySelector('.mdc-button__label');
+      assert(label, 'Angular Material must render the New order label');
+      const foreground = luminance(parseColor(getComputedStyle(label).color));
       const background = luminance(parseColor(style.backgroundColor));
       return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
     });

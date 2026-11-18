@@ -110,44 +110,43 @@ async function main() {
       ".attention-board",
       true,
     );
-    const dock = page.locator(".rail-nav");
-    await page.emulateMedia({ reducedMotion: "no-preference" });
-    for (const width of [1440, 640]) {
-      await page.setViewportSize({ width, height: 900 });
-      await dock.getByRole("link", { name: "Orders", exact: true }).hover();
-      await page.waitForFunction(() => {
-        const scale = (name) =>
-          Number(
-            document
-              .querySelector(`.rail-nav [aria-label="${name}"]`)
-              .style.getPropertyValue("--scale"),
-          );
-        return (
-          scale("Orders") > 1.15 && scale("Orders") > scale("Command center")
-        );
-      });
-      await page.mouse.move(0, 0);
-    }
-    await page.emulateMedia({ reducedMotion: "reduce" });
-    await page.setViewportSize({ width: 1440, height: 1440 });
-    await page
-      .locator(".rail")
-      .screenshot({ path: path.join(output, "review/desktop-dock.png") });
-    const spaces = dock.getByRole("button", { name: "Digital spaces" });
-    await spaces.focus();
+    const navigation = page.getByRole("navigation", {
+      name: "Workspace sections",
+    });
+    const operations = navigation.getByRole("button", {
+      name: "Operations navigation group",
+      exact: true,
+    });
+    await operations.focus();
     await page.keyboard.press("Enter");
-    await page.waitForFunction(() =>
-      document.activeElement?.matches(".panel-close"),
+    await navigation
+      .getByRole("button", {
+        name: "Operations navigation group",
+        expanded: false,
+      })
+      .waitFor();
+    assert.equal(
+      await navigation
+        .getByRole("link", { name: "Orders", exact: true })
+        .count(),
+      0,
     );
     await page.screenshot({
-      path: path.join(output, "review/secondary-panel.png"),
-      animations: "disabled",
+      path: path.join(output, "review/navigation-folded.png"),
     });
-    await page.keyboard.press("Escape");
-    await page.waitForFunction(
-      () =>
-        document.activeElement?.getAttribute("aria-label") === "Digital spaces",
-    );
+    await page.keyboard.press("Enter");
+    await navigation
+      .getByRole("link", { name: "Orders", exact: true })
+      .waitFor();
+    const spaces = navigation.getByRole("button", { name: "Digital spaces" });
+    await spaces.click();
+    await navigation.getByRole("link", { name: "Warehouse Editor" }).waitFor();
+    await page.screenshot({
+      path: path.join(output, "review/navigation-expanded.png"),
+    });
+    await spaces.click();
+    await page.getByRole("button", { name: "Collapse navigation" }).click();
+    await page.getByRole("button", { name: "Open navigation" }).click();
     // Motion is reduced in this browser: the decorative title and aurora
     // must remain readable and should not animate.
     const auroraHero = page.locator(
@@ -273,7 +272,7 @@ async function main() {
       animations: "disabled",
     });
     assert.equal(
-      await dock
+      await navigation
         .getByRole("link", { name: "Orders", exact: true })
         .getAttribute("aria-current"),
       "page",
@@ -438,33 +437,22 @@ async function main() {
         animations: "disabled",
       });
     }
-    // Mobile navigation is now a persistent icon dock with secondary popover panels.
-    const mobileDock = page.getByRole("navigation", {
-      name: "Workspace sections",
-    });
-    const ordersDockLink = mobileDock.getByRole("link", {
-      name: "Orders",
-      exact: true,
-    });
-    await ordersDockLink.focus();
-    assert(
-      await ordersDockLink.evaluate((node) => document.activeElement === node),
-    );
-    const moreButton = mobileDock.getByRole("button", {
-      name: "More sections",
-    });
-    await moreButton.focus();
+    const opener = page.getByRole("button", { name: "Open navigation" });
+    await opener.focus();
     await page.keyboard.press("Enter");
-    await page.locator("#more-panel").waitFor();
+    const dialog = page.getByRole("dialog", { name: "Workspace navigation" });
+    await dialog.waitFor();
+    assert(
+      (await dialog
+        .getByRole("link", { name: "Customers", exact: true })
+        .getAttribute("aria-current")) === "page",
+    );
     await page.screenshot({
-      path: path.join(output, "review", "mobile-dock.png"),
-      animations: "disabled",
+      path: path.join(output, "review/mobile-navigation.png"),
     });
     await page.keyboard.press("Escape");
-    await page.locator("#more-panel").waitFor({ state: "detached" });
-    assert(
-      await moreButton.evaluate((node) => document.activeElement === node),
-    );
+    await dialog.waitFor({ state: "hidden" });
+    assert(await opener.evaluate((el) => el === document.activeElement));
     const publicationRejected = await page.evaluate(
       () =>
         new Promise((resolve, reject) => {
@@ -523,6 +511,7 @@ async function main() {
     await page.getByRole("dialog").waitFor();
     await page.keyboard.press("Escape");
     await page.getByRole("dialog").waitFor({ state: "hidden" });
+    await require("./verify-workspace-navigation.cjs")(browser, baseURL);
     assert.deepEqual(errors, [], "Unexpected JavaScript errors");
     await fs.writeFile(
       path.join(output, "capture-report.json"),

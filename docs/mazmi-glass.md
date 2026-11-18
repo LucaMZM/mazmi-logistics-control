@@ -1,12 +1,22 @@
 # MAZMI Glass: navegación y lectura operativa
 
-El dock de grafito se separa del lienzo gris perla (`#F3F3F5`). El fondo de las tablas y los formularios permanece opaco: las excepciones de stock, las incidencias y la salud de entrega conservan sus colores de estado.
+El índice lateral utiliza la misma tipografía del ERP, sobre una superficie clara. Una marca de grafito y el peso del texto distinguen el destino activo sin depender del color.
 
 ## Navegación
 
-En escritorio, el dock muestra accesos por icono con nombre accesible. La cápsula marca la sección activa también al abrir un detalle. **Digital spaces** reúne los entornos tridimensionales; **More sections** abre las rutas secundarias. Los menús se abren por activación, no al pasar el puntero. En pantallas estrechas, la barra pasa al pie y, cuando no caben todos los accesos, Inventory y Fleet aparecen en el menú secundario. Los permisos del Editor y de administración siguen aplicándose.
+| Grupo | Destinos |
+| --- | --- |
+| Overview | Dashboard |
+| Operations | Orders, Shipments, Incidents |
+| Resources | Inventory, Fleet, Customers |
+| Digital spaces | Fleet Twin, Warehouse Twin, Warehouse Editor, Control Room |
+| Administration | Users |
 
-El magnetismo se calcula desde el cursor hasta el centro de cada botón. Se transforma el icono, no la zona pulsable. Las medidas se leen juntas y se aplican como máximo una vez por fotograma, sin un bucle permanente. Con puntero táctil o movimiento reducido no se activa. Al abrir un panel con el teclado, el foco pasa al botón de cierre; Tab permanece dentro y Escape devuelve el foco al acceso del dock.
+El editor requiere permisos de operación; solo un administrador ve **Administration**. World Map se abre desde el dashboard o desde el seguimiento, no es otra ruta del índice.
+
+Los títulos de grupo son botones desplegables. Abrir un enlace directo o volver con el historial despliega el grupo del destino. El panel se puede ocultar para trabajar con más ancho. A 960 px o menos, **Menu** abre un diálogo nativo: el resto de la página queda fuera de la navegación con Tab y **Escape** devuelve el foco al botón. No hay acciones exclusivas de hover ni un segundo dock.
+
+[Grupo abierto](screenshots/navigation-expanded.webp) · [Grupo cerrado](screenshots/navigation-folded.webp) · [Menú móvil](screenshots/mobile-navigation.webp).
 
 ## Materiales y movimiento
 
@@ -19,6 +29,6 @@ El magnetismo se calcula desde el cursor hasta el centro de cada botón. Se tran
 
 La [galería del proyecto](../README.md#capturas) muestra la aplicación con los datos demo. El [workflow de captura](../.github/workflows/capture-demo.yml) arranca Angular, Spring Boot y PostgreSQL y abre Chromium con Playwright. Además de tomar imágenes, verifica la navegación por teclado, la preferencia de movimiento reducido, el contraste del botón **New order**, los desbordamientos y los flujos operativos y 3D.
 
-Para comparar el cambio sin duplicar imágenes antiguas en el repositorio: [captura anterior al ajuste del dock](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/44293648546) y [captura de la interfaz revisada](https://github.com/LucaMZM/mazmi-logistics-control/actions/runs/44299941981). La portada del dashboard se capturó en Chromium local con el mismo frontend, Spring Boot y PostgreSQL 17: incluye los 1513 px de la página completa. El resto de la galería procede del runner. Los artefactos de Actions son temporales; la galería del README queda versionada con el proyecto.
+Las capturas del índice se obtuvieron en Chromium local con Angular, Spring Boot y PostgreSQL 17. El [dashboard de la revisión anterior](https://github.com/LucaMZM/mazmi-logistics-control/blob/af624de/docs/screenshots/dashboard.webp) permite comparar la navegación sin conservar otra copia en la galería.
 
 Las capturas son fotogramas, no una medición de fluidez. Chromium con SwiftShader permite comprobar que una escena se dibuja; no mide el rendimiento de Safari ni de la GPU de un MacBook Air M2.

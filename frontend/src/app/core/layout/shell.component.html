@@ -1,0 +1,101 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+<ng-template #navigation>
+  <div class="nav-head">
+    <div class="signature"><b>MAZMI</b><span>Logistics Control</span></div>
+    <button
+      class="hide-menu"
+      type="button"
+      (click)="hideMenu()"
+      [attr.aria-label]="compact() ? 'Close navigation' : 'Collapse navigation'"
+    >
+      <span aria-hidden="true">{{ compact() ? '×' : '‹' }}</span>
+    </button>
+  </div>
+  <nav aria-label="Workspace sections">
+    @for (group of groups(); track group.label; let i = $index) {
+      <div class="group">
+        <button
+          class="group-button"
+          [attr.aria-label]="group.label + ' navigation group'"
+          type="button"
+          [attr.aria-expanded]="expanded().has(group.label)"
+          [attr.aria-controls]="'nav-group-' + i"
+          (click)="toggle(group.label)"
+        >
+          {{ group.label }}<i aria-hidden="true"></i>
+        </button>
+        <div class="links" [id]="'nav-group-' + i" [hidden]="!expanded().has(group.label)">
+          @for (item of group.links; track item.path) {
+            <a
+              [routerLink]="item.path"
+              [attr.aria-current]="active(item.path) ? 'page' : null"
+              (click)="selected($event, item.path)"
+              >{{ item.label }}</a
+            >
+          }
+        </div>
+      </div>
+    }
+  </nav>
+</ng-template>
+<div class="workspace" [class.with-nav]="!compact() && !collapsed()">
+  @if (!compact() && !collapsed()) {
+    <aside id="workspace-navigation" class="sidebar">
+      <ng-container *ngTemplateOutlet="navigation" />
+    </aside>
+  }
+  @if (compact()) {
+    <dialog
+      #drawer
+      id="workspace-navigation"
+      aria-label="Workspace navigation"
+      closedby="any"
+      (close)="drawerOpen.set(false)"
+    >
+      <section class="drawer-body"><ng-container *ngTemplateOutlet="navigation" /></section>
+    </dialog>
+  }
+  <div class="main">
+    <header class="topbar">
+      @if (compact() || collapsed()) {
+        <button
+          #trigger
+          class="menu-trigger"
+          type="button"
+          aria-label="Open navigation"
+          [attr.aria-controls]="compact() ? 'workspace-navigation' : null"
+          [attr.aria-expanded]="compact() ? drawerOpen() : !collapsed()"
+          (click)="openMenu()"
+        >
+          Menu
+        </button>
+      }
+      <div class="route">
+        <span>MAZMI <span aria-hidden="true">/</span> LOGISTICS CONTROL</span>
+        <strong>{{ pageTitle() }}</strong>
+      </div>
+      <div class="account">
+        <span
+          class="connection"
+          role="status"
+          [class.connected]="realtime.status() === 'connected'"
+        >
+          <i aria-hidden="true"></i>
+          {{
+            realtime.status() === 'connected'
+              ? 'Live updates'
+              : realtime.status() === 'offline'
+                ? 'Offline'
+                : 'Connecting…'
+          }}
+        </span>
+        <span class="identity"
+          ><strong>{{ auth.user()?.name }}</strong
+          ><small>{{ auth.user()?.role }}</small></span
+        >
+        <button class="logout" mat-button type="button" (click)="auth.logout()">Log out</button>
+      </div>
+    </header>
+    <main id="main-content" class="content" tabindex="-1"><router-outlet /></main>
+  </div>
+</div>

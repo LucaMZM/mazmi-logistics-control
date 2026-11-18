@@ -22,18 +22,16 @@ $theme: mat.m2-define-light-theme(
 
 :root {
   --surface: #fff;
-  --canvas: #edefec;
-  --ink: #202e32;
-  --muted: #5c6470;
-  --line: #d7dbe1;
-  --petrol: #244953;
-  --sage: #c7dfcd;
-  --dock: #1d343b;
-  --dock-edge: #405b60;
+  --canvas: #f3f3f5;
+  --ink: #232328;
+  --muted: #666671;
+  --line: #dedee3;
+    --dock: #232327;
+  --dock-edge: #4b4b52;
   --space-unit: 4px;
   --layer-dock: 30;
   --motion-short: 160ms;
-  --accent: var(--petrol);
+  --accent: #3f3f46;
   --glass: rgb(250 251 248 / 89%);
   --radius: 9px;
   --shadow: 0 2px 6px rgb(25 31 42 / 4%), 0 1px 0 rgb(255 255 255 / 85%) inset;
@@ -108,7 +106,7 @@ h3 {
 }
 .mat-mdc-dialog-surface {
   --mdc-dialog-container-shape: 10px;
-  background: #fafbfd;
+  background: #fafafa;
   border: 1px solid rgb(255 255 255 / 90%);
   box-shadow: 0 20px 64px rgb(25 31 42 / 18%);
 }
@@ -126,7 +124,7 @@ h3 {
 }
 ::selection {
   background: #bfdbfe;
-  color: #0f172a;
+  color: #24242a;
 }
 
 :focus-visible {
@@ -307,7 +305,7 @@ h3 {
 }
 @media (prefers-reduced-transparency: reduce) {
   :root {
-    --glass: #fafbfd;
+    --glass: #fafafa;
   }
   .mat-mdc-dialog-surface {
     backdrop-filter: none;
@@ -395,7 +393,7 @@ app-operations-world-map .world-marker {
   height: 30px;
   padding: 0;
   color: #fff;
-  background: #496a63;
+  background: #4a4a53;
   border: 2px solid #fff;
   border-radius: 7px;
   box-shadow: 0 2px 8px #252a3233;
@@ -411,7 +409,7 @@ app-operations-world-map .world-marker[data-kind='destination'] {
   height: 20px;
   font-size: 11px;
   border-radius: 50%;
-  background: #526b7a;
+  background: #64646d;
 }
 app-operations-world-map .world-marker.world-marker-model {
   width: 14px;
@@ -425,7 +423,7 @@ app-operations-world-map .world-marker[data-health='DELAYED'] {
 }
 app-operations-world-map .world-marker[aria-pressed='true'],
 app-operations-world-map .world-marker:focus-visible {
-  outline: 3px solid #344d61;
+  outline: 3px solid #52525b;
   outline-offset: 2px;
 }
 
@@ -433,12 +431,12 @@ app-operations-world-map .world-marker:focus-visible {
    Keep dense enterprise content opaque; reserve translucent material for navigation. */
 :root {
   --panel-radius: 16px;
-  --panel-line: #dce5e3;
-  --panel-shadow: 0 2px 4px rgb(31 55 51 / 3%), 0 14px 34px rgb(31 55 51 / 4%);
-  --panel-shadow-hover: 0 12px 36px rgb(26 52 51 / 11%);
+  --panel-line: #e3e3e8;
+  --panel-shadow: 0 2px 4px rgb(35 35 42 / 3%), 0 14px 34px rgb(35 35 42 / 4%);
+  --panel-shadow-hover: 0 12px 36px rgb(35 35 42 / 11%);
   --panel-transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
-  --panel-surface: #fcfdfb;
-  --panel-soft: #f4f8f6;
+  --panel-surface: #fdfdfe;
+  --panel-soft: #f6f6f8;
 }
 
 /* Editorial page headers use the same visual language across all ERP routes. */
@@ -453,13 +451,13 @@ app-operations-world-map .world-marker:focus-visible {
   letter-spacing: -0.045em;
 }
 .content app-page-header p {
-  color: #446b63;
+  color: #575761;
   letter-spacing: 0.14em;
   font-size: 10px;
 }
 .content app-page-header .subtitle {
   max-width: 66ch;
-  color: #637370;
+  color: #777780;
   font-size: 13px;
   line-height: 1.65;
 }
@@ -467,14 +465,14 @@ app-operations-world-map .world-marker:focus-visible {
   --mdc-filled-button-container-shape: 10px;
   min-height: 42px;
   padding-inline: 20px;
-  box-shadow: 0 3px 9px rgb(23 64 59 / 12%);
+  box-shadow: 0 3px 9px rgb(35 35 42 / 12%);
   transition:
     box-shadow var(--panel-transition),
     transform var(--panel-transition);
 }
 @media (hover: hover) and (pointer: fine) {
   .content :is(a[mat-flat-button], button[mat-flat-button]):hover:not(:disabled) {
-    box-shadow: 0 8px 18px rgb(23 64 59 / 17%);
+    box-shadow: 0 8px 18px rgb(35 35 42 / 17%);
     transform: translateY(-1px);
   }
 }
@@ -500,7 +498,7 @@ app-operations-world-map .world-marker:focus-visible {
   border: 1px solid var(--panel-line);
   border-radius: var(--panel-radius);
   background:
-    radial-gradient(circle at 100% 0%, rgb(189 218 205 / 19%), transparent 55%),
+    radial-gradient(circle at 100% 0%, rgb(205 205 214 / 14%), transparent 55%),
     var(--panel-surface);
   box-shadow: var(--panel-shadow);
   transition:
@@ -516,14 +514,14 @@ app-operations-world-map .world-marker:focus-visible {
   right: 22px;
   width: 8px;
   height: 8px;
-  border: 1px solid rgb(54 112 95 / 30%);
+  border: 1px solid rgb(90 90 100 / 30%);
   border-radius: 50%;
-  background: #a8c8b7;
-  box-shadow: 0 0 0 5px rgb(168 200 183 / 14%);
+  background: #bbbcc4;
+  box-shadow: 0 0 0 5px rgb(187 187 196 / 14%);
 }
 .content app-dashboard-page .pulse span {
   padding-right: 22px;
-  color: #52645f;
+  color: #696973;
   font-size: 12px;
   font-weight: 650;
 }
@@ -535,12 +533,12 @@ app-operations-world-map .world-marker:focus-visible {
   font-weight: 740;
   letter-spacing: -0.055em;
   line-height: 1;
-  color: #183b34;
+  color: #232328;
   font-variant-numeric: tabular-nums;
 }
 .content app-dashboard-page .pulse small {
   display: block;
-  color: #426e61;
+  color: #686873;
   font-size: 11px;
   font-weight: 650;
 }
@@ -559,7 +557,7 @@ app-operations-world-map .world-marker:focus-visible {
 @media (hover: hover) and (pointer: fine) {
   .content app-dashboard-page .pulse a:hover {
     transform: translateY(-3px);
-    border-color: #afc7bc;
+    border-color: #b8b8c1;
     background-color: #fff;
     box-shadow: var(--panel-shadow-hover);
   }
@@ -569,9 +567,9 @@ app-operations-world-map .world-marker:focus-visible {
   }
 }
 .content app-dashboard-page .pulse a:focus-visible {
-  outline: 3px solid #416d61;
+  outline: 3px solid #52525b;
   outline-offset: 3px;
-  border-color: #416d61;
+  border-color: #52525b;
 }
 
 /* Operational panels retain a solid background so charts and maps stay legible. */
@@ -590,32 +588,32 @@ app-operations-world-map .world-marker:focus-visible {
 .content app-dashboard-page .section > header {
   min-height: 81px;
   padding: 16px 22px;
-  border-bottom: 1px solid #e8efeb;
-  background: linear-gradient(120deg, #fcfefc, #f7faf8);
+  border-bottom: 1px solid #e9e9ed;
+  background: linear-gradient(120deg, #fcfefc, #f8f8fa);
 }
 .content app-dashboard-page .section h2 {
   margin: 0;
   font-size: 15px;
   font-weight: 710;
   letter-spacing: -0.015em;
-  color: #263e38;
+  color: #2d2d34;
 }
 .content app-dashboard-page .section header p {
   margin: 5px 0 0;
-  color: #63736f;
+  color: #74747d;
   font-size: 12px;
   line-height: 1.5;
 }
 .content app-dashboard-page .attention-row {
   padding: 14px 21px;
-  border-bottom-color: #e9efeb;
+  border-bottom-color: #e9e9ed;
   transition:
     background-color var(--panel-transition),
     box-shadow var(--panel-transition);
 }
 .content app-dashboard-page .attention-row:is(:hover, :focus-visible) {
-  background: #f3f8f5;
-  box-shadow: inset 3px 0 #86b6a1;
+  background: #f4f4f6;
+  box-shadow: inset 3px 0 #9a9aa5;
 }
 .content app-dashboard-page .attention-clear {
   padding: 34px 24px;
@@ -626,14 +624,14 @@ app-operations-world-map .world-marker:focus-visible {
 }
 .content app-dashboard-page .board-footer {
   padding: 18px 22px;
-  border-top: 1px solid #e9efeb;
-  background: #f8fbf9;
+  border-top: 1px solid #e9e9ed;
+  background: #f7f7f9;
 }
 .content app-dashboard-page .live-dot {
-  border: 1px solid #c5dbce;
+  border: 1px solid #d2d2d8;
   border-radius: 999px;
-  background: #edf6f0;
-  color: #356553;
+  background: #f1f1f4;
+  color: #50505a;
   font-weight: 700;
 }
 .content app-dashboard-page .map-empty {
@@ -643,7 +641,7 @@ app-operations-world-map .world-marker:focus-visible {
 /* Shared metric components, tables, and filters must feel like one product. */
 .content app-metric-card article {
   border: 1px solid var(--panel-line);
-  border-top: 3px solid #6d9f8c;
+  border-top: 3px solid #71717a;
   border-radius: var(--panel-radius);
   background: var(--panel-surface);
   box-shadow: var(--panel-shadow);
@@ -652,7 +650,7 @@ app-operations-world-map .world-marker:focus-visible {
     box-shadow var(--panel-transition);
 }
 .content app-metric-card strong {
-  color: #1c3c35;
+  color: #232328;
 }
 .content :is(.table-card, .tabs-card, .history, .profile) {
   min-width: 0;
@@ -673,23 +671,23 @@ app-operations-world-map .world-marker:focus-visible {
 }
 .content .table-wrap th {
   padding: 15px 18px;
-  border-color: #e4ece8;
-  background: #f4f8f5;
-  color: #4c625c;
+  border-color: #e6e6eb;
+  background: #f5f5f7;
+  color: #686873;
   font-size: 11px;
 }
 .content .table-wrap td {
-  border-color: #edf1ee;
+  border-color: #eeeef1;
 }
 .content .table-wrap tbody tr {
   transition: background-color var(--panel-transition);
 }
 .content .table-wrap tbody tr:focus-within {
-  background: #edf6f0;
+  background: #f1f1f4;
 }
 @media (hover: hover) and (pointer: fine) {
   .content .table-wrap tbody tr:hover {
-    background: #f2f8f4;
+    background: #f4f4f7;
   }
 }
 .content .list-summary {
@@ -698,7 +696,7 @@ app-operations-world-map .world-marker:focus-visible {
   background: linear-gradient(110deg, #fdfefd, #f5faf6);
 }
 .content .list-summary strong {
-  color: #2b4740;
+  color: #303036;
   font-size: 14px;
   letter-spacing: -0.01em;
 }
@@ -707,19 +705,19 @@ app-operations-world-map .world-marker:focus-visible {
   border: 1px solid var(--panel-line);
   border-radius: var(--panel-radius);
   background: #fafdfe;
-  box-shadow: 0 2px 10px rgb(29 57 53 / 3%);
+  box-shadow: 0 2px 10px rgb(35 35 42 / 3%);
 }
 .content .filters mat-form-field {
   max-width: 100%;
 }
 .content .mat-mdc-form-field {
   --mdc-outlined-text-field-container-shape: 10px;
-  --mdc-outlined-text-field-outline-color: #cbd9d3;
-  --mdc-outlined-text-field-hover-outline-color: #85a89a;
-  --mdc-outlined-text-field-focus-outline-color: #406a5d;
+  --mdc-outlined-text-field-outline-color: #c6c6cf;
+  --mdc-outlined-text-field-hover-outline-color: #90909b;
+  --mdc-outlined-text-field-focus-outline-color: #52525b;
 }
 .content .mat-mdc-paginator {
-  background: #f9fbf9;
+  background: #f8f8fa;
 }
 
 /* Form fields and transactional actions: consistent styling, no business changes. */
@@ -733,8 +731,8 @@ app-operations-world-map .world-marker:focus-visible {
 .content app-order-form-page .section > h2,
 .content app-order-form-page .section > header {
   padding: 19px 22px;
-  border-bottom: 1px solid #e7eee9;
-  background: linear-gradient(105deg, #fcfefd, #f6faf7);
+  border-bottom: 1px solid #e6e6ea;
+  background: linear-gradient(105deg, #fcfefd, #f6f6f8);
   color: #2b4640;
 }
 .content app-order-form-page .section h2 {
@@ -750,21 +748,21 @@ app-operations-world-map .world-marker:focus-visible {
   border-bottom-color: #e6ede8;
 }
 .content app-order-form-page footer {
-  border-color: #bbd0c6;
+  border-color: #cbcbd3;
   border-radius: 14px;
-  background: #f8fbf9;
-  box-shadow: 0 9px 34px rgb(30 55 49 / 11%);
+  background: #f7f7f9;
+  box-shadow: 0 9px 34px rgb(35 35 42 / 11%);
 }
 .content app-order-form-page footer strong {
-  color: #244d42;
+  color: #303036;
   font-variant-numeric: tabular-nums;
 }
 @media (max-width: 760px) {
   .content .responsive-table tbody tr {
     border-color: var(--panel-line);
-    border-left: 3px solid #5f9d83;
+    border-left: 3px solid #85858f;
     border-radius: 13px;
-    box-shadow: 0 2px 12px rgb(30 60 48 / 4%);
+    box-shadow: 0 2px 12px rgb(35 35 42 / 4%);
   }
   .content app-dashboard-page .pulse a {
     min-height: 142px;
@@ -800,7 +798,7 @@ app-operations-world-map .world-marker:focus-visible {
   .content app-dashboard-page .section,
   .content :is(.table-card, .tabs-card),
   .content app-order-form-page .section {
-    border-color: #617e73;
+    border-color: #63636d;
   }
 }
 
@@ -808,10 +806,10 @@ app-operations-world-map .world-marker:focus-visible {
    introducing a second canvas, animation engine or extra data requests. */
 .content app-page-header header.aurora {
   padding: 27px 30px;
-  background: #f1f7f3;
+  background: #f0f0f3;
 }
 .content app-page-header header.aurora h1 {
-  color: #213e35;
+  color: #232328;
 }
 /* A generic page-header span rule must never shrink or stack kinetic words. */
 .content app-page-header h1 .kinetic-word {
@@ -825,7 +823,7 @@ app-operations-world-map .world-marker:focus-visible {
   vertical-align: baseline;
 }
 .content app-page-header header.aurora .subtitle {
-  color: #526e62;
+  color: #777780;
 }
 .content app-page-header header.aurora .actions {
   align-self: center;
@@ -876,7 +874,7 @@ app-operations-world-map .world-marker:focus-visible {
   overflow: clip;
 }
 .content :is(app-shipments-page, app-inventory-page, app-incidents-page) .list-summary {
-  border-bottom-color: #e2eae5;
+  border-bottom-color: #e7e7eb;
 }
 .content .table-wrap :is(th, td) {
   font-variant-numeric: tabular-nums;
@@ -887,21 +885,21 @@ app-operations-world-map .world-marker:focus-visible {
 .content .mat-mdc-form-field {
   --mdc-outlined-text-field-container-shape: 11px;
   --mdc-filled-text-field-container-shape: 11px;
-  --mdc-outlined-text-field-outline-color: #cbdad1;
-  --mdc-outlined-text-field-hover-outline-color: #8aac9e;
-  --mdc-outlined-text-field-focus-outline-color: #436f5e;
+  --mdc-outlined-text-field-outline-color: #c7c7d0;
+  --mdc-outlined-text-field-hover-outline-color: #90909b;
+  --mdc-outlined-text-field-focus-outline-color: #52525b;
 }
 .content :is(button[mat-stroked-button], a[mat-stroked-button]) {
   --mdc-outlined-button-container-shape: 10px;
-  border-color: #bacfc3;
+  border-color: #ceced6;
   transition:
     background-color var(--panel-transition),
     box-shadow var(--panel-transition);
 }
 @media (hover: hover) and (pointer: fine) {
   .content :is(button[mat-stroked-button], a[mat-stroked-button]):hover:not(:disabled) {
-    background-color: #edf7f0;
-    box-shadow: 0 3px 10px rgb(35 78 52 / 8%);
+    background-color: #f3f3f6;
+    box-shadow: 0 3px 10px rgb(35 35 42 / 8%);
   }
 }
 /* Status chips deliberately retain red/amber/blue distinctions; softening their
@@ -934,13 +932,13 @@ app-operations-world-map .world-marker:focus-visible {
   :is(app-digital-twin-page, app-warehouse-twin-page, app-control-room-page)
   :is(.controls, .warehouse-controls, .scene-controls)
   button:focus-visible {
-  outline-color: #325e50;
+  outline-color: #52525b;
   outline-offset: 2px;
 }
 .mat-mdc-dialog-surface {
   border-radius: 16px;
-  border-color: #d7e4db;
-  box-shadow: 0 18px 54px rgb(27 51 43 / 18%);
+  border-color: #e0e0e5;
+  box-shadow: 0 18px 54px rgb(35 35 42 / 18%);
 }
 .mat-mdc-snack-bar-container {
   --mdc-snackbar-container-shape: 11px;
@@ -963,12 +961,12 @@ app-operations-world-map .world-marker:focus-visible {
 }
 @media (prefers-contrast: more) {
   .content app-page-header header.aurora {
-    border-color: #456e5e;
-    background: #f7faf8;
+    border-color: #686873;
+    background: #f8f8fa;
   }
   .content :is(.section, .table-card, .tabs-card),
   .mat-mdc-dialog-surface {
-    border-color: #627c70;
+    border-color: #71717a;
   }
 }
 
@@ -976,21 +974,21 @@ app-operations-world-map .world-marker:focus-visible {
 .content app-page-header .actions .mat-mdc-unelevated-button,
 .content app-page-header .actions a[mat-flat-button],
 .content app-page-header .actions button[mat-flat-button] {
-  --mdc-filled-button-container-color: #244b40;
+  --mdc-filled-button-container-color: #29292f;
   --mdc-filled-button-label-text-color: #ffffff;
-  background: #244b40;
+  background: #29292f;
   color: #ffffff;
   font-weight: 700;
   letter-spacing: 0;
 }
 @media (hover: hover) and (pointer: fine) {
   .content app-page-header .actions :is(a[mat-flat-button], button[mat-flat-button]):hover {
-    background: #183b32;
+    background: #3a3a42;
     color: #ffffff;
   }
 }
 .content app-page-header .actions :is(a[mat-flat-button], button[mat-flat-button]):focus-visible {
-  outline: 3px solid #386f59;
+  outline: 3px solid #52525b;
   outline-offset: 3px;
 }
 
@@ -1002,9 +1000,9 @@ app-operations-world-map .world-marker:focus-visible {
 .content app-feedback-state .state {
   margin: 12px;
   padding: 38px 24px;
-  border: 1px dashed #cedfd4;
+  border: 1px dashed #d9d9e0;
   border-radius: 14px;
-  background: linear-gradient(140deg, #fbfdfb, #f4f9f5);
+  background: linear-gradient(140deg, #fbfbfc, #f4f4f6);
 }
 .content app-feedback-state .state.error {
   border-color: #e5c8bc;
@@ -1014,26 +1012,26 @@ app-operations-world-map .world-marker:focus-visible {
   width: 42px;
   height: 42px;
   border-radius: 12px;
-  border-color: #cfe1d6;
-  background: #e9f4ec;
-  color: #3f745e;
+  border-color: #e0e0e6;
+  background: #efeff2;
+  color: #5b5b66;
 }
 .content app-feedback-state .state strong {
-  color: #264f41;
+  color: #303036;
   font-size: 15px;
 }
 .content app-feedback-state .state.error strong {
   color: #923b32;
 }
 .content app-loading-state [role='status'] {
-  color: #547064;
+  color: #6e6e77;
 }
 .content app-loading-state section i {
   border-radius: 7px;
-  background: #e5f0e8;
+  background: #e8e8ed;
 }
 .content app-metric-card article {
-  background: linear-gradient(135deg, #fff, #f6faf7);
+  background: linear-gradient(135deg, #fff, #f8f8fa);
 }
 @media (prefers-contrast: more) {
   .content app-feedback-state .state {

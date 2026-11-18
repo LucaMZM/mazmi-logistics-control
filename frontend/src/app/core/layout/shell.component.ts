@@ -278,6 +278,9 @@ import { IconComponent, IconName } from '../../shared/components/icon.component'
         .content { padding: 22px 4px 42px; }
         .skip-link { left: 12px; }
       }
+      @media (max-width: 360px) {
+        .dock-item { width: 38px; height: 40px; }
+      }
       @media (max-width: 600px) {
         .nav-inventory, .nav-fleet { display: none; }
         .mobile-extras { display: grid; gap: 4px; }
@@ -341,7 +344,7 @@ export class ShellComponent implements OnInit, AfterViewInit, OnDestroy {
     this.navigationSubscription?.unsubscribe();
     this.resizeObserver?.disconnect();
     this.resetMagnet();
-    if (this.frame) cancelAnimationFrame(this.frame);
+    if (this.frame && typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(this.frame);
     this.realtime.disconnect();
   }
   isRouteActive(path: string): boolean {
@@ -400,11 +403,13 @@ export class ShellComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   private scheduleIndicator(animate: boolean): void {
     if (this.frame) cancelAnimationFrame(this.frame);
+    if (typeof requestAnimationFrame === 'undefined') return;
     this.frame = requestAnimationFrame(() => {
       this.frame = 0;
       const nav = this.railNav?.nativeElement;
       const pill = this.selectionPill?.nativeElement;
-      const selected = nav?.querySelector<HTMLElement>('.dock-item.active:not([style*="display: none"])');
+      const selected = Array.from(nav?.querySelectorAll<HTMLElement>('.dock-item.active') ?? [])
+        .find((item) => item.getClientRects().length > 0);
       if (!nav || !pill || !selected || selected.getClientRects().length === 0) {
         if (pill) pill.style.opacity = '0';
         return;

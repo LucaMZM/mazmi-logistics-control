@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { MatButtonModule } from '@angular/material/button';
+import { IconComponent } from '../../shared/components/icon.component';
 import { Router, NavigationEnd, RouterLink, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -19,7 +19,8 @@ import { workspaceNavigation } from './workspace-navigation';
 
 @Component({
   selector: 'app-shell',
-  imports: [NgTemplateOutlet, RouterLink, RouterOutlet, MatButtonModule],
+  host: { '(document:pointerdown)': 'outside($event)', '(document:keydown.escape)': 'escape()' },
+  imports: [NgTemplateOutlet, RouterLink, RouterOutlet, IconComponent],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
 })
@@ -28,13 +29,13 @@ export class ShellComponent implements OnDestroy {
   readonly realtime = inject(RealtimeService);
   private readonly router = inject(Router);
   private readonly breakpoint = inject(BreakpointObserver);
-  readonly compact = signal(this.breakpoint.isMatched('(max-width: 960px)'));
-  readonly collapsed = signal(false);
+  readonly compact = signal(this.breakpoint.isMatched('(max-width: 700px)'));
+
   readonly drawerOpen = signal(false);
-  readonly expanded = signal(new Set(['Overview', 'Operations', 'Resources']));
+  readonly openGroup = signal<string | null>(null);
+  private disclosure?: HTMLButtonElement;
   readonly url = signal('');
   readonly drawer = viewChild<ElementRef<HTMLDialogElement>>('drawer');
-  readonly trigger = viewChild<ElementRef<HTMLButtonElement>>('trigger');
   readonly groups = computed(() =>
     workspaceNavigation
       .map((group) => ({
@@ -49,11 +50,8 @@ export class ShellComponent implements OnDestroy {
       }))
       .filter((group) => group.links.length),
   );
-  readonly pageTitle = computed(
-    () =>
-      this.groups()
-        .flatMap((g) => g.links)
-        .find((l) => this.active(l.path))?.label ?? 'Operations',
+  readonly activeGroup = computed(
+    () => this.groups().find((g) => g.links.some((link) => this.active(link.path)))?.label,
   );
   constructor() {
     this.sync(this.router.url);
@@ -64,11 +62,13 @@ export class ShellComponent implements OnDestroy {
       )
       .subscribe((e) => this.sync(e.urlAfterRedirects));
     this.breakpoint
-      .observe('(max-width: 960px)')
+      .observe('(max-width: 700px)')
       .pipe(takeUntilDestroyed())
       .subscribe(({ matches }) => {
+        if (matches === this.compact()) return;
         if (!matches) this.drawer()?.nativeElement.close();
         this.compact.set(matches);
+        this.openGroup.set(null);
       });
     this.realtime.connect();
   }
@@ -80,48 +80,46 @@ export class ShellComponent implements OnDestroy {
   }
   private sync(url: string) {
     this.url.set(url.split(/[?#]/)[0]);
-    const group = workspaceNavigation.find((g) => g.links.some((l) => this.active(l.path)));
-    if (group) this.expanded.update((s) => new Set([...s, group.label]));
+    const movingFromNav = !!document.activeElement?.closest('.routes');
+    this.openGroup.set(null);
     if (this.drawer()?.nativeElement.open) {
       this.drawer()?.nativeElement.close();
-      document.getElementById('main-content')?.focus({ preventScroll: true });
     }
+    if (movingFromNav) document.getElementById('main-content')?.focus({ preventScroll: true });
   }
-  toggle(label: string) {
-    this.expanded.update((old) => {
-      const next = new Set(old);
-      if (next.has(label)) next.delete(label);
-      else next.add(label);
-      return next;
-    });
+  toggle(label: string, button: HTMLButtonElement) {
+    this.disclosure = button;
+    this.openGroup.update((old) => (old === label ? null : label));
+  }
+  outside(event: Event) {
+    if (!this.compact() && event.target instanceof Element && !event.target.closest('.area'))
+      this.openGroup.set(null);
+  }
+  leave(event: FocusEvent) {
+    if (
+      !this.compact() &&
+      event.relatedTarget instanceof Node &&
+      !(event.currentTarget as HTMLElement).contains(event.relatedTarget)
+    )
+      this.openGroup.set(null);
+  }
+  escape() {
+    if (!this.compact() && this.openGroup()) {
+      this.openGroup.set(null);
+      this.disclosure?.focus();
+    }
   }
   openMenu() {
-    if (this.compact()) {
-      this.drawer()?.nativeElement.showModal();
-      this.drawerOpen.set(true);
-    } else {
-      this.collapsed.set(false);
-      requestAnimationFrame(() =>
-        document.querySelector<HTMLButtonElement>('.sidebar .hide-menu')?.focus(),
-      );
-    }
-  }
-  hideMenu() {
-    if (this.compact()) {
-      this.drawer()?.nativeElement.close();
-    } else {
-      this.collapsed.set(true);
-      requestAnimationFrame(() => this.trigger()?.nativeElement.focus());
-    }
+    this.openGroup.set(this.activeGroup() ?? null);
+    this.drawer()?.nativeElement.showModal();
+    this.drawerOpen.set(true);
   }
   selected(event: MouseEvent, path: string) {
-    if (
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.shiftKey &&
-      !event.altKey &&
-      path === this.router.url
-    )
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    if (this.router.url === path) {
       this.drawer()?.nativeElement.close();
+      this.openGroup.set(null);
+      document.getElementById('main-content')?.focus({ preventScroll: true });
+    }
   }
 }

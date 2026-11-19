@@ -430,9 +430,9 @@ app-operations-world-map .world-marker:focus-visible {
 /* MAZMI Glass — Phase B: readable surfaces and restrained microinteractions.
    Keep dense enterprise content opaque; reserve translucent material for navigation. */
 :root {
-  --panel-radius: 16px;
+  --panel-radius: 8px;
   --panel-line: #e3e3e8;
-  --panel-shadow: 0 2px 4px rgb(35 35 42 / 3%), 0 14px 34px rgb(35 35 42 / 4%);
+  --panel-shadow: none;
   --panel-shadow-hover: 0 12px 36px rgb(35 35 42 / 11%);
   --panel-transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
   --panel-surface: #fdfdfe;
@@ -441,7 +441,7 @@ app-operations-world-map .world-marker:focus-visible {
 
 /* Editorial page headers use the same visual language across all ERP routes. */
 .content app-page-header header {
-  margin-bottom: 26px;
+  margin-bottom: 16px;
   padding: 4px 0 2px;
 }
 .content app-page-header h1 {
@@ -805,8 +805,13 @@ app-operations-world-map .world-marker:focus-visible {
 /* MAZMI Glass — phases C–E: unify the surrounding enterprise UI without
    introducing a second canvas, animation engine or extra data requests. */
 .content app-page-header header.aurora {
-  padding: 27px 30px;
-  background: #f0f0f3;
+  padding: 3px 0 15px;
+  min-height: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
 }
 .content app-page-header header.aurora h1 {
   color: #232328;
@@ -945,7 +950,8 @@ app-operations-world-map .world-marker:focus-visible {
 }
 @media (max-width: 700px) {
   .content app-page-header header.aurora {
-    padding: 22px;
+    padding: 2px 0 14px;
+    gap: 10px;
   }
   .content app-page-header header.aurora .actions {
     align-self: stretch;

@@ -83,11 +83,11 @@ Las posiciones y maniobras son simuladas. [Flota y mapa](docs/digital-twin.md) �
 
 ### Navegación en escritorio y móvil
 
-El índice agrupa los destinos por tarea. Al entrar en una ficha, se abre su grupo y permanece marcada la sección correspondiente. [Detalle de un pedido](docs/screenshots/order-detail.webp) · [Grupo abierto](docs/screenshots/navigation-expanded.webp) · [Grupo contraído](docs/screenshots/navigation-folded.webp).
+La barra superior deja el ancho de trabajo disponible para el mapa y los registros. Overview, Inventory y Fleet son accesos directos; los desplegables reúnen [Operations](docs/screenshots/top-operations.webp) y [Digital spaces](docs/screenshots/top-digital-spaces.webp). El área activa sigue señalada en el [detalle del pedido](docs/screenshots/order-detail.webp). [Vista en tablet](docs/screenshots/tablet-dashboard.webp).
 
 | Centro de operaciones | Menú secundario | Pedidos |
 |:---|:---|:---|
-| <a href="docs/screenshots/mobile-dashboard.webp"><img src="docs/screenshots/mobile-dashboard.webp" width="185" alt="Dashboard móvil con el menú cerrado"></a> | <a href="docs/screenshots/mobile-navigation.webp"><img src="docs/screenshots/mobile-navigation.webp" width="185" alt="Índice de navegación abierto en móvil"></a> | <a href="docs/screenshots/mobile-orders.webp"><img src="docs/screenshots/mobile-orders.webp" width="185" alt="Pedidos en fichas a 390 px"></a> |
+| <a href="docs/screenshots/mobile-dashboard.webp"><img src="docs/screenshots/mobile-dashboard.webp" width="185" alt="Dashboard móvil con el menú cerrado"></a> | <a href="docs/screenshots/mobile-navigation.webp"><img src="docs/screenshots/mobile-navigation.webp" width="185" alt="Menú superior abierto en móvil"></a> | <a href="docs/screenshots/mobile-orders.webp"><img src="docs/screenshots/mobile-orders.webp" width="185" alt="Pedidos en fichas a 390 px"></a> |
 
 [Materiales, movimiento y accesibilidad de MAZMI Glass](docs/mazmi-glass.md).
 

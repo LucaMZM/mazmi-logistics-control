@@ -114,49 +114,37 @@ async function main() {
       name: "Workspace sections",
     });
     const operations = navigation.getByRole("button", {
-      name: "Operations navigation group",
+      name: "Operations",
       exact: true,
     });
     await operations.focus();
     await page.keyboard.press("Enter");
     await navigation
-      .getByRole("button", {
-        name: "Operations navigation group",
-        expanded: false,
-      })
-      .waitFor();
-    assert.equal(
-      await navigation
-        .getByRole("link", { name: "Orders", exact: true })
-        .count(),
-      0,
-    );
-    await page.screenshot({
-      path: path.join(output, "review/navigation-folded.png"),
-    });
-    await page.keyboard.press("Enter");
-    await navigation
       .getByRole("link", { name: "Orders", exact: true })
       .waitFor();
+    await page.screenshot({
+      path: path.join(output, "review/top-operations.png"),
+    });
+    await page.keyboard.press("Escape");
+    await navigation
+      .getByRole("link", { name: "Orders", exact: true })
+      .waitFor({ state: "hidden" });
+    assert(await operations.evaluate((el) => el === document.activeElement));
     const spaces = navigation.getByRole("button", { name: "Digital spaces" });
     await spaces.click();
     await navigation.getByRole("link", { name: "Warehouse Editor" }).waitFor();
+    assert.equal(await navigation.locator('a[href="/admin/users"]').count(), 0);
     await page.screenshot({
-      path: path.join(output, "review/navigation-expanded.png"),
+      path: path.join(output, "review/top-digital-spaces.png"),
     });
     await spaces.click();
-    await page.getByRole("button", { name: "Collapse navigation" }).click();
-    await page.getByRole("button", { name: "Open navigation" }).click();
     // Motion is reduced in this browser: the decorative title and aurora
     // must remain readable and should not animate.
     const auroraHero = page.locator(
       "app-dashboard-page app-page-header header.aurora",
     );
     await auroraHero.waitFor();
-    assert.equal(
-      await auroraHero.locator('app-silk-aurora [aria-hidden="true"]').count(),
-      1,
-    );
+    assert.equal(await auroraHero.locator("app-silk-aurora").count(), 0);
     const heading = auroraHero.locator("h1");
     assert.equal(
       await heading.getAttribute("aria-label"),
@@ -236,12 +224,12 @@ async function main() {
       };
     });
     assert(
-      cardStyle.radius >= 14,
-      "KPI cards must have the new rounded premium treatment",
+      cardStyle.radius === 8,
+      "KPI cards must have the shared compact radius",
     );
     assert(
-      cardStyle.shadow !== "none",
-      "KPI cards should be visually elevated",
+      cardStyle.shadow === "none",
+      "Static KPI panels should have no elevation",
     );
     assert(
       cardStyle.background !== "rgba(0, 0, 0, 0)",
@@ -254,7 +242,7 @@ async function main() {
       parseFloat(getComputedStyle(node).borderTopLeftRadius),
     );
     assert(
-      tableRadius >= 14,
+      tableRadius === 8,
       "Order registers must use the shared panel radius",
     );
     const firstOrder = page.locator('td[data-label="Order"] a').first();
@@ -271,12 +259,14 @@ async function main() {
       path: path.join(output, "review", "order-detail.png"),
       animations: "disabled",
     });
+    await operations.click();
     assert.equal(
       await navigation
         .getByRole("link", { name: "Orders", exact: true })
         .getAttribute("aria-current"),
       "page",
     );
+    await page.keyboard.press("Escape");
     await page.goto(baseURL + "/orders/new");
 
     await page.locator("form,mat-form-field").first().waitFor();
@@ -287,7 +277,7 @@ async function main() {
         parseFloat(getComputedStyle(node).borderTopLeftRadius),
       );
     assert(
-      formSectionRadius >= 14,
+      formSectionRadius === 8,
       "Order forms must share the premium panel material",
     );
     await page.screenshot({
@@ -491,6 +481,10 @@ async function main() {
     await page.getByLabel("Password", { exact: true }).fill("Demo2026!");
     await page.getByRole("button", { name: "Sign in", exact: true }).click();
     await page.waitForURL("**/dashboard");
+    await opener.click();
+    await dialog.getByRole("link", { name: "Users", exact: true }).click();
+    await page.waitForURL("**/admin/users");
+    await dialog.waitFor({ state: "hidden" });
     await capture(
       "review/admin-users.png",
       "/admin/users",

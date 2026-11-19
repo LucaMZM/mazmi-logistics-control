@@ -1,15 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SilkAuroraComponent } from './silk-aurora.component';
 
 @Component({
   selector: 'app-page-header',
-  imports: [RouterLink, SilkAuroraComponent],
+  imports: [RouterLink],
   template: `
     <header [class.aurora]="aurora">
-      @if (aurora) {
-        <app-silk-aurora />
-      }
       <div class="heading-content">
         <p>
           @if (backLink) {
@@ -48,12 +44,7 @@ import { SilkAuroraComponent } from './silk-aurora.component';
         isolation: isolate;
         overflow: hidden;
         align-items: center;
-        min-height: 156px;
-        padding: 27px 30px;
-        border: 1px solid #dedee4;
-        border-radius: 19px;
-        background: #f3f3f6;
-        box-shadow: 0 8px 28px rgb(35 35 42 / 4%);
+        min-height: 0;
       }
       .heading-content,
       .actions {
@@ -125,7 +116,7 @@ import { SilkAuroraComponent } from './silk-aurora.component';
           align-items: flex-start;
           gap: 17px;
           min-height: 0;
-          padding: 22px;
+          padding: 0;
         }
         .actions {
           width: 100%;

@@ -16,7 +16,7 @@ describe('MAZMI Glass page headers', () => {
     const heading = fixture.nativeElement.querySelector('h1') as HTMLElement;
     expect(heading.getAttribute('aria-label')).toBe('Operations command center');
     expect(heading.querySelectorAll('.kinetic-word')).toHaveLength(3);
-    expect(fixture.nativeElement.querySelector('app-silk-aurora')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('app-silk-aurora')).toBeNull();
 
     fixture.componentRef.setInput('title', 'Orders');
     fixture.detectChanges();

@@ -1,101 +1,99 @@
 <a class="skip-link" href="#main-content">Skip to content</a>
-<ng-template #navigation>
-  <div class="nav-head">
-    <div class="signature"><b>MAZMI</b><span>Logistics Control</span></div>
-    <button
-      class="hide-menu"
-      type="button"
-      (click)="hideMenu()"
-      [attr.aria-label]="compact() ? 'Close navigation' : 'Collapse navigation'"
-    >
-      <span aria-hidden="true">{{ compact() ? '×' : '‹' }}</span>
-    </button>
-  </div>
-  <nav aria-label="Workspace sections">
+<ng-template #navigation
+  ><nav class="routes" aria-label="Workspace sections">
     @for (group of groups(); track group.label; let i = $index) {
-      <div class="group">
-        <button
-          class="group-button"
-          [attr.aria-label]="group.label + ' navigation group'"
-          type="button"
-          [attr.aria-expanded]="expanded().has(group.label)"
-          [attr.aria-controls]="'nav-group-' + i"
-          (click)="toggle(group.label)"
+      @if (group.links.length === 1) {
+        <a
+          class="tab"
+          [routerLink]="group.links[0].path"
+          [attr.aria-current]="active(group.links[0].path) ? 'page' : null"
+          (click)="selected($event, group.links[0].path)"
+          ><app-icon [name]="group.icon" />{{ group.label }}</a
         >
-          {{ group.label }}<i aria-hidden="true"></i>
-        </button>
-        <div class="links" [id]="'nav-group-' + i" [hidden]="!expanded().has(group.label)">
-          @for (item of group.links; track item.path) {
-            <a
-              [routerLink]="item.path"
-              [attr.aria-current]="active(item.path) ? 'page' : null"
-              (click)="selected($event, item.path)"
-              >{{ item.label }}</a
-            >
-          }
+      } @else {
+        <div class="area" (focusout)="leave($event)">
+          <button
+            #button
+            type="button"
+            class="tab"
+            [class.current]="activeGroup() === group.label"
+            [attr.aria-current]="activeGroup() === group.label ? 'location' : null"
+            [attr.aria-expanded]="openGroup() === group.label"
+            [attr.aria-controls]="'destinations-' + i"
+            (click)="toggle(group.label, button)"
+          >
+            <app-icon [name]="group.icon" />{{ group.label
+            }}<i class="chevron" aria-hidden="true"></i>
+          </button>
+          <div
+            class="destinations"
+            [hidden]="openGroup() !== group.label"
+            [id]="'destinations-' + i"
+          >
+            @for (item of group.links; track item.path) {
+              <a
+                [routerLink]="item.path"
+                [attr.aria-current]="active(item.path) ? 'page' : null"
+                (click)="selected($event, item.path)"
+                ><app-icon [name]="item.icon" />{{ item.label }}</a
+              >
+            }
+          </div>
         </div>
-      </div>
+      }
     }
-  </nav>
-</ng-template>
-<div class="workspace" [class.with-nav]="!compact() && !collapsed()">
-  @if (!compact() && !collapsed()) {
-    <aside id="workspace-navigation" class="sidebar">
-      <ng-container *ngTemplateOutlet="navigation" />
-    </aside>
-  }
-  @if (compact()) {
-    <dialog
-      #drawer
-      id="workspace-navigation"
-      aria-label="Workspace navigation"
-      closedby="any"
-      (close)="drawerOpen.set(false)"
+  </nav></ng-template
+>
+<header class="masthead">
+  <div class="mast-inner">
+    <a class="brand" routerLink="/dashboard" aria-label="MAZMI Logistics Control home"
+      ><span class="mark" aria-hidden="true"></span><b>MAZMI</b
+      ><span class="product">Logistics Control</span></a
     >
-      <section class="drawer-body"><ng-container *ngTemplateOutlet="navigation" /></section>
-    </dialog>
-  }
-  <div class="main">
-    <header class="topbar">
-      @if (compact() || collapsed()) {
+    @if (!compact()) {
+      <ng-container *ngTemplateOutlet="navigation" />
+    }
+    <div class="utilities">
+      <span class="connection" role="status" [class.connected]="realtime.status() === 'connected'"
+        ><i aria-hidden="true"></i
+        >{{
+          realtime.status() === 'connected'
+            ? 'Live updates'
+            : realtime.status() === 'offline'
+              ? 'Offline'
+              : 'Connecting…'
+        }}</span
+      >
+      <span class="identity">{{ auth.user()?.name }}</span
+      ><button type="button" class="logout" (click)="auth.logout()">Log out</button>
+      @if (compact()) {
         <button
-          #trigger
           class="menu-trigger"
           type="button"
           aria-label="Open navigation"
-          [attr.aria-controls]="compact() ? 'workspace-navigation' : null"
-          [attr.aria-expanded]="compact() ? drawerOpen() : !collapsed()"
+          aria-controls="workspace-navigation"
+          [attr.aria-expanded]="drawerOpen()"
           (click)="openMenu()"
         >
-          Menu
+          <app-icon name="more" />Menu
         </button>
       }
-      <div class="route">
-        <span>MAZMI <span aria-hidden="true">/</span> LOGISTICS CONTROL</span>
-        <strong>{{ pageTitle() }}</strong>
-      </div>
-      <div class="account">
-        <span
-          class="connection"
-          role="status"
-          [class.connected]="realtime.status() === 'connected'"
-        >
-          <i aria-hidden="true"></i>
-          {{
-            realtime.status() === 'connected'
-              ? 'Live updates'
-              : realtime.status() === 'offline'
-                ? 'Offline'
-                : 'Connecting…'
-          }}
-        </span>
-        <span class="identity"
-          ><strong>{{ auth.user()?.name }}</strong
-          ><small>{{ auth.user()?.role }}</small></span
-        >
-        <button class="logout" mat-button type="button" (click)="auth.logout()">Log out</button>
-      </div>
-    </header>
-    <main id="main-content" class="content" tabindex="-1"><router-outlet /></main>
+    </div>
   </div>
-</div>
+</header>
+@if (compact()) {
+  <dialog
+    #drawer
+    id="workspace-navigation"
+    aria-label="Workspace navigation"
+    closedby="any"
+    (close)="drawerOpen.set(false)"
+  >
+    <header>
+      <strong>Workspace</strong
+      ><button type="button" (click)="drawer.close()" aria-label="Close navigation">Close</button>
+    </header>
+    <ng-container *ngTemplateOutlet="navigation" />
+  </dialog>
+}
+<main id="main-content" class="content" tabindex="-1"><router-outlet /></main>

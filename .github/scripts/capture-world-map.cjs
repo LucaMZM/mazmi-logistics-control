@@ -45,6 +45,7 @@ async function main() {
     }
     await ready();
     await page.screenshot({path:path.join(output,'world-map-overview.png')});
+    await require("./capture-tablet.cjs")(page, output, "world-map-overview", "app-operations-world-map");
     await map.locator('.world-panel > summary').click();
     await map.getByLabel('Map shipment',{exact:true}).selectOption(shipment.id);
     await ready();

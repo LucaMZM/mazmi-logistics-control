@@ -418,7 +418,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       .progress span {
         display: block;
         height: 100%;
-        background: var(--muted);
+        background: var(--accent);
         transform-origin: left;
         transition: transform 180ms var(--ease-out);
       }

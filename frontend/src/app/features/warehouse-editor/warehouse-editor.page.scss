@@ -95,12 +95,12 @@ button:disabled {
   opacity: 0.55;
 }
 .primary {
-  background: var(--selected);
-  color: var(--ink);
+  background: var(--accent);
+  color: var(--on-accent);
   border-color: var(--line);
 }
 .primary:hover:not(:disabled) {
-  background: var(--selected);
+  background: var(--ink);
 }
 .editor-layout {
   display: grid;

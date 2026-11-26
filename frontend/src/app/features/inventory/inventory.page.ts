@@ -252,7 +252,7 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
         background: var(--accent);
       }
       .availability.is-low .stock-track span {
-        background: var(--warning-surface);
+        background: var(--warning);
       }
       .warehouse-grid {
         display: grid;

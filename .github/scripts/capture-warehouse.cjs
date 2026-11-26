@@ -78,6 +78,7 @@ async function main() {
       await page.screenshot({ path: path.join(output, name), fullPage });
     };
     await shot('warehouse-overview.png');
+    await require("./capture-tablet.cjs")(page, output, "warehouse-overview", "app-warehouse-twin-page");
     const canvasBounds = await page.locator('.warehouse-scene canvas').boundingBox();
     // Project the middle starter rack (0, 2.04, -3) using the overview camera.
     // Picking must hit that rack, not just any mesh near the middle of the canvas.

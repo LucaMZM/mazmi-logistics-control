@@ -7,6 +7,7 @@ import {
   setWorkerCount,
   type CustomLayerInterface,
   type GeoJSONSource,
+  type TransformStyleFunction,
 } from 'maplibre-gl';
 import * as T from 'three';
 import { TwinAssets } from '../../features/digital-twin/twin-assets';
@@ -136,9 +137,48 @@ class WorldMapEngine implements WorldMapPort {
     setWorkerUrl('/assets/maplibre/maplibre-gl-worker.mjs');
     setWorkerCount(2);
     this.fitted = !!options.view;
+    const theme = getComputedStyle(host);
+    const token = (name: string) => theme.getPropertyValue(name).trim();
+    // Restyle the cartography, not the geographic data or the vehicle meshes.
+    const graphite: TransformStyleFunction = (_, style) => ({
+      ...style,
+      layers: style.layers.map((layer) => {
+        switch (layer.type) {
+          case 'background':
+            return { ...layer, paint: { ...layer.paint, 'background-color': token('--surface') } };
+          case 'fill':
+            return {
+              ...layer,
+              paint: {
+                ...layer.paint,
+                'fill-color': token(layer['source-layer'] === 'water' ? '--canvas' : '--raised'),
+              },
+            };
+          case 'fill-extrusion':
+            return {
+              ...layer,
+              paint: { ...layer.paint, 'fill-extrusion-color': token('--selected') },
+            };
+          case 'line':
+            return { ...layer, paint: { ...layer.paint, 'line-color': token('--line') } };
+          case 'symbol':
+            return {
+              ...layer,
+              paint: {
+                ...layer.paint,
+                'text-color': token('--ink'),
+                'text-halo-color': token('--canvas'),
+              },
+            };
+          default:
+            return layer;
+        }
+      }),
+    });
     this.map = new GeoMap({
       container: host,
       style: options.style,
+      transformStyle: graphite,
       center: options.view ? [options.view.longitude, options.view.latitude] : [-3.2, 40.2],
       zoom: options.view?.zoom ?? 5.5,
       pitch: options.view?.pitch ?? 52,
@@ -161,7 +201,7 @@ class WorldMapEngine implements WorldMapPort {
         id: 'mazmi-route',
         type: 'line',
         source: 'mazmi-route',
-        paint: { 'line-color': '#526b7a', 'line-width': 3, 'line-dasharray': [2, 2] },
+        paint: { 'line-color': token('--accent'), 'line-width': 3, 'line-dasharray': [2, 2] },
       });
       this.map.addLayer(this.layer);
       this.layer.sync();

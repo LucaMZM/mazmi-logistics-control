@@ -434,6 +434,19 @@ app-operations-world-map .world-marker:focus-visible {
   outline-offset: 2px;
 }
 
+.content :is(.world-label, .scene-label, .warehouse-caption) {
+  border-inline-start: 2px solid var(--accent);
+  padding: 6px 10px;
+  background: var(--glass);
+  border-radius: 0 4px 4px 0;
+  max-width: calc(100% - 32px);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .destinations,
+  dialog {
+    backdrop-filter: none;
+  }
+}
 /* Chrome is quiet; the active operation and live quantities lead each workspace. */
 app-icon {
   color: var(--accent);
@@ -483,7 +496,7 @@ a {
   background: var(--surface);
 }
 a[mat-flat-button]:not([disabled]),
-button[mat-flat-button]:not(:disabled) {
+button[mat-flat-button]:not(:disabled):not([color='warn']) {
   background-color: var(--accent);
   color: var(--on-accent);
 }

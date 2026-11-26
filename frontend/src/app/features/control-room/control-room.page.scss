@@ -97,7 +97,7 @@ h1 {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: #e9edf0;
+  background: var(--raised);
 }
 
 .scene {
@@ -123,7 +123,7 @@ h1 {
 }
 
 .world-label span {
-  color: #52606d;
+  color: var(--muted);
   font-size: 12px;
   margin-top: 5px;
 }
@@ -138,15 +138,15 @@ h1 {
   flex-wrap: wrap;
   gap: 8px;
   padding: 10px;
-  border: 1px solid rgb(255 255 255 / 95%);
+  border: 1px solid var(--line);
   border-radius: 9px;
-  background: rgb(250 251 253 / 85%);
+  background: var(--glass);
   backdrop-filter: blur(12px);
 }
 
 .scene-controls span {
   margin-left: auto;
-  color: #52606d;
+  color: var(--muted);
   font-size: 11px;
 }
 
@@ -158,17 +158,17 @@ h1 {
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 9px;
-  background: #fafbfd;
+  background: var(--surface);
   font-size: 13px;
 }
 
 button {
   min-height: 38px;
   padding: 8px 12px;
-  border: 1px solid #cbd3d9;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  background: white;
-  color: #27343d;
+  background: var(--surface);
+  color: var(--ink);
   font: inherit;
   font-size: 12px;
   cursor: pointer;
@@ -176,7 +176,7 @@ button {
 
 button:hover:not(:disabled),
 .back-link:hover {
-  background: #eff2f3;
+  background: var(--raised);
 }
 
 button:disabled {
@@ -226,9 +226,9 @@ h2 {
 }
 
 .station-choice.active {
-  border-color: #768a97;
-  background: #e9eef0;
-  box-shadow: inset 3px 0 #435865;
+  border-color: var(--line);
+  background: var(--raised);
+  box-shadow: inset 3px 0 var(--line);
 }
 
 .station-detail {
@@ -247,14 +247,14 @@ h3 {
   padding: 11px 14px;
   margin-top: 8px;
   border-radius: 6px;
-  background: #344954;
-  color: white;
+  background: var(--selected);
+  color: var(--ink);
   font-size: 12px;
   text-decoration: none;
 }
 
 .primary-link:hover {
-  background: #27343d;
+  background: var(--selected);
 }
 
 .quick-links {
@@ -264,7 +264,7 @@ h3 {
 }
 
 .quick-links a {
-  color: #435865;
+  color: var(--muted);
   font-size: 12px;
 }
 
@@ -325,7 +325,7 @@ h3 {
 @media (prefers-reduced-transparency: reduce) {
   .scene-controls {
     backdrop-filter: none;
-    background: #fafbfd;
+    background: var(--surface);
   }
 }
 
@@ -339,7 +339,7 @@ h3 {
   margin-top: 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #f6f8f9;
+  background: var(--raised);
 }
 .renderer-details dl {
   display: grid;
@@ -375,11 +375,11 @@ h3 {
   isolation: isolate;
   overflow: hidden;
   align-items: center;
-  min-height: 145px;
+  min-height: 112px;
   padding: 25px 28px;
-  border: 1px solid #d6e4dd;
-  border-radius: 18px;
-  background: #f1f7f2;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--raised);
   box-shadow: var(--panel-shadow);
 }
 .intro > div,
@@ -391,15 +391,15 @@ h3 {
   font-size: clamp(31px, 3.4vw, 43px);
   font-weight: 720;
   letter-spacing: -0.045em;
-  color: #1e4036;
+  color: var(--ink);
 }
 .intro .kinetic-heading {
-  animation: room-heading-in 660ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: room-heading-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .intro .back-link {
-  border-color: #c2d5cb;
+  border-color: var(--line);
   border-radius: 10px;
-  background: rgb(255 255 255 / 88%);
+  background: var(--glass);
 }
 .summary {
   gap: 12px;
@@ -419,12 +419,12 @@ h3 {
   border-right: 1px solid var(--panel-line);
 }
 .summary strong {
-  color: #244f42;
+  color: var(--accent);
   font-size: 30px;
   letter-spacing: -0.035em;
 }
 .summary span {
-  color: #5a7268;
+  color: var(--muted);
 }
 .world,
 .station-panel {
@@ -433,10 +433,10 @@ h3 {
   box-shadow: var(--panel-shadow);
 }
 .station-panel {
-  background: #fbfdfb;
+  background: var(--surface);
 }
 .station-choice {
-  border-color: #d7e4dd;
+  border-color: var(--line);
   border-radius: 10px;
   transition:
     background-color var(--panel-transition),
@@ -444,28 +444,28 @@ h3 {
     box-shadow var(--panel-transition);
 }
 .station-choice:is(:hover, :focus-visible) {
-  border-color: #96bca7;
-  background: #f1f8f3;
+  border-color: var(--accent);
+  background: var(--raised);
 }
 .station-choice.active {
-  border-color: #8ab7a1;
-  background: #eaf4ed;
-  box-shadow: inset 3px 0 #588a74;
+  border-color: var(--accent);
+  background: var(--raised);
+  box-shadow: inset 3px 0 var(--line);
 }
 .station-detail {
-  border-color: #d9e7dd;
+  border-color: var(--line);
 }
 .scene-controls {
-  border-color: rgb(255 255 255 / 94%);
+  border-color: var(--line);
   border-radius: 12px;
-  background: rgb(250 253 250 / 90%);
+  background: var(--glass);
 }
 .primary-link {
   border-radius: 9px;
-  background: #284e43;
+  background: var(--selected);
 }
 .primary-link:is(:hover, :focus-visible) {
-  background: #1c3d32;
+  background: var(--selected);
 }
 @keyframes room-heading-in {
   from {
@@ -497,10 +497,10 @@ h3 {
 }
 @media (prefers-reduced-transparency: reduce) {
   .intro .back-link {
-    background: #fff;
+    background: var(--surface);
   }
   .scene-controls {
-    background: #fff;
+    background: var(--surface);
     backdrop-filter: none;
   }
 }

@@ -380,6 +380,14 @@ async function main() {
       "Customers",
       "table tbody tr",
     );
+    for (const [area, selector] of [
+      ["inventory", ".history"], ["incidents", "dl"], ["customers", ".profile"],
+    ]) {
+      await page.goto(baseURL + "/" + area);
+      await page.locator('tbody a[href^="/' + area + '/"]').first().click();
+      await page.locator(selector).first().waitFor();
+      await page.screenshot({path:path.join(output,"review",area+"-detail.png"),animations:"disabled"});
+    }
     for (const viewport of [
       { width: 375, height: 812 },
       { width: 1280, height: 900 },
@@ -505,6 +513,9 @@ async function main() {
     await page.getByRole("dialog").waitFor();
     await page.keyboard.press("Escape");
     await page.getByRole("dialog").waitFor({ state: "hidden" });
+    await page.setViewportSize({width:1440,height:1050});
+    await ready("Users", "table tbody tr");
+    await page.screenshot({path:path.join(output,"review/users-desktop.png")});
     await require("./verify-workspace-navigation.cjs")(browser, baseURL);
     assert.deepEqual(errors, [], "Unexpected JavaScript errors");
     await fs.writeFile(

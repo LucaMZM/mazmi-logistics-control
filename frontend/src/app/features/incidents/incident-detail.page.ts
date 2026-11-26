@@ -47,7 +47,7 @@ import { Incident } from '../../shared/models/models';
       </button></mat-dialog-actions
     >`,
   styles: [
-    'mat-dialog-content{display:grid;min-width:min(440px,75vw)}p{font-size:12px;color:#64748b}',
+    'mat-dialog-content{display:grid;min-width:min(440px,75vw)}p{font-size:12px;color:var(--muted)}',
   ],
 })
 export class ResolveIncidentDialog {
@@ -132,8 +132,8 @@ export class ResolveIncidentDialog {
       }
       .main,
       aside {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
         padding: 24px;
       }
       .main h2 {
@@ -143,11 +143,11 @@ export class ResolveIncidentDialog {
       .main > p {
         font-size: 12px;
         line-height: 1.7;
-        color: #475569;
+        color: var(--muted);
       }
       .resolution {
-        border-left: 3px solid #16a34a;
-        background: #f0fdf4;
+        border-left: 3px solid var(--success);
+        background: var(--raised);
         padding: 16px;
         margin-top: 25px;
       }
@@ -158,7 +158,7 @@ export class ResolveIncidentDialog {
       }
       .resolution span {
         font-size: 9px;
-        color: #15803d;
+        color: var(--success);
         text-transform: uppercase;
         font-weight: 800;
       }
@@ -168,7 +168,7 @@ export class ResolveIncidentDialog {
       }
       .resolution small {
         font-size: 9px;
-        color: #64748b;
+        color: var(--muted);
       }
       dl {
         display: grid;
@@ -178,14 +178,14 @@ export class ResolveIncidentDialog {
       }
       dt {
         font-size: 10px;
-        color: #64748b;
+        color: var(--muted);
       }
       dd {
         font-size: 11px;
         margin: 0;
       }
       dd a {
-        color: #1d4ed8;
+        color: var(--muted);
         font-weight: 700;
         text-decoration: none;
       }

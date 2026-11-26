@@ -157,8 +157,8 @@ import { OrdersStore } from './orders.store';
         width: 190px;
       }
       .table-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
       }
       table {
         width: 100%;

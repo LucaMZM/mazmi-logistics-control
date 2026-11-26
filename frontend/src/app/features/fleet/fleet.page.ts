@@ -134,8 +134,8 @@ import { DriverEditorDialog, VehicleEditorDialog } from './fleet-editor.dialogs'
   styles: [
     `
       section {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
       }
       table {
         width: 100%;

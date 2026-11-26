@@ -57,7 +57,7 @@ const nonZero: ValidatorFn = (control) => (Number(control.value) === 0 ? { nonZe
       </button></mat-dialog-actions
     >`,
   styles: [
-    'mat-dialog-content{display:grid;min-width:min(420px,75vw)}p{font-size:12px;color:#64748b}',
+    'mat-dialog-content{display:grid;min-width:min(420px,75vw)}p{font-size:12px;color:var(--muted)}',
   ],
 })
 export class InventoryActionDialog {
@@ -188,13 +188,13 @@ export class InventoryActionDialog {
         margin-bottom: 18px;
       }
       .balances article {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
         padding: 20px;
       }
       .balances span {
         font-size: 13px;
-        color: #64748b;
+        color: var(--muted);
       }
       .balances strong {
         display: block;
@@ -202,20 +202,20 @@ export class InventoryActionDialog {
         margin-top: 10px;
       }
       .balances article:nth-child(3) {
-        border-top: 3px solid #176b87;
+        border-top: 3px solid var(--line);
       }
       .balance-note {
         font-size: 13px;
-        color: #5c6f7e;
+        color: var(--muted);
         margin: 0 0 20px;
       }
       .history {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
       }
       .history header {
         padding: 17px 20px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--line);
       }
       .history h2 {
         font-size: 13px;
@@ -223,7 +223,7 @@ export class InventoryActionDialog {
       }
       .history p {
         font-size: 10px;
-        color: #64748b;
+        color: var(--muted);
         margin: 4px 0 0;
       }
       table {
@@ -235,7 +235,7 @@ export class InventoryActionDialog {
         text-align: right;
       }
       .negative {
-        color: #b91c1c;
+        color: var(--danger);
       }
       @media (max-width: 700px) {
         .balances {

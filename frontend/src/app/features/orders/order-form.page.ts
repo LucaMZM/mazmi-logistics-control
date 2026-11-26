@@ -201,19 +201,19 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
         gap: 17px;
       }
       .section {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
       }
       .section > h2,
       .section > header {
         margin: 0;
         padding: 17px 20px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--line);
         font-size: 13px;
       }
       .section > h2 span {
         font-weight: 400;
-        color: #64748b;
+        color: var(--muted);
         font-size: 10px;
         margin-left: 8px;
       }
@@ -230,7 +230,7 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
       }
       .section header p {
         font-size: 10px;
-        color: #64748b;
+        color: var(--muted);
         margin: 4px 0 0;
       }
       .form-grid {
@@ -254,7 +254,7 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
         gap: 14px;
         align-items: center;
         padding-top: 18px;
-        border-bottom: 1px solid #eef2f7;
+        border-bottom: 1px solid var(--line);
       }
       .item:last-child {
         border-bottom: 0;
@@ -268,7 +268,7 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
       }
       .price span {
         font-size: 10px;
-        color: #64748b;
+        color: var(--muted);
       }
       .price strong {
         font-size: 13px;
@@ -280,15 +280,15 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
         align-items: center;
         gap: 35px;
         padding: 20px;
-        background: rgb(255 255 255 / 96%);
+        background: var(--glass);
         backdrop-filter: blur(10px);
-        color: #172b3a;
-        border: 1px solid #dde5eb;
+        color: var(--ink);
+        border: 1px solid var(--line);
         border-radius: 8px;
         position: sticky;
         bottom: 12px;
         z-index: 5;
-        box-shadow: 0 -4px 20px rgb(20 40 60 / 5%);
+        box-shadow: 0 -4px 20px rgb(12 12 12 / 24%);
       }
       footer div {
         text-align: right;
@@ -301,7 +301,7 @@ type ItemForm = FormGroup<{ productId: FormControl<string>; quantity: FormContro
       footer span,
       footer small {
         font-size: 10px;
-        color: #5c6f7e;
+        color: var(--muted);
       }
       footer strong {
         font-size: 22px;

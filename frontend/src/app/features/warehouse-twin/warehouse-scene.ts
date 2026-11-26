@@ -52,7 +52,9 @@ export class WarehouseScene implements WarehouseScenePort {
       this.renderer.toneMappingExposure = 1.05;
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.type = T.PCFShadowMap;
-      this.world.background = new T.Color('#e8ecee');
+      this.world.background = new T.Color(
+        getComputedStyle(this.host).getPropertyValue('--canvas').trim() || '#20201f',
+      );
       this.world.add(new T.HemisphereLight('#ffffff', '#86959e', 2.5));
       const sun = new T.DirectionalLight('#fff4e2', 3.2);
       sun.position.set(15, 28, 18);

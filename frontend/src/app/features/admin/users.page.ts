@@ -119,7 +119,7 @@ export class UserDialog {
       </button></mat-dialog-actions
     >`,
   styles: [
-    'mat-dialog-content{display:grid;min-width:min(420px,75vw)}p{font-size:11px;color:#64748b}',
+    'mat-dialog-content{display:grid;min-width:min(420px,75vw)}p{font-size:11px;color:var(--muted)}',
   ],
 })
 export class PasswordDialog {
@@ -212,7 +212,7 @@ export class PasswordDialog {
   styles: [
     `
       section {
-        background: #fff;
+        background: var(--surface);
         border: 1px solid var(--line);
       }
       table {

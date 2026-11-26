@@ -41,7 +41,7 @@ Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip);
       </tbody>
     </table>`,
   styles: [
-    ':host{display:block;height:275px;padding:20px;position:relative}canvas{max-height:235px}.no-volume{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;pointer-events:none;background:rgb(255 255 255 / 85%);gap:6px;font-size:12px;color:#666671}.no-volume strong{font-size:14px;color:#232328}',
+    ':host{display:block;height:275px;padding:20px;position:relative}canvas{max-height:235px}.no-volume{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;pointer-events:none;background:var(--glass);gap:6px;font-size:12px;color:var(--muted)}.no-volume strong{font-size:14px;color:var(--ink)}',
   ],
 })
 export class VolumeChartComponent implements AfterViewInit, OnChanges, OnDestroy {
@@ -73,6 +73,8 @@ export class VolumeChartComponent implements AfterViewInit, OnChanges, OnDestroy
       this.chart.update('none');
       return;
     }
+    const theme = getComputedStyle(this.canvas.nativeElement);
+    const token = (name: string) => theme.getPropertyValue(name).trim();
     this.chart = new Chart(this.canvas.nativeElement, {
       type: 'bar',
       data: {
@@ -82,8 +84,8 @@ export class VolumeChartComponent implements AfterViewInit, OnChanges, OnDestroy
         datasets: [
           {
             data: this.data.map((item) => item.orders),
-            backgroundColor: '#55555e',
-            hoverBackgroundColor: '#3f3f46',
+            backgroundColor: token('--accent'),
+            hoverBackgroundColor: token('--ink'),
             borderRadius: 4,
             barPercentage: 0.55,
             maxBarThickness: 38,
@@ -95,14 +97,14 @@ export class VolumeChartComponent implements AfterViewInit, OnChanges, OnDestroy
         animation: false,
         plugins: {
           legend: { display: false },
-          tooltip: { backgroundColor: '#232328', padding: 12, displayColors: false },
+          tooltip: { backgroundColor: token('--raised'), padding: 12, displayColors: false },
         },
         scales: {
-          x: { grid: { display: false }, ticks: { color: '#666671' } },
+          x: { grid: { display: false }, ticks: { color: token('--muted') } },
           y: {
             beginAtZero: true,
-            ticks: { precision: 0, color: '#666671' },
-            grid: { color: '#ededf0' },
+            ticks: { precision: 0, color: token('--muted') },
+            grid: { color: token('--line') },
           },
         },
       },

@@ -110,8 +110,8 @@ import { Customer, OrderSummary } from '../../shared/models/models';
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 35px;
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
         padding: 23px;
         margin-bottom: 16px;
       }
@@ -123,7 +123,7 @@ import { Customer, OrderSummary } from '../../shared/models/models';
       }
       .profile dt {
         font-size: 10px;
-        color: #64748b;
+        color: var(--muted);
       }
       .profile dd {
         font-size: 11px;
@@ -137,14 +137,14 @@ import { Customer, OrderSummary } from '../../shared/models/models';
         margin-bottom: 16px;
       }
       .history {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
       }
       .history h2 {
         font-size: 13px;
         padding: 17px 19px;
         margin: 0;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--line);
       }
       table {
         width: 100%;

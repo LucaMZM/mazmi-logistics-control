@@ -199,17 +199,17 @@ import { DashboardStore } from './dashboard.store';
         gap: 12px;
         padding: 8px 16px;
         margin-bottom: 16px;
-        background: #fff6e7;
-        border: 1px solid #e7ceaa;
-        color: #854715;
+        background: var(--raised);
+        border: 1px solid var(--warning);
+        color: var(--warning);
         font-size: 13px;
       }
       .stock-alert {
         display: grid;
         gap: 3px;
         padding: 13px 18px;
-        color: #854715;
-        background: #fffaf2;
+        color: var(--warning);
+        background: var(--raised);
         border-bottom: 1px solid var(--line);
         text-decoration: none;
         font-size: 12px;
@@ -222,7 +222,7 @@ import { DashboardStore } from './dashboard.store';
         grid-template-columns: repeat(4, minmax(0, 1fr));
         border: 1px solid var(--line);
         border-radius: var(--radius);
-        background: #fff;
+        background: var(--surface);
         overflow: hidden;
         margin-bottom: 18px;
       }
@@ -243,13 +243,13 @@ import { DashboardStore } from './dashboard.store';
       }
       .pulse a:hover,
       .pulse a:focus-visible {
-        background: #eef1f5;
+        background: var(--raised);
       }
       .pulse a.attention-metric {
-        background: #fffbf6;
+        background: var(--surface);
       }
       .pulse a.attention-metric:hover {
-        background: #fff2df;
+        background: var(--raised);
       }
       .pulse span {
         font-size: 13px;
@@ -265,7 +265,7 @@ import { DashboardStore } from './dashboard.store';
         line-height: 1;
       }
       .pulse .attention-metric strong {
-        color: #a74f1b;
+        color: var(--warning);
       }
       .pulse small {
         font-size: 12px;
@@ -307,7 +307,7 @@ import { DashboardStore } from './dashboard.store';
       }
       .attention-row:hover,
       .attention-row:focus-visible {
-        background: #f3f4f6;
+        background: var(--raised);
       }
       .attention-row > span:last-child {
         color: var(--accent);
@@ -334,13 +334,13 @@ import { DashboardStore } from './dashboard.store';
         letter-spacing: 0.08em;
       }
       .signal-route {
-        color: #a34b24;
+        color: var(--warning);
       }
       .signal-incident {
-        color: #b03735;
+        color: var(--danger);
       }
       .signal-stock {
-        color: #956118;
+        color: var(--warning);
       }
       .attention-clear {
         display: grid;
@@ -363,7 +363,7 @@ import { DashboardStore } from './dashboard.store';
         text-decoration: underline;
       }
       .section {
-        background: #fff;
+        background: var(--surface);
         border: 1px solid var(--line);
         min-width: 0;
       }
@@ -405,7 +405,7 @@ import { DashboardStore } from './dashboard.store';
         inset: auto 16px 16px;
         padding: 10px 12px;
         border: 1px solid var(--line);
-        background: rgb(255 255 255 / 94%);
+        background: var(--glass);
         color: var(--accent);
         font-size: 11px;
         text-align: center;
@@ -426,7 +426,7 @@ import { DashboardStore } from './dashboard.store';
         text-align: right;
       }
       .low {
-        color: #b45309;
+        color: var(--warning);
         font-weight: 800;
       }
       .empty {

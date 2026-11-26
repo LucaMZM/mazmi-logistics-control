@@ -206,15 +206,15 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
   styles: [
     `
       .tabs-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
       }
       .filters {
         display: flex;
         gap: 30px;
         align-items: center;
         padding: 16px 20px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--line);
       }
       .filters mat-form-field {
         width: min(420px, 60%);
@@ -237,14 +237,14 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
         color: var(--ink);
       }
       .availability.is-low strong {
-        color: #a4551d;
+        color: var(--warning);
       }
       .stock-track {
         display: block;
         width: 72px;
         height: 4px;
         margin: 5px 0 0 auto;
-        background: #dce8e6;
+        background: var(--raised);
       }
       .stock-track span {
         display: block;
@@ -252,7 +252,7 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
         background: var(--accent);
       }
       .availability.is-low .stock-track span {
-        background: #c9752a;
+        background: var(--warning-surface);
       }
       .warehouse-grid {
         display: grid;
@@ -261,11 +261,11 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
         padding: 20px;
       }
       .warehouse-grid article {
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--line);
         padding: 20px;
       }
       .warehouse-grid span {
-        color: #1d4ed8;
+        color: var(--muted);
         font-size: 10px;
         font-weight: 800;
       }
@@ -276,7 +276,7 @@ import { Inventory, Product, Warehouse } from '../../shared/models/models';
       .warehouse-grid p {
         font-size: 11px;
         line-height: 1.6;
-        color: #64748b;
+        color: var(--muted);
       }
       @media (max-width: 800px) {
         .warehouse-grid {

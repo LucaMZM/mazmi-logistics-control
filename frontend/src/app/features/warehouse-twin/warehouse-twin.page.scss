@@ -32,7 +32,7 @@ select {
   font-size: 13px;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: #fff;
+  background: var(--surface);
   color: var(--ink);
   padding: 9px 12px;
   min-height: 38px;
@@ -48,17 +48,17 @@ button:disabled {
 button:focus-visible,
 select:focus-visible,
 a:focus-visible {
-  outline: 3px solid #6f8899;
+  outline: 3px solid var(--accent);
   outline-offset: 3px;
 }
 .primary,
 button[aria-pressed='true'] {
-  background: #40535e;
-  color: #fff;
-  border-color: #40535e;
+  background: var(--selected);
+  color: var(--ink);
+  border-color: var(--line);
 }
 a {
-  color: #365d76;
+  color: var(--muted);
   font-size: 13px;
 }
 label {
@@ -80,7 +80,7 @@ select {
   display: flex;
   align-items: center;
   border: 1px solid var(--line);
-  background: #f8fafb;
+  background: var(--surface);
   margin-bottom: 18px;
   border-radius: 8px;
   overflow: hidden;
@@ -115,7 +115,7 @@ select {
 .warehouse-world {
   position: relative;
   min-width: 0;
-  background: #e8ecee;
+  background: var(--raised);
   border: 1px solid var(--line);
   border-radius: 10px;
   overflow: hidden;
@@ -141,7 +141,7 @@ select {
 }
 .warehouse-caption span {
   font-size: 12px;
-  color: #52616b;
+  color: var(--muted);
   margin-top: 4px;
 }
 .warehouse-controls {
@@ -155,11 +155,11 @@ select {
   padding: 9px;
   background: var(--glass);
   backdrop-filter: blur(10px);
-  border: 1px solid white;
+  border: 1px solid var(--line);
   border-radius: 8px;
 }
 .warehouse-panel {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 18px;
@@ -176,7 +176,7 @@ select {
   padding: 8px;
 }
 .zone-description {
-  border-left: 2px solid #aa9267;
+  border-left: 2px solid var(--warning);
   padding-left: 10px;
   min-height: 65px;
 }
@@ -197,7 +197,7 @@ select {
 progress {
   width: 100%;
   height: 6px;
-  accent-color: #526b7a;
+  accent-color: var(--muted);
 }
 .sequence-actions {
   display: flex;
@@ -211,7 +211,7 @@ progress {
 .notice,
 .scene-notice {
   padding: 16px;
-  background: #fafbfd;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 6px;
   font-size: 13px;
@@ -225,7 +225,7 @@ progress {
 .warehouse-inventory {
   margin-top: 20px;
   padding: 18px;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;
 }
@@ -257,7 +257,7 @@ td:first-child {
 th {
   font-size: 12px;
   color: var(--muted);
-  background: #f7f9fa;
+  background: var(--raised);
   position: sticky;
   top: 0;
 }
@@ -346,7 +346,7 @@ td span {
 @media (prefers-reduced-transparency: reduce) {
   .warehouse-controls {
     backdrop-filter: none;
-    background: #fafbfd;
+    background: var(--surface);
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -355,12 +355,12 @@ td span {
   }
 }
 .sequence-actions button[aria-pressed='true'] {
-  border-color: #526f67;
-  background: #e6ede9;
-  color: #28483f;
+  border-color: var(--line);
+  background: var(--raised);
+  color: var(--success);
 }
 button:focus-visible {
-  outline: 3px solid #49677a;
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
 @media (pointer: coarse) {
@@ -382,7 +382,7 @@ button:focus-visible {
   margin-top: 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #f6f8f9;
+  background: var(--raised);
 }
 .renderer-details dl {
   display: grid;

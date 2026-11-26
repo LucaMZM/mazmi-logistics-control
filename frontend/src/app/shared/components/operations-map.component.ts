@@ -37,7 +37,7 @@ export type OperationMapPoint = WorldPoint;
       .map {
         height: 100%;
         min-height: 280px;
-        background: #e2e8f0;
+        background: var(--raised);
       }
       :host {
         display: block;
@@ -51,11 +51,11 @@ export type OperationMapPoint = WorldPoint;
       .legend {
         position: absolute;
         z-index: 500;
-        background: rgb(255 255 255 / 95%);
-        border: 1px solid #d8e2e8;
+        background: var(--glass);
+        border: 1px solid var(--line);
         border-radius: 6px;
-        box-shadow: 0 3px 12px #172b3a14;
-        color: #344c5e;
+        box-shadow: 0 3px 12px rgb(12 12 12 / 24%);
+        color: var(--muted);
         font-size: 12px;
         backdrop-filter: blur(8px);
       }
@@ -66,7 +66,7 @@ export type OperationMapPoint = WorldPoint;
         cursor: pointer;
       }
       .fit-map:hover {
-        background: #f0f7fa;
+        background: var(--raised);
       }
       .legend {
         bottom: 30px;
@@ -83,13 +83,13 @@ export type OperationMapPoint = WorldPoint;
         margin-left: 5px;
       }
       .origin {
-        background: #2563eb;
+        background: var(--muted);
       }
       .destination {
-        background: #15803d;
+        background: var(--success);
       }
       .vehicle {
-        background: #0891b2;
+        background: var(--accent);
       }
     `,
   ],
@@ -168,16 +168,16 @@ export class OperationsMapComponent implements AfterViewInit, OnChanges, OnDestr
     this.points.forEach((point) => {
       const color =
         point.kind === 'origin'
-          ? '#1d4ed8'
+          ? 'var(--muted)'
           : point.kind === 'destination'
-            ? '#16a34a'
+            ? 'var(--success)'
             : point.health === 'DELAYED'
-              ? '#dc2626'
-              : '#0891b2';
+              ? 'var(--danger)'
+              : 'var(--accent)';
       const vehicle = point.kind === 'vehicle';
       const icon = L.divIcon({
         className: '',
-        html: `<span aria-hidden="true" style="display:grid;place-items:center;width:${vehicle ? 28 : 18}px;height:${vehicle ? 28 : 18}px;border:3px solid white;border-radius:${vehicle ? '8px' : '50%'};background:${color};box-shadow:0 2px 7px #33415560;color:white;font-size:14px">${vehicle ? '›' : ''}</span>`,
+        html: `<span aria-hidden="true" style="display:grid;place-items:center;width:${vehicle ? 28 : 18}px;height:${vehicle ? 28 : 18}px;border:3px solid var(--canvas);border-radius:${vehicle ? '8px' : '50%'};background:${color};box-shadow:0 2px 7px #33415560;color:var(--on-accent);font-size:14px">${vehicle ? '›' : ''}</span>`,
         iconSize: vehicle ? [28, 28] : [18, 18],
         iconAnchor: vehicle ? [14, 14] : [9, 9],
       });
@@ -204,7 +204,7 @@ export class OperationsMapComponent implements AfterViewInit, OnChanges, OnDestr
       if (this.routeLayer) this.routeLayer.setLatLngs(this.route);
       else
         this.routeLayer = L.polyline(this.route, {
-          color: '#0891b2',
+          color: 'var(--accent)',
           weight: 3,
           dashArray: '7 7',
           opacity: 0.85,

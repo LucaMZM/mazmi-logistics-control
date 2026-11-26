@@ -73,39 +73,40 @@ import { AuthService } from './auth.service';
       :host {
         display: block;
         min-height: 100vh;
-        background: #f5f7fa;
+        background: var(--raised);
       }
       .login-shell {
         min-height: 100vh;
         display: grid;
-        grid-template-columns: minmax(360px, 520px) 1fr;
+        grid-template-columns: minmax(360px, 38%) 1fr;
       }
       .login-panel {
-        padding: clamp(40px, 8vw, 100px);
+        padding: clamp(32px, 5vw, 80px);
+        border-inline-end: 1px solid var(--line);
         display: flex;
         flex-direction: column;
         justify-content: center;
-        background: #fff;
+        background: var(--surface);
       }
       .brand-mark {
         width: 44px;
         height: 44px;
         display: grid;
         place-items: center;
-        background: #36363f;
-        color: #fff;
+        background: var(--accent);
+        color: var(--on-accent);
         font-weight: 800;
         margin-bottom: 28px;
         border-radius: 8px;
       }
       .eyebrow {
-        color: #36363f;
+        color: var(--ink);
         font-size: 12px;
         font-weight: 700;
         letter-spacing: 0.12em;
       }
       .intro {
-        color: #64748b;
+        color: var(--muted);
         margin: 0 0 28px;
       }
       h1 {
@@ -122,35 +123,35 @@ import { AuthService } from './auth.service';
       .login-error {
         margin: 6px 0 0;
         padding: 10px 12px;
-        border-left: 3px solid #dc2626;
-        background: #fef2f2;
-        color: #991b1b;
+        border-left: 3px solid var(--danger);
+        background: var(--raised);
+        color: var(--danger);
         font-size: 12px;
         line-height: 1.5;
       }
       .demo-note {
         margin-top: 28px;
         padding: 16px;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
+        border: 1px solid var(--line);
+        background: var(--surface);
         display: grid;
         gap: 4px;
         font-size: 13px;
-        color: #475569;
+        color: var(--muted);
       }
       .demo-note strong {
-        color: #24242a;
+        color: var(--ink);
       }
       aside {
-        background: #24242a;
-        color: #fff;
+        background: var(--canvas);
+        color: var(--ink);
         padding: 7vw;
         display: flex;
         flex-direction: column;
         justify-content: center;
       }
       aside span {
-        color: #e4e4e9;
+        color: var(--accent);
         text-transform: uppercase;
         letter-spacing: 0.14em;
         font-size: 12px;
@@ -163,7 +164,7 @@ import { AuthService } from './auth.service';
         margin: 22px 0;
       }
       aside p {
-        color: #94a3b8;
+        color: var(--muted);
         max-width: 600px;
         line-height: 1.7;
       }
@@ -173,16 +174,16 @@ import { AuthService } from './auth.service';
         gap: 24px;
         padding: 28px 0;
         margin-top: 20px;
-        border-top: 1px solid #334155;
+        border-top: 1px solid var(--line);
       }
       .journey span {
         font-size: 11px;
         letter-spacing: 0.05em;
-        color: #cbd5e1;
+        color: var(--muted);
       }
       aside small {
         font-size: 11px;
-        color: #94a3b8;
+        color: var(--muted);
         margin-top: 28px;
       }
       @media (max-width: 850px) {

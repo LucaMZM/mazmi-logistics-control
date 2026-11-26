@@ -187,8 +187,8 @@ import { ShipmentsStore } from './shipments.store';
   styles: [
     `
       .table-card {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
       }
       .filters {
         display: grid;
@@ -214,7 +214,7 @@ import { ShipmentsStore } from './shipments.store';
         display: inline-block;
         width: 86px;
         height: 6px;
-        background: #dce8e6;
+        background: var(--raised);
         margin-right: 7px;
         vertical-align: middle;
       }
@@ -224,7 +224,7 @@ import { ShipmentsStore } from './shipments.store';
         background: var(--accent);
       }
       small {
-        color: #64748b;
+        color: var(--muted);
       }
       @media (max-width: 1100px) {
         .filters {

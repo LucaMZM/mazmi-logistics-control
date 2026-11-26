@@ -55,7 +55,9 @@ export class FleetScene {
 
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.type = T.PCFSoftShadowMap;
-      this.scene.background = new T.Color('#e8ecee');
+      this.scene.background = new T.Color(
+        getComputedStyle(this.host).getPropertyValue('--canvas').trim() || '#20201f',
+      );
       this.scene.add(new T.HemisphereLight('#ffffff', '#83929c', 2.5));
       const sun = new T.DirectionalLight('#fff2dc', 3.2);
       sun.position.set(8, 18, 10);

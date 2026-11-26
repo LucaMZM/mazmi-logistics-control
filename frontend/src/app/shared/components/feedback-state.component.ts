@@ -30,10 +30,10 @@ import { MatButtonModule } from '@angular/material/button';
         place-content: center;
         justify-items: center;
         text-align: center;
-        color: #64748b;
+        color: var(--muted);
       }
       strong {
-        color: #0f172a;
+        color: var(--ink);
         font-size: 14px;
       }
       p {
@@ -43,24 +43,24 @@ import { MatButtonModule } from '@angular/material/button';
         line-height: 1.55;
       }
       .error strong {
-        color: #991b1b;
+        color: var(--danger);
       }
       .state-symbol {
         width: 36px;
         height: 36px;
         display: grid;
         place-items: center;
-        background: #eef3f6;
-        border: 1px solid #dce6ec;
+        background: var(--raised);
+        border: 1px solid var(--line);
         border-radius: 8px;
-        color: #47677a;
+        color: var(--muted);
         font-size: 18px;
         margin-bottom: 14px;
       }
       .error .state-symbol {
-        color: #991b1b;
-        background: #fef2f2;
-        border-color: #fecaca;
+        color: var(--danger);
+        background: var(--raised);
+        border-color: var(--danger);
       }
     `,
   ],

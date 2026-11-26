@@ -292,8 +292,8 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       .summary,
       .timeline,
       .incidents {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
         min-width: 0;
       }
       .map-panel {
@@ -341,9 +341,9 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         z-index: 500;
         left: 15px;
         top: 15px;
-        background: rgb(255 255 255 / 94%);
+        background: var(--glass);
         backdrop-filter: blur(8px);
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--line);
         padding: 7px 10px;
         font-size: 10px;
         font-weight: 700;
@@ -353,13 +353,13 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       }
       .map-label span {
         width: 14px;
-        border-top: 2px dashed #52677c;
+        border-top: 2px dashed var(--line);
       }
       .summary header,
       .timeline header,
       .incidents header {
         height: 68px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--line);
         padding: 0 18px;
         display: flex;
         align-items: center;
@@ -389,7 +389,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         gap: 15px;
         margin: 0;
         padding: 21px 18px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--line);
       }
       .summary dt {
         font-size: 12px;
@@ -412,13 +412,13 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       }
       .progress {
         height: 7px;
-        background: #e2e8f0;
+        background: var(--raised);
         margin: 0 18px 20px;
       }
       .progress span {
         display: block;
         height: 100%;
-        background: #52677c;
+        background: var(--muted);
         transform-origin: left;
         transition: transform 180ms var(--ease-out);
       }
@@ -426,7 +426,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         border: 0;
         margin: 0;
         min-width: 0;
-        border-top: 1px solid #e2e8f0;
+        border-top: 1px solid var(--line);
         padding: 18px;
         display: grid;
         gap: 10px;
@@ -448,7 +448,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       }
       .availability-note {
         margin: -3px 0 3px;
-        color: #92400e;
+        color: var(--warning);
         font-size: 12px;
         line-height: 1.5;
       }
@@ -474,7 +474,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       .timeline header span,
       .incidents header > span {
         font-size: 12px;
-        color: #5c6470;
+        color: var(--muted);
       }
       .timeline ol {
         list-style: none;
@@ -491,7 +491,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       .timeline .timeline-empty {
         display: block;
         padding: 16px 0;
-        color: #5c6470;
+        color: var(--muted);
         font-size: 11px;
       }
       .timeline li:not(:last-child):before {
@@ -500,41 +500,41 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         left: 6px;
         top: 15px;
         bottom: 0;
-        border-left: 1px solid #cbd5e1;
+        border-left: 1px solid var(--line);
       }
       .timeline i {
         width: 13px;
         height: 13px;
-        border: 3px solid #fff;
-        background: #52677c;
-        box-shadow: 0 0 0 1px #52677c;
+        border: 3px solid var(--line);
+        background: var(--muted);
+        box-shadow: 0 0 0 1px var(--line);
         border-radius: 50%;
         z-index: 1;
       }
       .timeline i[data-type='DELAYED'],
       .timeline i[data-type='INCIDENT'] {
-        background: #dc2626;
-        box-shadow: 0 0 0 1px #dc2626;
+        background: var(--danger-surface);
+        box-shadow: 0 0 0 1px var(--line);
       }
       .timeline strong {
         font-size: 12px;
       }
       .timeline p {
         font-size: 13px;
-        color: #475569;
+        color: var(--muted);
         margin: 5px 0;
       }
       .timeline div > span {
         font-size: 11px;
-        color: #5c6470;
+        color: var(--muted);
       }
       .incidents > a {
         display: grid;
         gap: 8px;
         padding: 17px;
-        border-bottom: 1px solid #eef2f7;
+        border-bottom: 1px solid var(--line);
         text-decoration: none;
-        color: #0f172a;
+        color: var(--ink);
       }
       .incidents > a strong {
         font-size: 13px;
@@ -552,7 +552,7 @@ import { ShipmentDetailStore } from './shipment-detail.store';
       }
       .empty {
         padding: 35px;
-        color: #5c6470;
+        color: var(--muted);
         font-size: 13px;
       }
       .tracking-strip {
@@ -561,11 +561,11 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         gap: 20px;
         flex-wrap: wrap;
         padding: 12px 16px;
-        background: #f1f3f6;
-        border: 1px solid #d7dbe1;
+        background: var(--raised);
+        border: 1px solid var(--line);
         margin-bottom: 18px;
         font-size: 12px;
-        color: #405567;
+        color: var(--muted);
       }
       .tracking-strip span:first-child {
         display: flex;
@@ -580,15 +580,15 @@ import { ShipmentDetailStore } from './shipment-detail.store';
         width: 7px;
         height: 7px;
         border-radius: 50%;
-        background: #738796;
+        background: var(--muted);
       }
       .tracking-strip i.active {
-        background: #178260;
-        box-shadow: 0 0 0 4px #17826012;
+        background: var(--success-surface);
+        box-shadow: 0 0 0 4px rgb(12 12 12 / 24%);
       }
       .tracking-strip a {
         margin-left: auto;
-        color: #405567;
+        color: var(--muted);
         font-weight: 600;
       }
       @media (max-width: 1050px) {

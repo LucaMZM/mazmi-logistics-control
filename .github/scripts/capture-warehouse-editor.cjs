@@ -96,6 +96,7 @@ async function main() {
     assert.equal(firstSaved.items.find((item) => item.id === 'rack-1').x, -6);
     assert.equal(firstSaved.items.find((item) => item.id === 'rack-1').orientation, 90);
     await page.screenshot({ path: path.join(output, 'warehouse-editor-saved.png'), animations: 'disabled' });
+    await require("./capture-tablet.cjs")(page, output, "warehouse-editor-saved", "app-warehouse-editor-page");
 
     await page.reload();
     await page.getByRole('heading', { name: 'Warehouse Editor', exact: true }).waitFor();

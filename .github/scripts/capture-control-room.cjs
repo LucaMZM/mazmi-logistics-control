@@ -99,6 +99,7 @@ async function main() {
     await page.waitForFunction(() => window.scrollY === 0);
     await page.mouse.move(0, 0);
     await page.screenshot({ path: path.join(output, 'control-room-overview.png'), animations: 'disabled' });
+    await require("./capture-tablet.cjs")(page, output, "control-room-overview", "app-control-room-page");
 
     const fleetButton = page.locator('.station-choice').filter({ hasText: 'Fleet console' });
     await fleetButton.click();

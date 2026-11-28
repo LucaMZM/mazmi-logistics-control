@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
       }
       article {
         height: 100%;
-        background: #fff;
+        background: var(--surface);
         border: 1px solid var(--line);
         padding: 20px 22px;
         min-height: 130px;
@@ -44,13 +44,13 @@ import { Component, Input } from '@angular/core';
         color: var(--muted);
       }
       article[data-tone='danger'] {
-        border-top-color: #c74444;
+        border-top-color: var(--danger);
       }
       article[data-tone='warning'] {
-        border-top-color: #c18022;
+        border-top-color: var(--warning);
       }
       article[data-tone='tracking'] {
-        border-top-color: #268e93;
+        border-top-color: var(--line);
       }
     `,
   ],

@@ -57,7 +57,9 @@ export class ControlRoomScene implements ControlRoomScenePort {
 
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.type = T.PCFSoftShadowMap;
-      this.world.background = new T.Color('#e9edf0');
+      this.world.background = new T.Color(
+        getComputedStyle(this.host).getPropertyValue('--canvas').trim() || '#20201f',
+      );
       this.world.add(new T.HemisphereLight('#ffffff', '#8395a3', 2.5));
       const sunlight = new T.DirectionalLight('#fff4df', 3.1);
       sunlight.position.set(9, 20, 12);

@@ -23,6 +23,19 @@ async function main() {
       reducedMotion: "reduce",
     });
     const page = await context.newPage();
+    async function detailFrames(name) {
+      const original = page.viewportSize();
+      for (const [label, viewport] of [
+        ["tablet", { width: 768, height: 1024 }],
+        ["mobile", { width: 390, height: 844 }],
+      ]) {
+        await page.setViewportSize(viewport);
+        await page.evaluate(() => new Promise(requestAnimationFrame));
+        assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), name + " overflows on " + label);
+        await page.screenshot({path:path.join(output, "review", label+"-"+name+".png"), animations:"disabled"});
+      }
+      await page.setViewportSize(original);
+    }
     page.setDefaultTimeout(30000);
     const errors = [];
     const shipmentFrames = [];
@@ -43,6 +56,7 @@ async function main() {
     await page.goto(`${baseURL}/login`);
     await page.getByLabel("Email", { exact: true }).waitFor();
     await page.screenshot({ path: path.join(output, "review/login.png") });
+    await detailFrames("login");
     await page
       .getByLabel("Email", { exact: true })
       .fill("operator@mazmilogistics.test");
@@ -267,6 +281,7 @@ async function main() {
       "page",
     );
     await page.keyboard.press("Escape");
+    await detailFrames("order-detail");
     await page.goto(baseURL + "/orders/new");
 
     await page.locator("form,mat-form-field").first().waitFor();
@@ -284,6 +299,7 @@ async function main() {
       path: path.join(output, "review", "order-form.png"),
       animations: "disabled",
     });
+    await detailFrames("order-form");
     await capture("inventory.png", "/inventory", "Inventory", "table tbody tr");
     await capture(
       "fleet.png",
@@ -380,6 +396,15 @@ async function main() {
       "Customers",
       "table tbody tr",
     );
+    for (const [area, selector] of [
+      ["inventory", ".history"], ["incidents", "dl"], ["customers", ".profile"],
+    ]) {
+      await page.goto(baseURL + "/" + area);
+      await page.locator('tbody a[href^="/' + area + '/"]').first().click();
+      await page.locator(selector).first().waitFor();
+      await page.screenshot({path:path.join(output,"review",area+"-detail.png"),animations:"disabled"});
+      await detailFrames(area+"-detail");
+    }
     for (const viewport of [
       { width: 375, height: 812 },
       { width: 1280, height: 900 },
@@ -396,11 +421,12 @@ async function main() {
           `${view.route} overflows at ${viewport.width}`,
         );
         if (
+          viewport.width === 768 ||
           view.name === "dashboard.png" ||
           view.name === "shipment-tracking.png"
         ) {
           await page.screenshot({
-            path: path.join(output, "review", `${viewport.width}-${view.name}`),
+            path: path.join(output, "review", `${viewport.width}-${path.basename(view.name)}`),
             animations: "disabled",
           });
         }
@@ -505,6 +531,10 @@ async function main() {
     await page.getByRole("dialog").waitFor();
     await page.keyboard.press("Escape");
     await page.getByRole("dialog").waitFor({ state: "hidden" });
+    await page.setViewportSize({width:1440,height:1050});
+    await ready("Users", "table tbody tr");
+    await page.screenshot({path:path.join(output,"review/users-desktop.png")});
+    await detailFrames("users");
     await require("./verify-workspace-navigation.cjs")(browser, baseURL);
     assert.deepEqual(errors, [], "Unexpected JavaScript errors");
     await fs.writeFile(

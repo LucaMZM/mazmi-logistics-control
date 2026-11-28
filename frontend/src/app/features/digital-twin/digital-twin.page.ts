@@ -168,7 +168,7 @@ import { SCENE_LOADER, ScenePort } from './scene-loader';
         border: 1px solid var(--line);
         border-radius: 12px;
         overflow: hidden;
-        background: #e8ecee;
+        background: var(--raised);
       }
       .scene {
         height: 620px;
@@ -187,7 +187,7 @@ import { SCENE_LOADER, ScenePort } from './scene-loader';
       }
       .world-label span {
         font-size: 12px;
-        color: #52606c;
+        color: var(--muted);
         margin-top: 4px;
       }
       .controls {
@@ -201,7 +201,7 @@ import { SCENE_LOADER, ScenePort } from './scene-loader';
         padding: 10px;
         background: var(--glass);
         backdrop-filter: blur(12px);
-        border: 1px solid white;
+        border: 1px solid var(--line);
         border-radius: 9px;
       }
       .notice {
@@ -210,7 +210,7 @@ import { SCENE_LOADER, ScenePort } from './scene-loader';
         left: 10%;
         right: 10%;
         padding: 20px;
-        background: #fafbfd;
+        background: var(--surface);
         border: 1px solid var(--line);
         border-radius: 8px;
       }
@@ -240,7 +240,7 @@ import { SCENE_LOADER, ScenePort } from './scene-loader';
         padding: 11px;
         border: 1px solid var(--line);
         border-radius: 6px;
-        background: white;
+        background: var(--surface);
         color: var(--ink);
       }
       dl {
@@ -314,7 +314,7 @@ import { SCENE_LOADER, ScenePort } from './scene-loader';
       @media (prefers-reduced-transparency: reduce) {
         .controls {
           backdrop-filter: none;
-          background: #fafbfd;
+          background: var(--surface);
         }
       }
     `,

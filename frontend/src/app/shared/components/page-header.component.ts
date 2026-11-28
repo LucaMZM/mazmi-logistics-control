@@ -80,8 +80,8 @@ import { RouterLink } from '@angular/router';
       h1 .kinetic-word {
         display: inline-block;
         white-space: pre-wrap;
-        animation: kinetic-word-in 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
-        animation-delay: calc(var(--reveal-index) * 65ms);
+        animation: kinetic-word-in 160ms var(--ease-out) both;
+        animation-delay: calc(var(--reveal-index) * 12ms);
       }
       .subtitle {
         display: block;
@@ -100,7 +100,7 @@ import { RouterLink } from '@angular/router';
       @keyframes kinetic-word-in {
         from {
           opacity: 0;
-          transform: translateY(10px);
+          transform: translateY(3px);
         }
         to {
           opacity: 1;
@@ -130,7 +130,7 @@ import { RouterLink } from '@angular/router';
       }
       @media (prefers-reduced-transparency: reduce) {
         header.aurora {
-          background: #f3f3f6;
+          background: var(--raised);
         }
       }
     `,

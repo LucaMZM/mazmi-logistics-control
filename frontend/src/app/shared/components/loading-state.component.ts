@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
         place-content: center;
         justify-items: center;
         gap: 14px;
-        color: #64748b;
+        color: var(--muted);
         font-size: 13px;
       }
       section {
@@ -26,7 +26,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       i {
         display: block;
         height: 12px;
-        background: #e9eff3;
+        background: var(--raised);
         border-radius: 4px;
       }
       i:nth-child(2) {

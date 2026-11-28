@@ -187,14 +187,14 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
         margin-bottom: 18px;
       }
       .section {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
       }
       .section h2 {
         font-size: 13px;
         margin: 0;
         padding: 17px 19px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid var(--line);
       }
       .details {
         display: grid;
@@ -209,7 +209,7 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
         margin: 0;
       }
       dt {
-        color: #64748b;
+        color: var(--muted);
         font-size: 11px;
       }
       dd {
@@ -230,7 +230,7 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
         display: flex;
         align-items: center;
         gap: 12px;
-        color: #94a3b8;
+        color: var(--muted);
         font-size: 11px;
         font-weight: 700;
         position: relative;
@@ -242,12 +242,12 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
         left: 11px;
         top: 24px;
         height: 18px;
-        border-left: 1px solid #cbd5e1;
+        border-left: 1px solid var(--line);
       }
       .progress i {
         width: 23px;
         height: 23px;
-        border: 1px solid #cbd5e1;
+        border: 1px solid var(--line);
         display: grid;
         place-items: center;
         font-style: normal;
@@ -255,20 +255,20 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
         border-radius: 50%;
       }
       .progress .complete {
-        color: #15803d;
+        color: var(--success);
       }
       .progress .complete i {
-        background: #16a34a;
-        color: #fff;
-        border-color: #16a34a;
+        background: var(--success-surface);
+        color: var(--ink);
+        border-color: var(--success);
       }
       .progress .current {
-        color: #1d4ed8;
+        color: var(--muted);
       }
       .progress .current i {
-        border-color: #1d4ed8;
-        background: #eff6ff;
-        color: #1d4ed8;
+        border-color: var(--line);
+        background: var(--raised);
+        color: var(--muted);
       }
       table {
         width: 100%;
@@ -281,15 +281,15 @@ import { OrderDetail, OrderStatus } from '../../shared/models/models';
       tfoot td {
         font-size: 14px;
         font-weight: 800;
-        background: #f8fafc;
+        background: var(--surface);
       }
       .workflow-note {
         display: flex;
         gap: 14px;
         flex-wrap: wrap;
-        background: #eaf3f6;
-        border: 1px solid #d1e4eb;
-        color: #315d70;
+        background: var(--raised);
+        border: 1px solid var(--line);
+        color: var(--muted);
         border-radius: 7px;
         padding: 12px 16px;
         margin-bottom: 20px;

@@ -90,7 +90,7 @@ import { Customer } from '../../shared/models/models';
         margin-bottom: 14px;
       }
       section {
-        background: #fff;
+        background: var(--surface);
         border: 1px solid var(--line);
       }
       table {

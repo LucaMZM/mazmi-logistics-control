@@ -52,7 +52,9 @@ export class WarehouseScene implements WarehouseScenePort {
       this.renderer.toneMappingExposure = 1.05;
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.type = T.PCFShadowMap;
-      this.world.background = new T.Color('#e8ecee');
+      this.world.background = new T.Color(
+        getComputedStyle(this.host).getPropertyValue('--canvas').trim() || '#20201f',
+      );
       this.world.add(new T.HemisphereLight('#ffffff', '#86959e', 2.5));
       const sun = new T.DirectionalLight('#fff4e2', 3.2);
       sun.position.set(15, 28, 18);
@@ -95,7 +97,16 @@ export class WarehouseScene implements WarehouseScenePort {
   private readonly down = (e: PointerEvent) => this.pointer.set(e.clientX, e.clientY);
   private readonly up = (e: PointerEvent) => {
     if (!this.renderer || this.pointer.distanceTo(new T.Vector2(e.clientX, e.clientY)) > 5) return;
-    const r = this.renderer.domElement.getBoundingClientRect();
+    const canvas = this.renderer.domElement;
+    if (!this.host.clientWidth || !this.host.clientHeight) return;
+    if (
+      canvas.clientWidth !== this.host.clientWidth ||
+      canvas.clientHeight !== this.host.clientHeight
+    ) {
+      this.resize();
+    }
+    this.camera.updateMatrixWorld();
+    const r = canvas.getBoundingClientRect();
     const ray = new T.Raycaster();
     ray.setFromCamera(
       new T.Vector2(

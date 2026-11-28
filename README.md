@@ -51,9 +51,9 @@ Los datos del perfil demo son ficticios. Las posiciones de los envíos se calcul
 
 ## Capturas
 
-[![Dashboard MAZMI Glass: indicadores, prioridades y mapa de actividad](docs/screenshots/dashboard.webp)](docs/screenshots/dashboard.webp)
+[![Dashboard Graphite &amp; Yellow: indicadores, prioridades y mapa de actividad](docs/screenshots/dashboard.webp)](docs/screenshots/dashboard.webp)
 
-El centro de operaciones reúne las excepciones, los envíos activos y el inventario crítico. Las capturas proceden del ERP con datos de demostración. Selecciona una imagen para abrirla a tamaño completo.
+La interfaz Graphite & Yellow reserva el dorado para navegación y acciones, con superficies grafito para la lectura continua. El centro de operaciones reúne las excepciones, los envíos activos y el inventario crítico. Las capturas proceden del ERP con datos de demostración. Selecciona una imagen para abrirla a tamaño completo.
 
 ### Operaciones
 
@@ -67,6 +67,8 @@ El centro de operaciones reúne las excepciones, los envíos activos y el invent
 | <a href="docs/screenshots/incidents.webp"><img src="docs/screenshots/incidents.webp" width="410" alt="Incidencias por estado y severidad"></a> | <a href="docs/screenshots/shipment-tracking.webp"><img src="docs/screenshots/shipment-tracking.webp" width="410" alt="Seguimiento simulado de un envío"></a> |
 |:---|:---|
 | Incidencias por estado y severidad | Seguimiento simulado de un envío |
+
+**Registros y formularios:** [Acceso](docs/screenshots/login.webp) · [Nuevo pedido](docs/screenshots/order-form.webp) · [Detalle de inventario](docs/screenshots/inventory-detail.webp) · [Clientes](docs/screenshots/customers.webp) · [Ficha de cliente](docs/screenshots/customers-detail.webp) · [Ficha de incidencia](docs/screenshots/incidents-detail.webp) · [Usuarios](docs/screenshots/admin-users.webp).
 
 ### Digital Twin 3D
 
@@ -89,7 +91,7 @@ La barra superior deja el ancho de trabajo disponible para el mapa y los registr
 |:---|:---|:---|
 | <a href="docs/screenshots/mobile-dashboard.webp"><img src="docs/screenshots/mobile-dashboard.webp" width="185" alt="Dashboard móvil con el menú cerrado"></a> | <a href="docs/screenshots/mobile-navigation.webp"><img src="docs/screenshots/mobile-navigation.webp" width="185" alt="Menú superior abierto en móvil"></a> | <a href="docs/screenshots/mobile-orders.webp"><img src="docs/screenshots/mobile-orders.webp" width="185" alt="Pedidos en fichas a 390 px"></a> |
 
-[Materiales, movimiento y accesibilidad de MAZMI Glass](docs/mazmi-glass.md).
+[Color, movimiento y accesibilidad de Graphite & Yellow](docs/mazmi-glass.md).
 
 ## Problema que resuelve
 

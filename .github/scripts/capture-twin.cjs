@@ -21,6 +21,7 @@ module.exports = async function captureTwin(page, output) {
   assert.equal(records.find(v=>v.id===selectedId)?.registrationPlate, plate);
   await page.mouse.move(0, 0);
   await page.screenshot({path:path.join(output,'fleet-twin.png'), animations:'disabled'});
+    await require("./capture-tablet.cjs")(page, output, "fleet-twin", "app-digital-twin-page");
   const before = await canvas.screenshot();
   await page.getByRole('button',{name:'Play manoeuvre',exact:true}).click();
   await page.waitForTimeout(1800);

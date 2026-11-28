@@ -48,7 +48,7 @@ import { DriverEditorDialog, VehicleEditorDialog } from './fleet-editor.dialogs'
         <mat-tab-group animationDuration="0ms"
           ><mat-tab label="Vehicles"
             ><div class="table-wrap">
-              <table>
+              <table class="responsive-table">
                 <thead>
                   <tr>
                     <th>Plate</th>
@@ -64,15 +64,17 @@ import { DriverEditorDialog, VehicleEditorDialog } from './fleet-editor.dialogs'
                 <tbody>
                   @for (item of vehicles(); track item.id) {
                     <tr>
-                      <td>
+                      <td data-label="Plate" data-wide>
                         <strong>{{ item.registrationPlate }}</strong>
                       </td>
-                      <td>{{ item.model }}</td>
-                      <td>{{ item.vehicleType.replaceAll('_', ' ') }}</td>
-                      <td class="numeric">{{ item.capacityKg }} kg</td>
-                      <td><app-status-chip [status]="item.status" /></td>
+                      <td data-label="Model">{{ item.model }}</td>
+                      <td data-label="Type">{{ item.vehicleType.replaceAll('_', ' ') }}</td>
+                      <td data-label="Capacity" class="numeric">{{ item.capacityKg }} kg</td>
+                      <td data-label="Status"><app-status-chip [status]="item.status" /></td>
                       @if (auth.canOperate()) {
-                        <td><button mat-button (click)="openVehicle(item)">Edit</button></td>
+                        <td data-label="Actions">
+                          <button mat-button (click)="openVehicle(item)">Edit</button>
+                        </td>
                       }
                     </tr>
                   } @empty {
@@ -89,7 +91,7 @@ import { DriverEditorDialog, VehicleEditorDialog } from './fleet-editor.dialogs'
               </table></div></mat-tab
           ><mat-tab label="Drivers"
             ><div class="table-wrap">
-              <table>
+              <table class="responsive-table">
                 <thead>
                   <tr>
                     <th>Employee</th>
@@ -105,15 +107,17 @@ import { DriverEditorDialog, VehicleEditorDialog } from './fleet-editor.dialogs'
                 <tbody>
                   @for (item of drivers(); track item.id) {
                     <tr>
-                      <td>
+                      <td data-label="Employee" data-wide>
                         <strong>{{ item.employeeCode }}</strong>
                       </td>
-                      <td>{{ item.fullName }}</td>
-                      <td>{{ item.licenseNumber }}</td>
-                      <td>{{ item.phone }}</td>
-                      <td><app-status-chip [status]="item.status" /></td>
+                      <td data-label="Name">{{ item.fullName }}</td>
+                      <td data-label="License">{{ item.licenseNumber }}</td>
+                      <td data-label="Phone">{{ item.phone }}</td>
+                      <td data-label="Status"><app-status-chip [status]="item.status" /></td>
                       @if (auth.canOperate()) {
-                        <td><button mat-button (click)="openDriver(item)">Edit</button></td>
+                        <td data-label="Actions">
+                          <button mat-button (click)="openDriver(item)">Edit</button>
+                        </td>
                       }
                     </tr>
                   } @empty {
@@ -134,8 +138,8 @@ import { DriverEditorDialog, VehicleEditorDialog } from './fleet-editor.dialogs'
   styles: [
     `
       section {
-        background: #fff;
-        border: 1px solid #e2e8f0;
+        background: var(--surface);
+        border: 1px solid var(--line);
       }
       table {
         width: 100%;

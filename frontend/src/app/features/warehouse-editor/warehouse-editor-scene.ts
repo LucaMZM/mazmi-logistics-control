@@ -32,7 +32,9 @@ export class WarehouseEditorScene implements WarehouseEditorScenePort {
 
   init(items: LayoutItem[]): void {
     try {
-      this.world.background = new T.Color('#e9edf0');
+      this.world.background = new T.Color(
+        getComputedStyle(this.host).getPropertyValue('--canvas').trim() || '#20201f',
+      );
       this.world.add(new T.HemisphereLight('#ffffff', '#81949f', 2.45));
       const sun = new T.DirectionalLight('#fff6e6', 2.65);
       sun.position.set(11, 22, 18);

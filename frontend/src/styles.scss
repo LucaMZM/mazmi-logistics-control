@@ -1,9 +1,9 @@
 @use '@angular/material' as mat;
 
-$primary: mat.m2-define-palette(mat.$m2-blue-grey-palette, 800);
-$accent: mat.m2-define-palette(mat.$m2-blue-grey-palette, 700);
+$primary: mat.m2-define-palette(mat.$m2-amber-palette, 400);
+$accent: mat.m2-define-palette(mat.$m2-amber-palette, 300);
 $warn: mat.m2-define-palette(mat.$m2-red-palette, 700);
-$theme: mat.m2-define-light-theme(
+$theme: mat.m2-define-dark-theme(
   (
     color: (
       primary: $primary,
@@ -21,23 +21,31 @@ $theme: mat.m2-define-light-theme(
 @include mat.all-component-themes($theme);
 
 :root {
-  --surface: #fff;
-  --canvas: #f3f3f5;
-  --ink: #232328;
-  --muted: #666671;
-  --line: #dedee3;
-  --dock: #232327;
-  --dock-edge: #4b4b52;
-  --space-unit: 4px;
-  --layer-dock: 30;
-  --motion-short: 160ms;
-  --accent: #3f3f46;
-  --glass: rgb(250 251 248 / 89%);
-  --radius: 9px;
-  --shadow: 0 2px 6px rgb(25 31 42 / 4%), 0 1px 0 rgb(255 255 255 / 85%) inset;
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
-  color-scheme: light;
+  --canvas: #20201f;
+  --surface: #282827;
+  --raised: #30302f;
+  --selected: #414039;
+  --ink: #f5f3ed;
+  --muted: #c0bfb8;
+  --line: #51514d;
+  --accent: #f2cb45;
+  --on-accent: #29271f;
+  --success: #99d6a2;
+  --warning: #f3b675;
+  --danger: #ffa39c;
+  --success-surface: #303d32;
+  --warning-surface: #43382d;
+  --danger-surface: #443131;
+  --glass: rgb(46 46 44 / 96%);
+  --radius: 8px;
+  --shadow: none;
+  --panel-surface: var(--surface);
+  --panel-radius: var(--radius);
+  --panel-line: var(--line);
+  --panel-shadow: var(--shadow);
+  --panel-transition: 160ms ease-out;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: dark;
   font-family:
     Inter,
     ui-sans-serif,
@@ -106,9 +114,9 @@ h3 {
 }
 .mat-mdc-dialog-surface {
   --mdc-dialog-container-shape: 10px;
-  background: #fafafa;
-  border: 1px solid rgb(255 255 255 / 90%);
-  box-shadow: 0 20px 64px rgb(25 31 42 / 18%);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 20px 64px rgb(12 12 12 / 24%);
 }
 @supports (backdrop-filter: blur(1px)) {
   .mat-mdc-dialog-surface {
@@ -123,8 +131,8 @@ h3 {
   font-family: inherit;
 }
 ::selection {
-  background: #bfdbfe;
-  color: #24242a;
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 :focus-visible {
@@ -193,7 +201,7 @@ h3 {
 }
 .content .table-wrap :is(th, td) {
   text-align: left;
-  border-bottom: 1px solid #edf1f4;
+  border-bottom: 1px solid var(--line);
 }
 .content .table-wrap :is(th, td).numeric {
   text-align: right;
@@ -207,24 +215,24 @@ h3 {
   font-weight: 650;
   letter-spacing: 0.035em;
   color: var(--muted);
-  background: #f5f6f8;
+  background: var(--raised);
   white-space: nowrap;
 }
 .content .table-wrap td {
   padding: 14px 18px;
   font-size: 13px;
   line-height: 1.5;
-  border-color: #edf1f4;
+  border-color: var(--line);
 }
 .content .table-wrap tbody tr {
   transition: background-color 140ms ease;
 }
 .content .table-wrap tbody tr:focus-within {
-  background: #eef1f5;
+  background: var(--raised);
 }
 @media (hover: hover) and (pointer: fine) {
   .content .table-wrap tbody tr:hover {
-    background: #eef1f5;
+    background: var(--raised);
   }
 }
 .content .table-wrap td a {
@@ -286,26 +294,25 @@ h3 {
   gap: 8px;
 }
 .cdk-overlay-dark-backdrop {
-  background: rgb(15 30 45 / 40%);
-  backdrop-filter: blur(3px);
+  background: rgb(18 18 17 / 64%);
 }
 .leaflet-control-zoom {
   border: 1px solid var(--line) !important;
-  box-shadow: 0 4px 16px rgb(20 40 60 / 12%);
+  box-shadow: 0 4px 16px rgb(12 12 12 / 24%);
 }
 .leaflet-tooltip {
   border: 1px solid var(--line);
   border-radius: 6px;
   padding: 8px 12px;
   font-size: 12px;
-  box-shadow: 0 4px 16px rgb(20 40 60 / 10%);
+  box-shadow: 0 4px 16px rgb(12 12 12 / 24%);
 }
 .leaflet-tile-pane {
-  filter: saturate(0.55);
+  filter: grayscale(1) invert(0.87) contrast(0.9);
 }
 @media (prefers-reduced-transparency: reduce) {
   :root {
-    --glass: #fafafa;
+    --glass: var(--raised);
   }
   .mat-mdc-dialog-surface {
     backdrop-filter: none;
@@ -392,16 +399,16 @@ app-operations-world-map .world-marker {
   width: 30px;
   height: 30px;
   padding: 0;
-  color: #fff;
-  background: #4a4a53;
-  border: 2px solid #fff;
+  color: var(--ink);
+  background: var(--selected);
+  border: 2px solid var(--line);
   border-radius: 7px;
-  box-shadow: 0 2px 8px #252a3233;
+  box-shadow: 0 2px 8px rgb(12 12 12 / 24%);
   font: 700 20px sans-serif;
   cursor: pointer;
 }
 app-operations-world-map .world-marker[data-health='AT_RISK'] {
-  background: #926222;
+  background: var(--warning-surface);
 }
 app-operations-world-map .world-marker[data-kind='origin'],
 app-operations-world-map .world-marker[data-kind='destination'] {
@@ -409,7 +416,7 @@ app-operations-world-map .world-marker[data-kind='destination'] {
   height: 20px;
   font-size: 11px;
   border-radius: 50%;
-  background: #64646d;
+  background: var(--selected);
 }
 app-operations-world-map .world-marker.world-marker-model {
   width: 14px;
@@ -419,629 +426,107 @@ app-operations-world-map .world-marker.world-marker-model {
   border-radius: 50%;
 }
 app-operations-world-map .world-marker[data-health='DELAYED'] {
-  background: #9b443c;
+  background: var(--danger-surface);
 }
 app-operations-world-map .world-marker[aria-pressed='true'],
 app-operations-world-map .world-marker:focus-visible {
-  outline: 3px solid #52525b;
+  outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* MAZMI Glass — Phase B: readable surfaces and restrained microinteractions.
-   Keep dense enterprise content opaque; reserve translucent material for navigation. */
-:root {
-  --panel-radius: 8px;
-  --panel-line: #e3e3e8;
-  --panel-shadow: none;
-  --panel-shadow-hover: 0 12px 36px rgb(35 35 42 / 11%);
-  --panel-transition: 220ms cubic-bezier(0.22, 1, 0.36, 1);
-  --panel-surface: #fdfdfe;
-  --panel-soft: #f6f6f8;
-}
-
-/* Editorial page headers use the same visual language across all ERP routes. */
-.content app-page-header header {
-  margin-bottom: 16px;
-  padding: 4px 0 2px;
-}
-.content app-page-header h1 {
-  font-size: clamp(29px, 2.8vw, 40px);
-  font-weight: 720;
-  line-height: 1.13;
-  letter-spacing: -0.045em;
-}
-.content app-page-header p {
-  color: #575761;
-  letter-spacing: 0.14em;
-  font-size: 10px;
-}
-.content app-page-header .subtitle {
-  max-width: 66ch;
-  color: #777780;
-  font-size: 13px;
-  line-height: 1.65;
-}
-.content :is(a[mat-flat-button], button[mat-flat-button]) {
-  --mdc-filled-button-container-shape: 10px;
-  min-height: 42px;
-  padding-inline: 20px;
-  box-shadow: 0 3px 9px rgb(35 35 42 / 12%);
-  transition:
-    box-shadow var(--panel-transition),
-    transform var(--panel-transition);
-}
-@media (hover: hover) and (pointer: fine) {
-  .content :is(a[mat-flat-button], button[mat-flat-button]):hover:not(:disabled) {
-    box-shadow: 0 8px 18px rgb(35 35 42 / 17%);
-    transform: translateY(-1px);
-  }
-}
-
-/* KPI cards: semantic links remain full-size targets, with no animated numbers. */
-.content app-dashboard-page .pulse {
-  gap: 12px;
-  overflow: visible;
-  margin-bottom: 22px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
-.content app-dashboard-page .pulse a {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto 1fr auto;
-  gap: 13px;
-  min-height: 162px;
-  padding: 20px 22px 18px;
-  overflow: hidden;
-  border: 1px solid var(--panel-line);
-  border-radius: var(--panel-radius);
-  background:
-    radial-gradient(circle at 100% 0%, rgb(205 205 214 / 14%), transparent 55%),
-    var(--panel-surface);
-  box-shadow: var(--panel-shadow);
-  transition:
-    transform var(--panel-transition),
-    border-color var(--panel-transition),
-    box-shadow var(--panel-transition),
-    background-color var(--panel-transition);
-}
-.content app-dashboard-page .pulse a::after {
-  content: '';
-  position: absolute;
-  top: 21px;
-  right: 22px;
-  width: 8px;
-  height: 8px;
-  border: 1px solid rgb(90 90 100 / 30%);
-  border-radius: 50%;
-  background: #bbbcc4;
-  box-shadow: 0 0 0 5px rgb(187 187 196 / 14%);
-}
-.content app-dashboard-page .pulse span {
-  padding-right: 22px;
-  color: #696973;
-  font-size: 12px;
-  font-weight: 650;
-}
-.content app-dashboard-page .pulse strong {
-  grid-column: 1;
-  grid-row: 2;
-  align-self: center;
-  font-size: clamp(35px, 3vw, 44px);
-  font-weight: 740;
-  letter-spacing: -0.055em;
-  line-height: 1;
-  color: #232328;
-  font-variant-numeric: tabular-nums;
-}
-.content app-dashboard-page .pulse small {
-  display: block;
-  color: #686873;
-  font-size: 11px;
-  font-weight: 650;
-}
-.content app-dashboard-page .pulse a.attention-metric {
-  border-color: #e9d4bd;
-  background: radial-gradient(circle at 100% 0%, rgb(234 187 137 / 18%), transparent 55%), #fffcf8;
-}
-.content app-dashboard-page .pulse a.attention-metric::after {
-  border-color: #da9a63;
-  background: #d99359;
-  box-shadow: 0 0 0 5px rgb(217 147 89 / 12%);
-}
-.content app-dashboard-page .pulse .attention-metric strong {
-  color: #975625;
-}
-@media (hover: hover) and (pointer: fine) {
-  .content app-dashboard-page .pulse a:hover {
-    transform: translateY(-3px);
-    border-color: #b8b8c1;
-    background-color: #fff;
-    box-shadow: var(--panel-shadow-hover);
-  }
-  .content app-dashboard-page .pulse a.attention-metric:hover {
-    border-color: #dba87e;
-    background-color: #fffaf5;
-  }
-}
-.content app-dashboard-page .pulse a:focus-visible {
-  outline: 3px solid #52525b;
-  outline-offset: 3px;
-  border-color: #52525b;
-}
-
-/* Operational panels retain a solid background so charts and maps stay legible. */
-.content app-dashboard-page .primary-grid,
-.content app-dashboard-page .secondary-grid {
-  gap: 20px;
-  margin-bottom: 20px;
-}
-.content app-dashboard-page .section {
-  overflow: hidden;
-  border: 1px solid var(--panel-line);
-  border-radius: var(--panel-radius);
-  background: #fff;
-  box-shadow: var(--panel-shadow);
-}
-.content app-dashboard-page .section > header {
-  min-height: 81px;
-  padding: 16px 22px;
-  border-bottom: 1px solid #e9e9ed;
-  background: linear-gradient(120deg, #fcfefc, #f8f8fa);
-}
-.content app-dashboard-page .section h2 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 710;
-  letter-spacing: -0.015em;
-  color: #2d2d34;
-}
-.content app-dashboard-page .section header p {
-  margin: 5px 0 0;
-  color: #74747d;
-  font-size: 12px;
-  line-height: 1.5;
-}
-.content app-dashboard-page .attention-row {
-  padding: 14px 21px;
-  border-bottom-color: #e9e9ed;
-  transition:
-    background-color var(--panel-transition),
-    box-shadow var(--panel-transition);
-}
-.content app-dashboard-page .attention-row:is(:hover, :focus-visible) {
-  background: #f4f4f6;
-  box-shadow: inset 3px 0 #9a9aa5;
-}
-.content app-dashboard-page .attention-clear {
-  padding: 34px 24px;
-}
-.content app-dashboard-page .stock-alert {
-  padding: 16px 21px;
-  background: #fff9ed;
-}
-.content app-dashboard-page .board-footer {
-  padding: 18px 22px;
-  border-top: 1px solid #e9e9ed;
-  background: #f7f7f9;
-}
-.content app-dashboard-page .live-dot {
-  border: 1px solid #d2d2d8;
-  border-radius: 999px;
-  background: #f1f1f4;
-  color: #50505a;
-  font-weight: 700;
-}
-.content app-dashboard-page .map-empty {
-  border-radius: 9px;
-}
-
-/* Shared metric components, tables, and filters must feel like one product. */
-.content app-metric-card article {
-  border: 1px solid var(--panel-line);
-  border-top: 3px solid #71717a;
-  border-radius: var(--panel-radius);
-  background: var(--panel-surface);
-  box-shadow: var(--panel-shadow);
-  transition:
-    border-color var(--panel-transition),
-    box-shadow var(--panel-transition);
-}
-.content app-metric-card strong {
-  color: #232328;
-}
-.content :is(.table-card, .tabs-card, .history, .profile) {
-  min-width: 0;
-  border: 1px solid var(--panel-line);
-  border-radius: var(--panel-radius);
-  background: #fff;
-  box-shadow: var(--panel-shadow);
-}
-.content app-orders-page .table-card,
-.content app-order-detail-page .section {
-  border: 1px solid var(--panel-line);
-  border-radius: var(--panel-radius);
-  background: #fff;
-  box-shadow: var(--panel-shadow);
-}
-.content .table-wrap {
-  border-radius: 0 0 var(--panel-radius) var(--panel-radius);
-}
-.content .table-wrap th {
-  padding: 15px 18px;
-  border-color: #e6e6eb;
-  background: #f5f5f7;
-  color: #686873;
-  font-size: 11px;
-}
-.content .table-wrap td {
-  border-color: #eeeef1;
-}
-.content .table-wrap tbody tr {
-  transition: background-color var(--panel-transition);
-}
-.content .table-wrap tbody tr:focus-within {
-  background: #f1f1f4;
-}
-@media (hover: hover) and (pointer: fine) {
-  .content .table-wrap tbody tr:hover {
-    background: #f4f4f7;
-  }
-}
-.content .list-summary {
-  min-height: 59px;
-  padding: 13px 19px;
-  background: linear-gradient(110deg, #fdfefd, #f5faf6);
-}
-.content .list-summary strong {
-  color: #303036;
-  font-size: 14px;
-  letter-spacing: -0.01em;
-}
-.content .filters {
-  padding: 14px 17px 8px;
-  border: 1px solid var(--panel-line);
-  border-radius: var(--panel-radius);
-  background: #fafdfe;
-  box-shadow: 0 2px 10px rgb(35 35 42 / 3%);
-}
-.content .filters mat-form-field {
-  max-width: 100%;
-}
-.content .mat-mdc-form-field {
-  --mdc-outlined-text-field-container-shape: 10px;
-  --mdc-outlined-text-field-outline-color: #c6c6cf;
-  --mdc-outlined-text-field-hover-outline-color: #90909b;
-  --mdc-outlined-text-field-focus-outline-color: #52525b;
-}
-.content .mat-mdc-paginator {
-  background: #f8f8fa;
-}
-
-/* Form fields and transactional actions: consistent styling, no business changes. */
-.content app-order-form-page .section {
-  overflow: hidden;
-  border: 1px solid var(--panel-line);
-  border-radius: var(--panel-radius);
-  background: #fff;
-  box-shadow: var(--panel-shadow);
-}
-.content app-order-form-page .section > h2,
-.content app-order-form-page .section > header {
-  padding: 19px 22px;
-  border-bottom: 1px solid #e6e6ea;
-  background: linear-gradient(105deg, #fcfefd, #f6f6f8);
-  color: #2b4640;
-}
-.content app-order-form-page .section h2 {
-  font-size: 14px;
-  font-weight: 700;
-}
-.content app-order-form-page .form-grid {
-  gap: 14px 18px;
-  padding: 22px 22px 6px;
-}
-.content app-order-form-page .item {
-  padding: 20px 0 6px;
-  border-bottom-color: #e6ede8;
-}
-.content app-order-form-page footer {
-  border-color: #cbcbd3;
-  border-radius: 14px;
-  background: #f7f7f9;
-  box-shadow: 0 9px 34px rgb(35 35 42 / 11%);
-}
-.content app-order-form-page footer strong {
-  color: #303036;
-  font-variant-numeric: tabular-nums;
-}
-@media (max-width: 760px) {
-  .content .responsive-table tbody tr {
-    border-color: var(--panel-line);
-    border-left: 3px solid #85858f;
-    border-radius: 13px;
-    box-shadow: 0 2px 12px rgb(35 35 42 / 4%);
-  }
-  .content app-dashboard-page .pulse a {
-    min-height: 142px;
-  }
-}
-@media (max-width: 480px) {
-  .content app-dashboard-page .pulse {
-    gap: 9px;
-  }
-  .content app-dashboard-page .pulse a {
-    min-height: 133px;
-    padding: 16px;
-  }
-  .content app-dashboard-page .pulse strong {
-    font-size: 31px;
-  }
-  .content app-dashboard-page .pulse a::after {
-    top: 15px;
-    right: 15px;
-  }
-  .content app-order-form-page footer {
-    position: static;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .content app-dashboard-page .pulse a:hover,
-  .content :is(a[mat-flat-button], button[mat-flat-button]):hover:not(:disabled) {
-    transform: none;
-  }
-}
-@media (prefers-contrast: more) {
-  .content app-dashboard-page .pulse a,
-  .content app-dashboard-page .section,
-  .content :is(.table-card, .tabs-card),
-  .content app-order-form-page .section {
-    border-color: #63636d;
-  }
-}
-
-/* MAZMI Glass — phases C–E: unify the surrounding enterprise UI without
-   introducing a second canvas, animation engine or extra data requests. */
-.content app-page-header header.aurora {
-  padding: 3px 0 15px;
-  min-height: 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
-  box-shadow: none;
-  background: transparent;
-}
-.content app-page-header header.aurora h1 {
-  color: #232328;
-}
-/* A generic page-header span rule must never shrink or stack kinetic words. */
-.content app-page-header h1 .kinetic-word {
-  display: inline-block;
-  margin: 0;
-  padding: 0;
-  font: inherit;
-  color: inherit;
-  letter-spacing: inherit;
-  line-height: inherit;
-  vertical-align: baseline;
-}
-.content app-page-header header.aurora .subtitle {
-  color: #777780;
-}
-.content app-page-header header.aurora .actions {
-  align-self: center;
-}
-.content app-page-header header.aurora .actions :is(a, button) {
-  position: relative;
-  z-index: 1;
-}
-
-/* Reports, registers and details share a single calibrated surface material. */
-.content
-  :is(
-    app-shipments-page,
-    app-inventory-page,
-    app-fleet-page,
-    app-customers-page,
-    app-incidents-page,
-    app-orders-page,
-    app-order-detail-page,
-    app-inventory-detail-page,
-    app-customer-detail-page,
-    app-incident-detail-page,
-    app-shipment-detail-page,
-    app-users-page
-  )
-  :is(.section, .table-card, .tabs-card, .history, .profile, .warehouse-grid > article) {
-  background: #fff;
-  border-color: var(--panel-line);
-  border-radius: var(--panel-radius);
-  box-shadow: var(--panel-shadow);
-}
-.content :is(app-inventory-page, app-shipments-page, app-incidents-page) .filters {
-  background: var(--panel-surface);
-}
-.content
-  :is(
-    app-fleet-page,
-    app-customers-page,
-    app-incidents-page,
-    app-shipments-page,
-    app-inventory-page,
-    app-users-page
-  )
-  .table-wrap {
-  border-radius: 0 0 var(--panel-radius) var(--panel-radius);
-}
-.content :is(app-orders-page, app-shipments-page) .table-card {
-  overflow: clip;
-}
-.content :is(app-shipments-page, app-inventory-page, app-incidents-page) .list-summary {
-  border-bottom-color: #e7e7eb;
-}
-.content .table-wrap :is(th, td) {
-  font-variant-numeric: tabular-nums;
-}
-.content .table-wrap tbody tr:hover :is(a, button) {
-  text-decoration-thickness: 1px;
-}
-.content .mat-mdc-form-field {
-  --mdc-outlined-text-field-container-shape: 11px;
-  --mdc-filled-text-field-container-shape: 11px;
-  --mdc-outlined-text-field-outline-color: #c7c7d0;
-  --mdc-outlined-text-field-hover-outline-color: #90909b;
-  --mdc-outlined-text-field-focus-outline-color: #52525b;
-}
-.content :is(button[mat-stroked-button], a[mat-stroked-button]) {
-  --mdc-outlined-button-container-shape: 10px;
-  border-color: #ceced6;
-  transition:
-    background-color var(--panel-transition),
-    box-shadow var(--panel-transition);
-}
-@media (hover: hover) and (pointer: fine) {
-  .content :is(button[mat-stroked-button], a[mat-stroked-button]):hover:not(:disabled) {
-    background-color: #f3f3f6;
-    box-shadow: 0 3px 10px rgb(35 35 42 / 8%);
-  }
-}
-/* Status chips deliberately retain red/amber/blue distinctions; softening their
-   outer shape must not turn critical operational states into decorative badges. */
-.content app-status-chip .status {
-  min-height: 24px;
-  padding-inline: 9px;
-  border-radius: 7px;
-  font-weight: 650;
-}
-/* 3D environments continue rendering in their existing canvases. */
-.content :is(app-digital-twin-page, app-warehouse-twin-page) :is(.world, .warehouse-world),
-.content app-control-room-page .world {
-  border-radius: var(--panel-radius);
-  border-color: var(--panel-line);
-  box-shadow: var(--panel-shadow);
-}
-.content :is(app-digital-twin-page, app-warehouse-twin-page) :is(.controls, .warehouse-controls) {
-  border-radius: 12px;
-  background: rgb(251 253 251 / 89%);
-  border-color: rgb(255 255 255 / 95%);
+.content :is(.world-label, .scene-label, .warehouse-caption) {
+  border-inline-start: 2px solid var(--accent);
+  padding: 6px 10px;
+  background: var(--glass);
+  border-radius: 0 4px 4px 0;
+  max-width: calc(100% - 32px);
 }
 @media (prefers-reduced-transparency: reduce) {
-  .content :is(app-digital-twin-page, app-warehouse-twin-page) :is(.controls, .warehouse-controls) {
-    background: #fff;
+  .destinations,
+  dialog {
     backdrop-filter: none;
   }
 }
-.content
-  :is(app-digital-twin-page, app-warehouse-twin-page, app-control-room-page)
-  :is(.controls, .warehouse-controls, .scene-controls)
-  button:focus-visible {
-  outline-color: #52525b;
+/* Chrome is quiet; the active operation and live quantities lead each workspace. */
+app-icon {
+  color: var(--accent);
+}
+a {
+  color: var(--accent);
+}
+.content app-page-header header {
+  padding-block: 4px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.content app-page-header h1 {
+  font-size: clamp(29px, 3vw, 44px);
+  letter-spacing: -0.045em;
+}
+.content app-page-header h1 .kinetic-word {
+  display: inline-block;
+  font: inherit;
+  margin: 0;
+  color: inherit;
+}
+.content app-page-header .subtitle {
+  max-width: 68ch;
+}
+.content .filters {
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.content .list-summary {
+  background: var(--raised);
+  min-height: 48px;
+}
+.content .table-wrap th {
+  font-weight: 600;
+  background: var(--raised);
+}
+.content .table-wrap td {
+  font-variant-numeric: tabular-nums;
+}
+.content .mat-mdc-paginator {
+  background: var(--surface);
+  color: var(--muted);
+}
+.content :is(.table-card, .section, .tabs-card) {
+  background: var(--surface);
+}
+a[mat-flat-button]:not([disabled]),
+button[mat-flat-button]:not(:disabled):not([color='warn']) {
+  background-color: var(--accent);
+  color: var(--on-accent);
+}
+.leaflet-container .leaflet-control-zoom a,
+.leaflet-tooltip {
+  background: var(--surface);
+  color: var(--ink);
+}
+.content app-dashboard-page .pulse {
+  background: transparent;
+  border: 0;
+  gap: 8px;
+  overflow: visible;
+}
+.content app-dashboard-page .pulse a {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+.content app-dashboard-page .pulse a:hover {
+  background: var(--raised);
+  border-color: var(--accent);
+}
+.content .table-wrap a:focus-visible {
   outline-offset: 2px;
 }
-.mat-mdc-dialog-surface {
-  border-radius: 16px;
-  border-color: #e0e0e5;
-  box-shadow: 0 18px 54px rgb(35 35 42 / 18%);
-}
-.mat-mdc-snack-bar-container {
-  --mdc-snackbar-container-shape: 11px;
-}
-@media (max-width: 700px) {
-  .content app-page-header header.aurora {
-    padding: 2px 0 14px;
-    gap: 10px;
-  }
-  .content app-page-header header.aurora .actions {
-    align-self: stretch;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .content app-page-header .kinetic-word,
-  .content app-control-room-page .kinetic-heading {
-    animation: none;
-    transform: none;
-    opacity: 1;
-  }
-}
 @media (prefers-contrast: more) {
-  .content app-page-header header.aurora {
-    border-color: #686873;
-    background: #f8f8fa;
-  }
-  .content :is(.section, .table-card, .tabs-card),
-  .mat-mdc-dialog-surface {
-    border-color: #71717a;
-  }
-}
-
-/* MAZMI Glass QA: high-contrast actions and consistent system feedback. */
-.content app-page-header .actions .mat-mdc-unelevated-button,
-.content app-page-header .actions a[mat-flat-button],
-.content app-page-header .actions button[mat-flat-button] {
-  --mdc-filled-button-container-color: #29292f;
-  --mdc-filled-button-label-text-color: #ffffff;
-  background: #29292f;
-  color: #ffffff;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-@media (hover: hover) and (pointer: fine) {
-  .content app-page-header .actions :is(a[mat-flat-button], button[mat-flat-button]):hover {
-    background: #3a3a42;
-    color: #ffffff;
-  }
-}
-.content app-page-header .actions :is(a[mat-flat-button], button[mat-flat-button]):focus-visible {
-  outline: 3px solid #52525b;
-  outline-offset: 3px;
-}
-
-/* Empty, loading and error panels share a consistent, opaque material. */
-.content app-feedback-state {
-  display: block;
-  min-width: 0;
-}
-.content app-feedback-state .state {
-  margin: 12px;
-  padding: 38px 24px;
-  border: 1px dashed #d9d9e0;
-  border-radius: 14px;
-  background: linear-gradient(140deg, #fbfbfc, #f4f4f6);
-}
-.content app-feedback-state .state.error {
-  border-color: #e5c8bc;
-  background: #fff9f6;
-}
-.content app-feedback-state .state-symbol {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  border-color: #e0e0e6;
-  background: #efeff2;
-  color: #5b5b66;
-}
-.content app-feedback-state .state strong {
-  color: #303036;
-  font-size: 15px;
-}
-.content app-feedback-state .state.error strong {
-  color: #923b32;
-}
-.content app-loading-state [role='status'] {
-  color: #6e6e77;
-}
-.content app-loading-state section i {
-  border-radius: 7px;
-  background: #e8e8ed;
-}
-.content app-metric-card article {
-  background: linear-gradient(135deg, #fff, #f8f8fa);
-}
-@media (prefers-contrast: more) {
-  .content app-feedback-state .state {
-    border-style: solid;
-    border-color: var(--accent);
+  :root {
+    --line: #aaa9a3;
+    --muted: var(--ink);
   }
 }

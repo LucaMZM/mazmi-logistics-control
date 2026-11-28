@@ -2,17 +2,11 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, inject, signal } from 
 
 /**
  * A decorative, CSS-only silk aurora. No WebGL canvas or animation loop.
- * The animation is paused when its host is outside the viewport.
+ * Highlights keyboard interaction only while the header is visible.
  */
 @Component({
   selector: 'app-silk-aurora',
-  template: `
-    <div class="silk" [class.silk-paused]="!visible()" aria-hidden="true">
-      <span class="silk-sweep silk-sweep-one"></span>
-      <span class="silk-sweep silk-sweep-two"></span>
-      <span class="silk-grain"></span>
-    </div>
-  `,
+  template: ` <div class="silk" [class.silk-paused]="!visible()" aria-hidden="true"></div> `,
   styles: [
     `
       :host {
@@ -27,67 +21,14 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, inject, signal } from 
       .silk {
         position: absolute;
         inset: 0;
-        overflow: hidden;
-        background:
-          radial-gradient(ellipse at 88% 10%, rgb(209 209 218 / 34%), transparent 64%),
-          linear-gradient(120deg, #fbfbfc, #ececf1 50%, #f6f6f8);
+        border-inline-start: 3px solid var(--accent);
       }
-      .silk-sweep {
-        position: absolute;
-        width: 86%;
-        height: 140%;
-        top: -20%;
-        left: 24%;
-        border-radius: 50%;
-        filter: blur(26px);
-        transform: rotate(-22deg);
-        opacity: 0.36;
-        animation: silk-drift 26s ease-in-out infinite alternate;
+      :host-context(.intro:focus-within) .silk:not(.silk-paused) {
+        background-color: var(--raised);
       }
-      .silk-sweep-one {
-        background: linear-gradient(
-          110deg,
-          transparent 9%,
-          rgb(166 166 178 / 54%) 33%,
-          rgb(220 220 226 / 32%) 55%,
-          transparent 77%
-        );
-      }
-      .silk-sweep-two {
-        left: 39%;
-        top: -30%;
-        opacity: 0.26;
-        background: linear-gradient(
-          105deg,
-          transparent 10%,
-          rgb(160 160 173 / 50%) 44%,
-          rgb(225 225 232 / 42%) 64%,
-          transparent 84%
-        );
-        animation-delay: -13s;
-        animation-duration: 34s;
-      }
-      .silk-grain {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(100deg, rgb(255 255 255 / 62%), transparent 65%);
-      }
-      .silk-paused .silk-sweep {
-        animation-play-state: paused;
-      }
-      @keyframes silk-drift {
-        from {
-          transform: translate3d(-4%, 1%, 0) rotate(-22deg);
-        }
-        to {
-          transform: translate3d(7%, -2%, 0) rotate(-10deg);
-        }
-      }
-      @media (prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce) {
-        .silk-sweep {
-          animation: none;
-          filter: none;
-          opacity: 0.13;
+      @media (prefers-reduced-motion: no-preference) {
+        .silk {
+          transition: background-color 160ms ease-out;
         }
       }
     `,

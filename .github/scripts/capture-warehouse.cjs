@@ -79,6 +79,14 @@ async function main() {
     };
     await shot('warehouse-overview.png');
     await require("./capture-tablet.cjs")(page, output, "warehouse-overview", "app-warehouse-twin-page");
+    // Three sizes the canvas in its observer, separately from the CSS host.
+    // Observe the completed resize before sampling bounds for the projected click.
+    await page.waitForFunction(() => {
+      const host = document.querySelector('.warehouse-scene');
+      const canvas = host?.querySelector('canvas');
+      return canvas && canvas.clientWidth === host.clientWidth &&
+        canvas.clientHeight === host.clientHeight && canvas.clientWidth > 0;
+    });
     const canvasBounds = await page.locator('.warehouse-scene canvas').boundingBox();
     // Project the middle starter rack (0, 2.04, -3) using the overview camera.
     // Picking must hit that rack, not just any mesh near the middle of the canvas.

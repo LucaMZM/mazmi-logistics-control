@@ -97,7 +97,16 @@ export class WarehouseScene implements WarehouseScenePort {
   private readonly down = (e: PointerEvent) => this.pointer.set(e.clientX, e.clientY);
   private readonly up = (e: PointerEvent) => {
     if (!this.renderer || this.pointer.distanceTo(new T.Vector2(e.clientX, e.clientY)) > 5) return;
-    const r = this.renderer.domElement.getBoundingClientRect();
+    const canvas = this.renderer.domElement;
+    if (!this.host.clientWidth || !this.host.clientHeight) return;
+    if (
+      canvas.clientWidth !== this.host.clientWidth ||
+      canvas.clientHeight !== this.host.clientHeight
+    ) {
+      this.resize();
+    }
+    this.camera.updateMatrixWorld();
+    const r = canvas.getBoundingClientRect();
     const ray = new T.Raycaster();
     ray.setFromCamera(
       new T.Vector2(

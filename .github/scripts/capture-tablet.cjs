@@ -12,5 +12,9 @@ module.exports = async function captureTablet(page, output, name, selector) {
     await page.screenshot({path: path.join(output, 'tablet-' + name + '.png'), animations: 'disabled'});
   } finally {
     await page.setViewportSize(previous);
+    // setViewportSize acknowledges Chromium's viewport change, not the subsequent
+    // ResizeObserver delivery and render. Do not return stale tablet geometry.
+    await page.waitForFunction(({width,height}) => innerWidth === width && innerHeight === height, previous);
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   }
 };
